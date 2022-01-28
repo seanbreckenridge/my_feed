@@ -1,18 +1,29 @@
 """
-Installed into my global environment incase I ever want to use media_feed as a sort of 'normalized' version of media history
 """
 
+from pathlib import Path
 from setuptools import setup, find_namespace_packages  # type: ignore[import]
 
-def main():
+
+pkg = "my_feed"
+
+
+def main() -> None:
     setup(
-        name=f"my_media_feed",  # use a different name from karlicoss/HPI, for confusion regarding egg-link reasons
-        zip_safe=False,
-        packages=["my_media_feed.media_feed"],
-        url=f"https://github.com/seanbreckenridge/my_media_feed",
+        name=pkg,
+        packages=find_namespace_packages("src"),
+        url=f"https://github.com/seanbreckenridge/{pkg}",
         author="Sean Breckenridge",
         author_email="seanbrecke@gmail.com",
         python_requires=">=3.8",
+        package_dir={"": "src"},
+        zip_safe=False,
+        description="A personal feed/website",
+        package_data={pkg: ["py.typed"]},
+        license="MIT",
+        entry_points={"console_scripts": ["my_feed = my_feed.sources.index:main"]},
+        version="0.1.0",
+        install_requires=Path("requirements.txt").read_text().splitlines(),
     )
 
 
