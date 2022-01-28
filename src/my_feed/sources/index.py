@@ -2,6 +2,7 @@ from typing import Iterator
 
 import click
 
+from ..log import logger
 from ..model import FeedItem
 from .trakt import history as tr_history
 from .scrobbles import history as sc_history
@@ -28,7 +29,7 @@ def data() -> Iterator[FeedItem]:
         # and check for duplicates
         item.check()
         if item.id in emitted:
-            click.echo(f"Duplicate id: {item.id}")
+            logger.warning(f"Duplicate id: {item.id}")
         emitted.add(item.id)
         yield item
 
