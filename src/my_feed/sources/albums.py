@@ -7,8 +7,7 @@ import warnings
 import string
 from typing import Iterator
 
-from nextalbums.export import Album
-from my.albums import history as album_history
+from my.albums import history as album_history, Album
 
 from ..model import FeedItem
 
