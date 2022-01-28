@@ -10,16 +10,14 @@ from typing import Iterator
 from nextalbums.export import Album
 from my.albums import history as album_history
 
-from ..common import _remove_tz
 from ..model import FeedItem
-from ..log import logger
 
 ALLOWED = string.ascii_letters + string.digits + " "
 
 
 def _album_id(album: Album) -> str:
     """Create a unique hash for this album"""
-    dicsogs = ""
+    discogs: str = ""
     if album.discogs_url is not None:
         discogs = album.discogs_url.strip("/").split("/")[-1]
     album_id_raw = f"{album.album_name} {album.cover_artists} {album.year} {discogs}"

@@ -78,4 +78,3 @@ def history() -> Iterator[FeedItem]:
             creator=creator,
             when=_remove_tz(dt),
         )
-

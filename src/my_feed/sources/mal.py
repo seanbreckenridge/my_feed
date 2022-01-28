@@ -4,14 +4,11 @@ https://github.com/seanbreckenridge/malexport
 """
 
 import os
-import warnings
 from typing import Iterator, Optional, Union
 
 import my.mal as mal
 
-from ..common import _remove_tz
 from ..model import FeedItem
-from ..log import logger
 
 
 def _image_url(data: Union[mal.AnimeData, mal.MangaData]) -> Optional[str]:
