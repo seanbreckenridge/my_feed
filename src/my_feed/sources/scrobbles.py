@@ -20,7 +20,15 @@ from ..common import _remove_tz
 from ..model import FeedItem
 from ..log import logger
 
-BROKEN_ARTISTS = {"unknown artist", "<unknown>", "bill wutrz"}
+# defaults from listenbrainz/media player, when the artist was unknown
+BROKEN_ARTISTS = {"unknown artist", "<unknown>"}
+
+try:
+    from seanb.feed_conf import broken_artists
+
+    BROKEN_ARTISTS.update(broken_artists)
+except ImportError:
+    pass
 
 
 def _manual_scrobble_datafile() -> Path:
@@ -43,7 +51,7 @@ def _manually_fix_scrobble(l: Listen) -> Tuple[str, str, List[str]]:
         return data[ts]
 
     # prompt me to manually type in the correct data
-    click.echo(f"broken: {l}")
+    click.echo(f"broken: {l}", err=True)
     title = click.prompt("title").strip()
     subtitle = click.prompt("album name").strip()
     creator = [click.prompt("artist name").strip()]
