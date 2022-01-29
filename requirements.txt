@@ -3,3 +3,4 @@ url_cache
 traktexport
 requests
 click
+mutagen

@@ -9,6 +9,7 @@ to improve the metadata here
 
 import os
 import json
+import atexit
 from pathlib import Path
 from functools import cache
 from math import isclose
@@ -93,22 +94,30 @@ def _daemon_to_metadata(daemon_data: Dict[str, str]) -> Metadata:
     )
 
 
-def _load_data() -> Dict[str, Metadata]:
-    datafile = _manual_mpv_datafile()
-    data = {}
-    if datafile.exists():
-        data = json.loads(datafile.read_text())
-    return data
+class JSONCache:
+    def __init__(self):
+        self.load_data()
+        atexit.register(lambda: self._write())
+
+    def load_data(self) -> Dict[str, Metadata]:
+        self.datafile = _manual_mpv_datafile()
+        self.data = {}
+        if self.datafile.exists():
+            self.data = json.loads(self.datafile.read_text())
+        return self.data
+
+    def _save_data(self, daemon_data: Dict[str, str], for_path: str) -> Metadata:
+        metadata = _daemon_to_metadata(daemon_data)
+        self.data[for_path] = metadata
+        return metadata
+
+    def _write(self):
+        logger.debug(f"Writing to {self.datafile}...")
+        encoded = json.dumps(self.data, indent=4)
+        self.datafile.write_text(encoded)
 
 
-def _write_data(daemon_data: Dict[str, str], for_path: str) -> Metadata:
-    datafile = _manual_mpv_datafile()
-    old_data = _load_data()
-    metadata = _daemon_to_metadata(daemon_data)
-    old_data[for_path] = metadata
-    encoded = json.dumps(old_data, indent=4)
-    datafile.write_text(encoded)
-    return metadata
+JSONData = JSONCache()
 
 
 def _fix_scrobble(
@@ -116,16 +125,14 @@ def _fix_scrobble(
 ) -> Metadata:
     """Fix broken metadata on scrobbles, and save my responses to a cache file"""
 
-    data = _load_data()
-
     # if we can find the file locally still, use that to extract data from fixed (I've
     # since ran https://sean.fish/d/id3stuff?dark on all my music, so it has correct tags)
     # mp3 file
 
     # if we've fixed this in the past
-    if m.path in data:
-        logger.debug(f"Using cached data for {m.path}: {data[m.path]}")
-        return data[m.path]
+    if m.path in JSONData.data:
+        logger.debug(f"Using cached data for {m.path}: {JSONData.data[m.path]}")
+        return JSONData.data[m.path]
 
     for pkey in _path_keys(m.path):
         if match := _music_dir_matches().get(pkey):
@@ -139,9 +146,6 @@ def _fix_scrobble(
                     title = id3["title"][0]
                     artist = id3["artist"][0]
                     album = id3["album"][0]
-                    assert title is not None, f"title is not None: '{title}'"
-                    assert artist is not None, f"artist is not None: '{artist}'"
-                    assert album is not None, f"album is not None: '{album}'"
                     # we matched a filename with a very close duration and path name
                     # and the data is all the same, so the data was correct to begin with
                     if (
@@ -163,10 +167,11 @@ album: '{daemon_data.get('album')}' -> '{album}'
 """
                     )
                     if click.confirm("Use metadata?", default=True):
-                        return _write_data(
+                        return JSONData._save_data(
                             {"title": title, "artist": artist, "album": album}, m.path
                         )
             # if metadata didnt match in some way, try another path match
+            breakpoint()
             continue
 
     # we could've still tried to improve using the heuristics above
@@ -184,7 +189,7 @@ album: '{daemon_data.get('album')}' -> '{album}'
     creator = click.prompt("artist name").strip()
 
     # write data
-    return _write_data(
+    return JSONData._save_data(
         {"title": title, "artist": creator, "album": subtitle}, for_path=m.path
     )
 
