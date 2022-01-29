@@ -22,7 +22,8 @@ def data() -> Iterator[FeedItem]:
         emitted: set[str] = set()
         start_time = time.time()
         func = f"{producer.__module__}.{producer.__qualname__}"
-        click.echo(f"Getting items from {click.style(func, fg='green')}...", err=True)
+        ext = f"Extracting {click.style(func, fg='green')}"
+        click.echo(f"{ext}...")
         for item in producer():
             item.check()
             if item.id in emitted:
@@ -31,7 +32,7 @@ def data() -> Iterator[FeedItem]:
             yield item
         took = time.time() - start_time
         click.echo(
-            f"Extracted {click.style(str(len(emitted)), fg='green')} items from {func} (took {click.style(round(took, 2), fg='blue')} seconds)",
+            f"{ext}: {click.style(str(len(emitted)), fg='blue')} items (took {click.style(round(took, 2), fg='blue')} seconds)",
             err=True,
         )
 

@@ -171,7 +171,6 @@ album: '{daemon_data.get('album')}' -> '{album}'
                             {"title": title, "artist": artist, "album": album}, m.path
                         )
             # if metadata didnt match in some way, try another path match
-            breakpoint()
             continue
 
     # we could've still tried to improve using the heuristics above
