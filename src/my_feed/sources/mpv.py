@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 from functools import cache
 from math import isclose
-from typing import Iterator, List, Tuple, Optional, Dict, TypeGuard
+from typing import Iterator, Tuple, Optional, Dict, TypeGuard
 
 from mutagen.mp3 import MP3  # type: ignore[import]
 from mutagen.easyid3 import EasyID3  # type: ignore[import]

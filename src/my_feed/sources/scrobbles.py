@@ -11,7 +11,7 @@ have bad metadata
 import os
 import json
 from pathlib import Path
-from typing import Iterator, List, Tuple, Dict, cast, Optional
+from typing import Iterator, Tuple, Dict, cast, Optional
 
 from my.listenbrainz import history as lb_history, Listen
 

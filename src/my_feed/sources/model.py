@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 
 Tags = List[str]
 # datetime, date, or year
-DateIsh = Union[datetime, date, int]
 
 
 @dataclass
@@ -14,7 +13,7 @@ class FeedItem:
     # if it has one, parent entity (e.g. scrobble -> album, or episode -> tv show)
     title: str  # name of entry, track, episode name, or 'Episode {}'
     ftype: str  # scrobble, episode, movie, book
-    when: DateIsh  # when I finished this
+    when: datetime  # when I finished this
     creator: Optional[str] = None  # artist, or person who created this
     tags: Tags = field(default_factory=list)  # extra information/tags for this item
     # any additional data to attach to this

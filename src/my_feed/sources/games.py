@@ -2,31 +2,11 @@
 
 import string
 from typing import Iterator, Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import cache
 
 from .model import FeedItem
 from ..log import logger
-
-
-@cache
-def get_system_zone() -> str:
-    try:
-        import tzlocal
-
-        try:
-            # 4.0 way
-            return str(tzlocal.get_localzone_name())  # type: ignore[attr-defined]
-        except AttributeError:
-            # 2.0 way
-            zone = tzlocal.get_localzone().zone  # type: ignore[attr-defined]
-            assert zone is not None
-            assert isinstance(zone, str)
-            return zone
-    except Exception as e:
-        logger.exception(e)
-        logger.error("Couldn't determine system timezone. Falling back to UTC")
-        return "UTC"
 
 
 def game_center() -> Iterator[FeedItem]:
@@ -99,11 +79,9 @@ def grouvee() -> Iterator[FeedItem]:
 
 
 def osrs() -> Iterator[FeedItem]:
-    import pytz
     from my.runelite import screenshots, Level
 
     # TODO: use HPI location provider to determine my tz
-    tz = pytz.timezone(get_system_zone())
 
     for sc in screenshots():
         # ignore clue scrolls/other stuff
@@ -121,13 +99,15 @@ def osrs() -> Iterator[FeedItem]:
             id_ = f"osrs_quest_{int(sc.dt.timestamp())}"
             assert isinstance(sc.description, str)
             desc = sc.description
+        # convert naive (assumed local) to UTC, use HPI to improve this
+        dt = datetime.fromtimestamp(sc.dt.timestamp(), tz=timezone.utc)
         yield FeedItem(
             id=id_,
             ftype="game_achievement",
             title=desc,
             data=data,
             subtitle=sc.screenshot_type,
-            when=sc.dt.replace(tzinfo=tz),  # just replace on timezone, dont localize
+            when=dt,
         )
 
 
@@ -157,25 +137,24 @@ def chess() -> Iterator[FeedItem]:
                 won = True
             elif game.black.username == CHESS_USERNAME and game.black.result == "win":
                 won = True
-            data["time_control"] = game.time_control
+            data["time_control"] = str(game.time_control)
             url = game.url
-            pgn_str = game.pgn
         elif isinstance(game, LichessGame):
             dt = game.end_time
             if game.white.username == CHESS_USERNAME and game.winner == "white":
                 won = True
             elif game.black.username == CHESS_USERNAME and game.winner == "black":
                 won = True
-            data["variant"] = game.variant
-            pgn_str = game.pgn
+            data["variant"] = str(game.variant)
         else:
             raise RuntimeError(f"Unexpected game {type(game)} {game}")
+        pgn_str = game.pgn
         data["won"] = won
         data["pgn"] = pgn_str
         pgn = chess.pgn.read_game(StringIO(pgn_str))
         assert pgn is not None
         data["svg"] = chess.svg.board(pgn.board())
-        title = pgn.headers.get("Event", "Chess Game")
+        title = str(pgn.headers.get("Event", "Chess Game"))
         yield FeedItem(
             id=f"chess_{int(dt.timestamp())}",
             title=title,

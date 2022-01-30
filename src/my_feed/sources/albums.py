@@ -5,7 +5,7 @@ https://sean.fish/s/albums
 
 import warnings
 import string
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Iterator, Optional
 
 from my.albums import history as album_history, Album
@@ -17,10 +17,7 @@ ALLOWED = string.ascii_letters + string.digits + " "
 
 def _album_id(album: Album) -> str:
     """Create a unique hash for this album"""
-    discogs: str = ""
-    if album.discogs_url is not None:
-        discogs = album.discogs_url.strip("/").split("/")[-1]
-    album_id_raw = f"{album.album_name} {album.cover_artists} {album.year} {discogs}"
+    album_id_raw = f"{album.album_name} {album.cover_artists} {album.year}"
     return (
         "".join(s for s in album_id_raw.strip() if s in ALLOWED)
         .replace(" ", "_")
@@ -50,18 +47,24 @@ def history() -> Iterator[FeedItem]:
         if al.year:
             rel_date = date(year=al.year, month=1, day=1)
 
+        dt = datetime.combine(al.listened_on, datetime.min.time(), tzinfo=timezone.utc)
+
         yield FeedItem(
             id=f"album_{album_hash}",
             score=float(al.score),
             title=al.album_name,
             ftype="album",
-            when=al.listened_on,
+            when=dt,
             data={
-                "artists": [ar.artist_name for ar in al.main_artists if ar.artist_name is not None]
+                "artists": [
+                    ar.artist_name
+                    for ar in al.main_artists
+                    if ar.artist_name is not None
+                ]
             },
             tags=al.genres + al.styles + al.reasons,
             subtitle=al.cover_artists,
             url=al.discogs_url,
             image_url=al.album_artwork_url,
-            release_date=rel_date
+            release_date=rel_date,
         )

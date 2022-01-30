@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from fastapi_utils.tasks import repeat_every
+
 from app.settings import settings
 from app.data_router import router
+
+from my_feed.log import logger
 
 
 def create_app() -> FastAPI:
@@ -19,10 +23,18 @@ def create_app() -> FastAPI:
     current_app.include_router(router, prefix="/data")
 
     @current_app.on_event("startup")
-    def _startup() -> None:
+    async def _startup() -> None:
         from app.db import init_db
+
         init_db()
-        print("starting up!")
+        await _tasks()
+
+    @repeat_every(seconds=60, logger=logger)
+    async def _tasks() -> None:
+        from app.db import import_pickled_data, prune_pickle_files
+
+        import_pickled_data()
+        prune_pickle_files()
 
     return current_app
 
