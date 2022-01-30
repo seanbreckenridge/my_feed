@@ -6,7 +6,7 @@ https://github.com/seanbreckenridge/malexport
 import os
 from typing import Iterator, Optional, Union
 
-import my.mal as mal
+import my.mal.export as mal
 
 from .model import FeedItem
 

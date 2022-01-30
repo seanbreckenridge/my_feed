@@ -10,7 +10,7 @@ from .model import FeedItem
 
 from .trakt import history as tr_history
 from .scrobbles import history as sc_history
-from .albums import history as al_history
+from .nextalbums import history as al_history
 from .mal import history as mal_history
 from .mpv import history as mpv_history
 

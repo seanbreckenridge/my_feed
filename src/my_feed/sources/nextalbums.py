@@ -8,7 +8,7 @@ import string
 from datetime import date, datetime, timezone
 from typing import Iterator, Optional
 
-from my.albums import history as album_history, Album
+from my.nextalbums import history as album_history, Album
 
 from .model import FeedItem
 

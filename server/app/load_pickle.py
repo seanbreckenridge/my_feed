@@ -3,7 +3,7 @@ import pickle
 from pathlib import Path
 from typing import Iterator
 
-from sqlmodel import Session, select
+from sqlmodel import Session, select  # type: ignore[import]
 from my_feed.sources.model import FeedItem
 
 from app.db import FeedModel, logger, feed_engine

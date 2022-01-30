@@ -16,7 +16,7 @@ from typing import Iterator, Tuple, Optional, Dict, TypeGuard
 
 from mutagen.mp3 import MP3  # type: ignore[import]
 from mutagen.easyid3 import EasyID3  # type: ignore[import]
-from my.mpv import history as mpv_history, Media
+from my.mpv.history_daemon import history as mpv_history, Media
 
 from .model import FeedItem
 from ..log import logger

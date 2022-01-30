@@ -7,7 +7,7 @@ from ..log import logger
 
 
 def game_center() -> Iterator[FeedItem]:
-    from my.apple import events, GameAchievement
+    from my.apple.privacy_export import events, GameAchievement
 
     for e in events():
         if isinstance(e, GameAchievement):
@@ -29,7 +29,7 @@ def _slugify(st: str) -> str:
 
 
 def steam() -> Iterator[FeedItem]:
-    from my.steam import achievements
+    from my.steam.scraper import achievements
 
     for ac in achievements():
         if isinstance(ac, Exception):
@@ -50,7 +50,7 @@ def steam() -> Iterator[FeedItem]:
 
 
 def grouvee() -> Iterator[FeedItem]:
-    from my.grouvee import played
+    from my.grouvee.export import played
 
     for g in played():
         dt: datetime
@@ -76,7 +76,7 @@ def grouvee() -> Iterator[FeedItem]:
 
 
 def osrs() -> Iterator[FeedItem]:
-    from my.runelite import screenshots, Level
+    from my.runelite.screenshots import screenshots, Level
 
     # TODO: use HPI location provider to determine my tz
 
@@ -113,7 +113,7 @@ CHESS_USERNAME = "seanbreckenridge"
 
 
 def chess() -> Iterator[FeedItem]:
-    from my.chess import history
+    from my.chess.export import history
     from chess_export.chessdotcom.model import ChessDotComGame
     from chess_export.lichess.model import LichessGame
     import chess.pgn, chess.svg

@@ -10,7 +10,7 @@ from typing import Iterator, Dict, Optional, Union, List
 from datetime import date
 
 import traktexport.dal as D
-from my.trakt import ratings, history as trakt_history
+from my.trakt.export import ratings, history as trakt_history
 
 from .tmdb import fetch_tmdb_data, BASE_URL
 from ..model import FeedItem

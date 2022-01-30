@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 from typing import Iterator, Tuple, Dict, cast, Optional
 
-from my.listenbrainz import history as lb_history, Listen
+from my.listenbrainz.export import history as lb_history, Listen
 
 from .model import FeedItem
 from ..log import logger
