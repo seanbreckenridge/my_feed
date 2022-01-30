@@ -12,3 +12,7 @@ python-dotenv = "*"
 
 [requires]
 python_version = "3.10"
+
+[scripts]
+dev = 'uvicorn app:app --port 5100 --reload'
+prod = 'uvicorn app:app --port 5100'
