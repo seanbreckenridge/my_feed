@@ -239,8 +239,8 @@ try:
 
     ALLOW_PREFIXES.update(allow_mpv_prefixes)
     IGNORE_PREFIXES.update(ignore_mpv_prefixes)
-except ImportError:
-    pass
+except ImportError as e:
+    logger.warning("Could not import feed configuration", exc_info=e)
 
 
 def history() -> Iterator[FeedItem]:
