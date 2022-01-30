@@ -9,7 +9,7 @@ from typing import Iterator
 
 from my.albums import history as album_history, Album
 
-from ..model import FeedItem
+from .model import FeedItem
 
 ALLOWED = string.ascii_letters + string.digits + " "
 

@@ -53,7 +53,7 @@ class TMDBCache(URLCache):
     Subclass URLCache to handle caching the Summary data to a local directory cache
     """
 
-    def request_data(self, url: str) -> Summary:
+    def request_data(self, url: str) -> Summary:  # type: ignore[override]
         """
         Override the request data function to fetch from the TMDB API
         If this fails to get data, the error is saved to cache as the metadata

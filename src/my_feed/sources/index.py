@@ -1,10 +1,12 @@
 import time
+import pickle
+from pathlib import Path
 from typing import Iterator, Callable
 
 import click
 
 from ..log import logger
-from ..model import FeedItem
+from .model import FeedItem
 
 from .trakt import history as tr_history
 from .scrobbles import history as sc_history
@@ -69,9 +71,12 @@ def data(echo: bool) -> Iterator[FeedItem]:
     is_flag=True,
     help="Print feed items as they're computed",
 )
-def index(echo: bool):
+@click.argument("OUTPUT", type=click.Path(writable=True, path_type=Path))
+def index(echo: bool, output: Path) -> None:
     items = list(data(echo=echo))
-    click.echo(f"Total: {click.style(len(items), BLUE)}; writing to <filename>")
+    click.echo(f"Total: {click.style(len(items), BLUE)}; writing to '{output}'")
+    with output.open("wb") as p:
+        pickle.dump(items, p)
 
 
 if __name__ == "__main__":

@@ -8,10 +8,11 @@ from typing import Iterator, Optional, Union
 
 import my.mal as mal
 
-from ..model import FeedItem
+from .model import FeedItem
 
 
 def _image_url(data: Union[mal.AnimeData, mal.MangaData]) -> Optional[str]:
+    assert data.APIList is not None
     api_images = data.APIList.main_picture
     for k in (
         "large",
@@ -27,6 +28,9 @@ def _anime() -> Iterator[FeedItem]:
 
         if an.username != os.environ["MAL_USERNAME"]:
             continue
+
+        assert an.APIList is not None
+        assert an.JSONList is not None
 
         tags = [genre.name for genre in an.APIList.genres]
         if an.JSONList:
@@ -63,6 +67,9 @@ def _manga() -> Iterator[FeedItem]:
 
         if mn.username != os.environ["MAL_USERNAME"]:
             continue
+
+        assert mn.APIList is not None
+        assert mn.JSONList is not None
 
         tags = [genre.name for genre in mn.APIList.genres]
         if mn.JSONList:

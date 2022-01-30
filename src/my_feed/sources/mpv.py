@@ -13,14 +13,14 @@ import atexit
 from pathlib import Path
 from functools import cache
 from math import isclose
-from typing import Iterator, List, Tuple, Optional, Dict
+from typing import Iterator, List, Tuple, Optional, Dict, TypeGuard
 
 import click
-from mutagen.mp3 import MP3
-from mutagen.easyid3 import EasyID3
+from mutagen.mp3 import MP3  # type: ignore[import]
+from mutagen.easyid3 import EasyID3  # type: ignore[import]
 from my.mpv import history as mpv_history, Media
 
-from ..model import FeedItem
+from .model import FeedItem
 from ..log import logger
 
 
@@ -79,7 +79,7 @@ BASIC_ID3_TAGS = {
 }
 
 
-def _valid_daemon_data(daemon_data: Dict[str, str]):
+def _valid_daemon_data(daemon_data: Dict[str, str]) -> bool:
     return all(bool(daemon_data.get(tag)) for tag in BASIC_ID3_TAGS)
 
 
@@ -101,7 +101,7 @@ class JSONCache:
 
     def load_data(self) -> Dict[str, Metadata]:
         self.datafile = _manual_mpv_datafile()
-        self.data = {}
+        self.data: Dict[str, Metadata] = {}
         if self.datafile.exists():
             self.data = json.loads(self.datafile.read_text())
         return self.data
@@ -134,30 +134,33 @@ def _fix_scrobble(
         logger.debug(f"Using cached data for {m.path}: {JSONData.data[m.path]}")
         return JSONData.data[m.path]
 
-    for pkey in _path_keys(m.path):
-        if match := _music_dir_matches().get(pkey):
-            assert match.suffix == ".mp3", str(match)
-            mp3_f = MP3(str(match))
-            # media duration is within 1%
-            if isclose(m.media_duration, mp3_f.info.length, rel_tol=0.01):
-                # if this has id3 data to pull from
-                id3 = EasyID3(str(match))
-                if all(_has_id3_data(id3, tag) for tag in BASIC_ID3_TAGS):
-                    title = id3["title"][0]
-                    artist = id3["artist"][0]
-                    album = id3["album"][0]
-                    # we matched a filename with a very close duration and path name
-                    # and the data is all the same, so the data was correct to begin with
-                    if (
-                        _valid_daemon_data(daemon_data)
-                        and title == daemon_data.get("title")
-                        and artist == daemon_data.get("artist")
-                        and album == daemon_data.get("album")
-                    ):
-                        # dont write to cachefile, data was already good
-                        return _daemon_to_metadata(daemon_data)
-                    print(
-                        f"""Resolving {m}
+    if m.media_duration is None:
+        logger.debug(f"No media duration on {m}, cant compare to local files")
+    else:
+        for pkey in _path_keys(m.path):
+            if match := _music_dir_matches().get(pkey):
+                assert match.suffix == ".mp3", str(match)
+                mp3_f = MP3(str(match))
+                # media duration is within 1%
+                if isclose(m.media_duration, mp3_f.info.length, rel_tol=0.01):
+                    # if this has id3 data to pull from
+                    id3 = EasyID3(str(match))
+                    if all(_has_id3_data(id3, tag) for tag in BASIC_ID3_TAGS):
+                        title = id3["title"][0]
+                        artist = id3["artist"][0]
+                        album = id3["album"][0]
+                        # we matched a filename with a very close duration and path name
+                        # and the data is all the same, so the data was correct to begin with
+                        if (
+                            _valid_daemon_data(daemon_data)
+                            and title == daemon_data.get("title")
+                            and artist == daemon_data.get("artist")
+                            and album == daemon_data.get("album")
+                        ):
+                            # dont write to cachefile, data was already good
+                            return _daemon_to_metadata(daemon_data)
+                        print(
+                            f"""Resolving {m}
 
 Matched {match}
 
@@ -165,13 +168,11 @@ title: '{daemon_data.get('title')}' -> '{title}'
 artist: '{daemon_data.get('artist')}' -> '{artist}'
 album: '{daemon_data.get('album')}' -> '{album}'
 """
-                    )
+                        )
                     if click.confirm("Use metadata?", default=True):
                         return JSONData._save_data(
                             {"title": title, "artist": artist, "album": album}, m.path
                         )
-            # if metadata didnt match in some way, try another path match
-            continue
 
     # we could've still tried to improve using the heuristics above
     # even if the data wasnt broken
@@ -193,7 +194,7 @@ album: '{daemon_data.get('album')}' -> '{album}'
     )
 
 
-def _is_some(x: Optional[str]) -> bool:
+def _is_some(x: Optional[str]) -> TypeGuard[str]:
     if x is None:
         return False
     return bool(x.strip())
@@ -204,13 +205,7 @@ def _has_metadata(m: Media) -> Optional[Tuple[str, str, List[str]]]:
         title = data.get("title")
         album = data.get("album")
         artist = data.get("artist")
-        if all(
-            (
-                _is_some(title),
-                _is_some(album),
-                _is_some(artist),
-            )
-        ):
+        if _is_some(title) and _is_some(album) and _is_some(artist):
             return (title.strip(), album.strip(), [artist.strip()])
     return None
 
@@ -310,7 +305,7 @@ def history() -> Iterator[FeedItem]:
             creator=creator,
             when=dt,
             data={
-                "start_time": media.start_time,
+                "start_time": str(media.start_time),
                 "pause_duration": media.pause_duration,
                 "media_duration": media.media_duration,
             },

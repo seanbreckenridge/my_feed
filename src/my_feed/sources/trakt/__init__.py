@@ -13,8 +13,7 @@ import traktexport.dal as D
 from my.trakt import ratings, history as trakt_history
 
 from .tmdb import fetch_tmdb_data, BASE_URL
-from ...model import FeedItem
-from ...log import logger
+from ..model import FeedItem
 
 
 def _fetch_image(url: str, width: int) -> Optional[str]:
@@ -130,9 +129,9 @@ def history() -> Iterator[FeedItem]:
             continue
         assert h.action == "watch", f"Unexpected action {h.action} {h}"
         m = h.media_data
-        if not (isinstance(m, D.Movie) or isinstance(m, D.Episode)):
-            logger.debug(f"Ignoring {m}")
-            pass
+        assert isinstance(m, D.Movie) or isinstance(
+            m, D.Episode
+        ), f"Unexpected type {m}"
 
         # set default (for movie) and episode metadata
         title: str = m.title

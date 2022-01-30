@@ -1,11 +1,11 @@
 # TODO: add game compelted/achievements
 
 import string
-from typing import Iterator, Optional
+from typing import Iterator, Optional, Dict, Any
 from datetime import datetime
 from functools import cache
 
-from ..model import FeedItem
+from .model import FeedItem
 from ..log import logger
 
 
@@ -16,11 +16,12 @@ def get_system_zone() -> str:
 
         try:
             # 4.0 way
-            return tzlocal.get_localzone_name()  # type: ignore[attr-defined]
+            return str(tzlocal.get_localzone_name())  # type: ignore[attr-defined]
         except AttributeError:
             # 2.0 way
             zone = tzlocal.get_localzone().zone  # type: ignore[attr-defined]
             assert zone is not None
+            assert isinstance(zone, str)
             return zone
     except Exception as e:
         logger.exception(e)
@@ -54,6 +55,12 @@ def steam() -> Iterator[FeedItem]:
     from my.steam import achievements
 
     for ac in achievements():
+        if isinstance(ac, Exception):
+            logger.debug(f"Ignoring exception: {ac}")
+            continue
+        if ac.achieved_on is None:
+            logger.debug(f"steam, no datetime on achievement: {ac}")
+            continue
         yield FeedItem(
             id=f"steam_{int(ac.achieved_on.timestamp())}_{_slugify(ac.title)}",
             ftype="game_achievement",
@@ -99,17 +106,21 @@ def osrs() -> Iterator[FeedItem]:
         if sc.screenshot_type not in {"Quest", "Level"}:
             continue
         id_: str
+        desc: str
         data = {}
         if isinstance(sc.description, Level):
             id_ = f"osrs_level_{sc.description.skill.casefold()}_{sc.description.level}_{int(sc.dt.timestamp())}"
             data = sc.description._asdict()
+            desc = f"{sc.description.skill} Level {sc.description.level}"
         else:
             assert sc.screenshot_type == "Quest"
             id_ = f"osrs_quest_{int(sc.dt.timestamp())}"
+            assert isinstance(sc.description, str)
+            desc = sc.description
         yield FeedItem(
             id=id_,
             ftype="game_achievement",
-            title=sc.description,
+            title=desc,
             data=data,
             subtitle=sc.screenshot_type,
             when=sc.dt.replace(tzinfo=tz),  # just replace on timezone, dont localize
@@ -128,11 +139,14 @@ def chess() -> Iterator[FeedItem]:
     from io import StringIO
 
     for game in history():
+        if game.pgn is None:
+            logger.debug(f"Ignoring chess game with no PGN: {game}")
+            continue
         dt: datetime
         won: bool = False
         url: Optional[str] = None
         pgn_str: str
-        data = {}
+        data: Dict[str, Any] = {}
         if isinstance(game, ChessDotComGame):
             dt = game.end_time
             if game.white.username == CHESS_USERNAME and game.white.result == "win":
