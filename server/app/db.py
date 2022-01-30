@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import date, datetime
 from typing import Optional, Generator, Iterator
 
-from sqlmodel import SQLModel, Field, create_engine, Session, select
+from sqlmodel import SQLModel, Field, create_engine, Session, select  # type: ignore[import]
 
 from my_feed.sources.model import FeedItem
 from my_feed.log import logger

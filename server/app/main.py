@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from fastapi_utils.tasks import repeat_every
+from fastapi_utils.tasks import repeat_every  # type: ignore[import]
 
 from app.settings import settings
 from app.data_router import router

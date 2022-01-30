@@ -3,7 +3,6 @@
 import string
 from typing import Iterator, Optional, Dict, Any
 from datetime import datetime, timezone
-from functools import cache
 
 from .model import FeedItem
 from ..log import logger

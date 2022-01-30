@@ -5,6 +5,6 @@ from app.db import select, FeedModel, get_db
 
 print("Use 'sess' for the current database session")
 
-import IPython
+import IPython  # type: ignore[import]
 
 IPython.embed()

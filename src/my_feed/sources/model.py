@@ -1,4 +1,4 @@
-from typing import Optional, Union, List, Dict, Any
+from typing import Optional, List, Dict, Any
 from datetime import datetime, date
 
 from dataclasses import dataclass, field
