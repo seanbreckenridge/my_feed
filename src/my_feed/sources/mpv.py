@@ -9,7 +9,6 @@ to improve the metadata here
 
 import os
 import json
-import atexit
 from pathlib import Path
 from functools import cache
 from math import isclose
@@ -97,7 +96,6 @@ def _daemon_to_metadata(daemon_data: Dict[str, str]) -> Metadata:
 class JSONCache:
     def __init__(self):
         self.load_data()
-        atexit.register(lambda: self._write())
 
     def load_data(self) -> Dict[str, Metadata]:
         self.datafile = _manual_mpv_datafile()
@@ -157,7 +155,7 @@ def _fix_media(
                             and artist == daemon_data.get("artist")
                             and album == daemon_data.get("album")
                         ):
-                            # dont write to cachefile, data was already good
+                            # dont write any changes to cachefile, data was already good
                             return _daemon_to_metadata(daemon_data)
                         print(
                             f"""Resolving {m}
@@ -316,3 +314,4 @@ def history() -> Iterator[FeedItem]:
                 "media_duration": media.media_duration,
             },
         )
+    JSONData._write()
