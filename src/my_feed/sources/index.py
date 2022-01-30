@@ -1,7 +1,7 @@
 import time
 import pickle
 from pathlib import Path
-from typing import Iterator, Callable
+from typing import Iterator, Callable, Optional
 
 import click
 
@@ -34,12 +34,12 @@ def _games() -> Iterator[Callable[[], Iterator[FeedItem]]]:
 
 
 def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
+    yield sc_history
     yield from _games()
     yield tr_history
-    yield sc_history
+    yield mpv_history
     yield al_history
     yield mal_history
-    yield mpv_history
 
 
 def data(echo: bool) -> Iterator[FeedItem]:
@@ -71,12 +71,16 @@ def data(echo: bool) -> Iterator[FeedItem]:
     is_flag=True,
     help="Print feed items as they're computed",
 )
-@click.argument("OUTPUT", type=click.Path(writable=True, path_type=Path))
-def index(echo: bool, output: Path) -> None:
+@click.argument(
+    "OUTPUT", type=click.Path(writable=True, path_type=Path), required=False
+)
+def index(echo: bool, output: Optional[Path]) -> None:
     items = list(data(echo=echo))
-    click.echo(f"Total: {click.style(len(items), BLUE)}; writing to '{output}'")
-    with output.open("wb") as p:
-        pickle.dump(items, p)
+    click.echo(f"Total: {click.style(len(items), BLUE)}")
+    if output is not None:
+        click.echo(f"Writing to '{output}'")
+        with output.open("wb") as p:
+            pickle.dump(items, p)
 
 
 if __name__ == "__main__":

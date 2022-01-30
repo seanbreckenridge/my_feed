@@ -15,13 +15,13 @@ from functools import cache
 from math import isclose
 from typing import Iterator, List, Tuple, Optional, Dict, TypeGuard
 
-import click
 from mutagen.mp3 import MP3  # type: ignore[import]
 from mutagen.easyid3 import EasyID3  # type: ignore[import]
 from my.mpv import history as mpv_history, Media
 
 from .model import FeedItem
 from ..log import logger
+from .common import _click, FeedBackgroundError
 
 
 def _path_keys(p: Path | str) -> Iterator[Tuple[str, ...]]:
@@ -120,7 +120,7 @@ class JSONCache:
 JSONData = JSONCache()
 
 
-def _fix_scrobble(
+def _fix_media(
     m: Media, *, daemon_data: Dict[str, str], is_broken: bool = False
 ) -> Metadata:
     """Fix broken metadata on scrobbles, and save my responses to a cache file"""
@@ -169,7 +169,7 @@ artist: '{daemon_data.get('artist')}' -> '{artist}'
 album: '{daemon_data.get('album')}' -> '{album}'
 """
                         )
-                    if click.confirm("Use metadata?", default=True):
+                    if _click().confirm("Use metadata?", default=True):
                         return JSONData._save_data(
                             {"title": title, "artist": artist, "album": album}, m.path
                         )
@@ -183,10 +183,10 @@ album: '{daemon_data.get('album')}' -> '{album}'
         return _daemon_to_metadata(daemon_data)
 
     # use path as a key
-    click.echo(f"Missing data: {m}", err=True)
-    title = click.prompt("title").strip()
-    subtitle = click.prompt("album name").strip()
-    creator = click.prompt("artist name").strip()
+    _click().echo(f"Missing data: {m}", err=True)
+    title = _click().prompt("title").strip()
+    subtitle = _click().prompt("album name").strip()
+    creator = _click().prompt("artist name").strip()
 
     # write data
     return JSONData._save_data(
@@ -278,21 +278,25 @@ def history() -> Iterator[FeedItem]:
 
         # TODO: have a dict for artist/album names that were broken at one point, to improve them?
 
-        if metadata := _has_metadata(media):
-            title, subtitle, creator = metadata
-            title, subtitle, creator = _fix_scrobble(
-                media,
-                daemon_data={
-                    "title": title,
-                    "album": subtitle,
-                    "artist": creator[0],
-                },
-                is_broken=False,
-            )
-        else:
-            title, subtitle, creator = _fix_scrobble(
-                media, daemon_data={}, is_broken=True
-            )
+        try:
+            if metadata := _has_metadata(media):
+                title, subtitle, creator = metadata
+                title, subtitle, creator = _fix_media(
+                    media,
+                    daemon_data={
+                        "title": title,
+                        "album": subtitle,
+                        "artist": creator[0],
+                    },
+                    is_broken=False,
+                )
+            else:
+                title, subtitle, creator = _fix_media(
+                    media, daemon_data={}, is_broken=True
+                )
+        except FeedBackgroundError as e:
+            logger.warning(f"Running in the background, cannot prompt for {media}", exc_info=e)
+            continue
 
         dt = media.end_time
 

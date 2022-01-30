@@ -13,11 +13,11 @@ import json
 from pathlib import Path
 from typing import Iterator, List, Tuple, Dict, cast, Optional
 
-import click
 from my.listenbrainz import history as lb_history, Listen
 
 from .model import FeedItem
 from ..log import logger
+from .common import _click, FeedBackgroundError
 
 # defaults from listenbrainz/media player, when the artist was unknown
 BROKEN_ARTISTS = {"unknown artist", "<unknown>"}
@@ -54,10 +54,10 @@ def _manually_fix_scrobble(l: Listen) -> Tuple[str, str, List[str]]:
         return data[ts]
 
     # prompt me to manually type in the correct data
-    click.echo(f"broken: {l}", err=True)
-    title = click.prompt("title").strip()
-    subtitle = click.prompt("album name").strip()
-    creator = [click.prompt("artist name").strip()]
+    _click().echo(f"broken: {l}", err=True)
+    title = _click().prompt("title").strip()
+    subtitle = _click().prompt("album name").strip()
+    creator = [_click().prompt("artist name").strip()]
 
     new_data = (
         title,
@@ -80,7 +80,10 @@ def history() -> Iterator[FeedItem]:
         subtitle: Optional[str] = listen.release_name
         creator: List[str] = [listen.artist_name]
         if listen.artist_name.lower() in BROKEN_ARTISTS:
-            title, subtitle, creator = _manually_fix_scrobble(listen)
+            try:
+                title, subtitle, creator = _manually_fix_scrobble(listen)
+            except FeedBackgroundError as e:
+                logger.warning(f"Running in the background, cannot prompt for {listen}", exc_info=e)
 
         ts: int = int(listen.listened_at.timestamp())
         # TODO: attach to album somehow (parent_id/collection)?
