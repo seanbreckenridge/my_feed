@@ -31,13 +31,13 @@ except ImportError:
 
 
 def _manual_scrobble_datafile() -> Path:
-    return Path(os.path.join(os.environ["HPIDATA"], "feed_scrobble_manual_fixes.json"))
+    return Path(os.path.join(os.environ["HPIDATA"], "feed_scrobble_fixes.json"))
 
 
-Metadata = Tuple[str, str, List[str]]
+Metadata = Tuple[str, str, str]
 
 
-def _manually_fix_scrobble(l: Listen) -> Tuple[str, str, List[str]]:
+def _manually_fix_scrobble(l: Listen) -> Metadata:
     """Fix broken metadata on scrobbles, and save my responses to a cache file"""
 
     # load data
@@ -57,7 +57,7 @@ def _manually_fix_scrobble(l: Listen) -> Tuple[str, str, List[str]]:
     _click().echo(f"broken: {l}", err=True)
     title = _click().prompt("title").strip()
     subtitle = _click().prompt("album name").strip()
-    creator = [_click().prompt("artist name").strip()]
+    creator = _click().prompt("artist name").strip()
 
     new_data = (
         title,
@@ -78,7 +78,7 @@ def history() -> Iterator[FeedItem]:
 
         title: str = listen.track_name
         subtitle: Optional[str] = listen.release_name
-        creator: List[str] = [listen.artist_name]
+        creator: str = listen.artist_name
         if listen.artist_name.lower() in BROKEN_ARTISTS:
             try:
                 title, subtitle, creator = _manually_fix_scrobble(listen)
@@ -93,7 +93,7 @@ def history() -> Iterator[FeedItem]:
             id=f"scrobble_{ts}",
             ftype="scrobble",
             title=title,
-            subtitle=subtitle,
             creator=creator,
+            subtitle=subtitle,
             when=listen.listened_at,
         )

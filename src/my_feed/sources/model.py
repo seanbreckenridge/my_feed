@@ -15,17 +15,16 @@ class FeedItem:
     title: str  # name of entry, track, episode name, or 'Episode {}'
     ftype: str  # scrobble, episode, movie, book
     when: DateIsh  # when I finished this
+    creator: Optional[str] = None  # artist, or person who created this
     tags: Tags = field(default_factory=list)  # extra information/tags for this item
-    # artist, or person who created this
-    creator: List[str] = field(default_factory=list)
     # any additional data to attach to this
     data: Dict[str, Any] = field(default_factory=dict)
-    release_date: Optional[DateIsh] = None  # when this entry was released
+    release_date: Optional[date] = None  # when this entry was released
     part: Optional[int] = None  # e.g. season
     subpart: Optional[int] = None  # e.g. episode, or track number
     # if these are episodes/parts, a collection under which to group these
     collection: Optional[str] = None
-    parent_id: Optional[str] = None  # FeedItem.id to which this belongs, if any
+    # parent_id: Optional[str] = None
     subtitle: Optional[str] = None  # show name, or album name (for scrobble)
     url: Optional[str] = None
     image_url: Optional[str] = None

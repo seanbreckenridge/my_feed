@@ -62,7 +62,7 @@ def _music_dir_matches() -> Dict[Tuple[str, ...], Path]:
 
 
 def _manual_mpv_datafile() -> Path:
-    return Path(os.path.join(os.environ["HPIDATA"], "feed_mpv_manual_fixes.json"))
+    return Path(os.path.join(os.environ["HPIDATA"], "feed_mpv_fixes.json"))
 
 
 def _has_id3_data(id3: EasyID3, key: str) -> bool:
@@ -82,14 +82,14 @@ def _valid_daemon_data(daemon_data: Dict[str, str]) -> bool:
     return all(bool(daemon_data.get(tag)) for tag in BASIC_ID3_TAGS)
 
 
-Metadata = Tuple[str, str, List[str]]
+Metadata = Tuple[str, str, str]
 
 
 def _daemon_to_metadata(daemon_data: Dict[str, str]) -> Metadata:
     return (
         daemon_data["title"],
         daemon_data["album"],
-        [daemon_data["artist"]],
+        daemon_data["artist"],
     )
 
 
@@ -198,13 +198,17 @@ def _is_some(x: Optional[str]) -> TypeGuard[str]:
     return bool(x.strip())
 
 
-def _has_metadata(m: Media) -> Optional[Tuple[str, str, List[str]]]:
+def _has_metadata(m: Media) -> Optional[Metadata]:
     if data := m.metadata:
         title = data.get("title")
         album = data.get("album")
         artist = data.get("artist")
         if _is_some(title) and _is_some(album) and _is_some(artist):
-            return (title.strip(), album.strip(), [artist.strip()])
+            return (
+                title.strip(),
+                album.strip(),
+                artist.strip(),
+            )
     return None
 
 
@@ -272,7 +276,7 @@ def history() -> Iterator[FeedItem]:
         # placeholder metadata
         title: Optional[str] = None
         subtitle: Optional[str] = None
-        creator: List[str] = []
+        creator: Optional[str] = None
 
         # TODO: have a dict for artist/album names that were broken at one point, to improve them?
 
@@ -284,7 +288,7 @@ def history() -> Iterator[FeedItem]:
                     daemon_data={
                         "title": title,
                         "album": subtitle,
-                        "artist": creator[0],
+                        "artist": creator,
                     },
                     is_broken=False,
                 )
@@ -309,7 +313,7 @@ def history() -> Iterator[FeedItem]:
             creator=creator,
             when=dt,
             data={
-                "start_time": str(media.start_time),
+                "start_time": media.start_time,
                 "pause_duration": media.pause_duration,
                 "media_duration": media.media_duration,
             },

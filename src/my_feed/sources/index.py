@@ -76,7 +76,7 @@ def data(echo: bool) -> Iterator[FeedItem]:
 )
 def index(echo: bool, output: Optional[Path]) -> None:
     items = list(data(echo=echo))
-    click.echo(f"Total: {click.style(len(items), BLUE)}")
+    click.echo(f"Total: {click.style(len(items), BLUE)} items")
     if output is not None:
         click.echo(f"Writing to '{output}'")
         with output.open("wb") as p:

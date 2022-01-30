@@ -7,12 +7,17 @@ name = "pypi"
 uvicorn = {extras = ["standard"], version = "*"}
 fastapi = "*"
 python-dotenv = "*"
+my-media-feed = {editable = true, path = "./.."}
+sqlmodel = "*"
 
 [dev-packages]
+ipdb = "*"
+mypy = "*"
+black = "*"
 
 [requires]
 python_version = "3.10"
 
 [scripts]
-dev = 'uvicorn app:app --port 5100 --reload'
-prod = 'uvicorn app:app --port 5100'
+dev = 'uvicorn app.main:app --port 5100 --reload --reload-exclude data'
+prod = 'uvicorn app.main:app --port 5100'

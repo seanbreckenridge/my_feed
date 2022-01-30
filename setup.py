@@ -1,7 +1,3 @@
-"""
-"""
-
-from pathlib import Path
 from setuptools import setup, find_namespace_packages  # type: ignore[import]
 
 
@@ -23,7 +19,6 @@ def main() -> None:
         license="MIT",
         entry_points={"console_scripts": ["my_feed = my_feed.sources.index:main"]},
         version="0.1.0",
-        install_requires=Path("requirements.txt").read_text().splitlines(),
     )
 
 

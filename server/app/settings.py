@@ -5,6 +5,7 @@ from pydantic import BaseSettings, DirectoryPath, Json, validator
 class Settings(BaseSettings):
     SCAN_INPUT_DIR: DirectoryPath
     BACKEND_CORS_ORIGINS: Json
+    SQLITE_DB_PATH: str
 
     @validator("BACKEND_CORS_ORIGINS")
     def validate_cors(cls, v: Any) -> List[str]:

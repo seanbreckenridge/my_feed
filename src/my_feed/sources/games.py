@@ -62,7 +62,7 @@ def steam() -> Iterator[FeedItem]:
             logger.debug(f"steam, no datetime on achievement: {ac}")
             continue
         yield FeedItem(
-            id=f"steam_{int(ac.achieved_on.timestamp())}_{_slugify(ac.title)}",
+            id=f"steam_{str(ac.achieved_on.date())}_{_slugify(ac.title)}",
             ftype="game_achievement",
             when=ac.achieved_on,
             title=ac.title,
@@ -80,6 +80,9 @@ def grouvee() -> Iterator[FeedItem]:
         for s in g.shelves:
             dt = s.added
             break
+        score = None
+        if g.rating is not None:
+            score = g.rating * 2
         assert dt is not None
         yield FeedItem(
             id=f"grouvee_{g.grouvee_id}",
@@ -88,6 +91,7 @@ def grouvee() -> Iterator[FeedItem]:
             url=g.url,
             release_date=g.release_date,
             when=dt,
+            score=score,
             tags=list(g.genres.keys())
             + list(g.developers.keys())
             + list(g.publishers.keys()),
