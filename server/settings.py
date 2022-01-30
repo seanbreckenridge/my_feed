@@ -1,5 +1,6 @@
 from typing import Any, List
-from pydantic import BaseSettings, FilePath, DirectoryPath, Json, validator
+from pydantic import BaseSettings, DirectoryPath, Json, validator
+
 
 class Settings(BaseSettings):
     SCAN_INPUT_DIR: DirectoryPath

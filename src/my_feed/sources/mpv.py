@@ -295,7 +295,9 @@ def history() -> Iterator[FeedItem]:
                     media, daemon_data={}, is_broken=True
                 )
         except FeedBackgroundError as e:
-            logger.warning(f"Running in the background, cannot prompt for {media}", exc_info=e)
+            logger.warning(
+                f"Running in the background, cannot prompt for {media}", exc_info=e
+            )
             continue
 
         dt = media.end_time

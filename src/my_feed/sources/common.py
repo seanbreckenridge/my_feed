@@ -11,6 +11,7 @@ class FeedError(RuntimeError):
 class FeedBackgroundError(FeedError):
     pass
 
+
 @cache
 def _click() -> Any:
     """

@@ -83,7 +83,9 @@ def history() -> Iterator[FeedItem]:
             try:
                 title, subtitle, creator = _manually_fix_scrobble(listen)
             except FeedBackgroundError as e:
-                logger.warning(f"Running in the background, cannot prompt for {listen}", exc_info=e)
+                logger.warning(
+                    f"Running in the background, cannot prompt for {listen}", exc_info=e
+                )
 
         ts: int = int(listen.listened_at.timestamp())
         # TODO: attach to album somehow (parent_id/collection)?
