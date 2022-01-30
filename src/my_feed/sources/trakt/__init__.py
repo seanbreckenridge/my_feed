@@ -13,7 +13,6 @@ import traktexport.dal as D
 from my.trakt import ratings, history as trakt_history
 
 from .tmdb import fetch_tmdb_data, BASE_URL
-from ...common import _remove_tz
 from ...model import FeedItem
 from ...log import logger
 
@@ -152,7 +151,7 @@ def history() -> Iterator[FeedItem]:
             id=f"trakt_{h.history_id}",
             title=title,
             ftype="movie" if isinstance(m, D.Movie) else "episode",
-            when=_remove_tz(h.watched_at),
+            when=h.watched_at,
             part=part,
             subpart=subpart,
             subtitle=subtitle,

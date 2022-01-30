@@ -16,7 +16,6 @@ from typing import Iterator, List, Tuple
 import click
 from my.listenbrainz import history as lb_history, Listen
 
-from ..common import _remove_tz
 from ..model import FeedItem
 from ..log import logger
 
@@ -84,5 +83,5 @@ def history() -> Iterator[FeedItem]:
             title=title,
             subtitle=subtitle,
             creator=creator,
-            when=_remove_tz(dt),
+            when=dt,
         )

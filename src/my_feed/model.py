@@ -41,3 +41,5 @@ class FeedItem:
             self.url = None
         if self.score is not None and not (0.0 <= self.score <= 10.0):
             raise ValueError(f"Score for {self} is not within 0-10")
+        if isinstance(self.when, datetime):
+            assert self.when.tzinfo is not None, str(self)
