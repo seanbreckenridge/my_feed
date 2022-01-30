@@ -31,7 +31,7 @@ def create_app() -> FastAPI:
 
     @repeat_every(seconds=60, logger=logger)
     async def _tasks() -> None:
-        from app.db import import_pickled_data, prune_pickle_files
+        from app.load_pickle import import_pickled_data, prune_pickle_files
 
         import_pickled_data()
         prune_pickle_files()

@@ -1,5 +1,3 @@
-# TODO: add game compelted/achievements
-
 import string
 from typing import Iterator, Optional, Dict, Any
 from datetime import datetime, timezone

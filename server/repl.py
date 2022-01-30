@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from app.db import select, FeedModel, get_db
+from app.db import FeedModel, get_db
+from sqlmodel import select
 
 [sess] = list(get_db())
 
