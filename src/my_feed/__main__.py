@@ -84,4 +84,4 @@ def index(echo: bool, output: Optional[Path]) -> None:
 
 
 if __name__ == "__main__":
-    main(prog="my_feed")
+    main(prog_name="my_feed")
