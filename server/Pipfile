@@ -9,7 +9,6 @@ fastapi = "*"
 python-dotenv = "*"
 my-media-feed = {editable = true, path = "./.."}
 sqlmodel = "*"
-chess = "*"
 logzero = "*"
 fastapi-utils = "*"
 

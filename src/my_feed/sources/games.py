@@ -150,7 +150,7 @@ def chess() -> Iterator[FeedItem]:
         data["pgn"] = pgn_str
         pgn = chess.pgn.read_game(StringIO(pgn_str))
         assert pgn is not None
-        data["svg"] = chess.svg.board(pgn.board())
+        data["svg"] = str(chess.svg.board(pgn.board()))
         title = str(pgn.headers.get("Event", "Chess Game"))
         yield FeedItem(
             id=f"chess_{int(dt.timestamp())}",
