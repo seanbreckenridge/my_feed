@@ -17,7 +17,7 @@ def main() -> None:
         description="A personal feed/website",
         package_data={pkg: ["py.typed"]},
         license="MIT",
-        entry_points={"console_scripts": ["my_feed = my_feed.sources.index:main"]},
+        entry_points={"console_scripts": ["my_feed = my_feed.__main__:main"]},
         version="0.1.0",
     )
 

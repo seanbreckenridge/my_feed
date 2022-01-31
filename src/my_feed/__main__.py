@@ -5,14 +5,14 @@ from typing import Iterator, Callable, Optional
 
 import click
 
-from ..log import logger
-from .model import FeedItem
+from .log import logger
+from .sources.model import FeedItem
 
-from .trakt import history as tr_history
-from .scrobbles import history as sc_history
-from .nextalbums import history as al_history
-from .mal import history as mal_history
-from .mpv import history as mpv_history
+from .sources.trakt import history as tr_history
+from .sources.scrobbles import history as sc_history
+from .sources.nextalbums import history as al_history
+from .sources.mal import history as mal_history
+from .sources.mpv import history as mpv_history
 
 
 @click.group()
@@ -24,7 +24,7 @@ BLUE = (83, 158, 206)
 
 
 def _games() -> Iterator[Callable[[], Iterator[FeedItem]]]:
-    from .games import steam, osrs, game_center, grouvee, chess
+    from .sources.games import steam, osrs, game_center, grouvee, chess
 
     yield steam
     yield osrs

@@ -235,7 +235,7 @@ ALLOW_EXT = {".flac", ".mp3", ".ogg", ".m4a", ".opus"}
 ALLOW_PREFIXES: set[str] = set()
 IGNORE_PREFIXES: set[str] = set()
 try:
-    from my.config.feed import ignore_mpv_prefixes, allow_mpv_prefixes
+    from my.config.feed import ignore_mpv_prefixes, allow_mpv_prefixes  # type: ignore[import]
 
     ALLOW_PREFIXES.update(allow_mpv_prefixes)
     IGNORE_PREFIXES.update(ignore_mpv_prefixes)

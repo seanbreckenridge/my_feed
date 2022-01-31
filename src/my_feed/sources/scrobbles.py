@@ -23,7 +23,7 @@ from .common import _click, FeedBackgroundError
 BROKEN_ARTISTS = {"unknown artist", "<unknown>"}
 
 try:
-    from my.config.feed import broken_artists
+    from my.config.feed import broken_artists  # type: ignore[import]
 
     BROKEN_ARTISTS.update(broken_artists)
 except ImportError as e:
