@@ -23,14 +23,17 @@ def _image_url(data: Union[mal.AnimeData, mal.MangaData]) -> Optional[str]:
     return None
 
 
+WHILE_UPDATING_ERR = "Could be failing while malexport is updating"
+
+
 def _anime() -> Iterator[FeedItem]:
     for an in mal.anime():
 
         if an.username != os.environ["MAL_USERNAME"]:
             continue
 
-        assert an.APIList is not None
-        assert an.JSONList is not None
+        assert an.APIList is not None, WHILE_UPDATING_ERR
+        assert an.JSONList is not None, WHILE_UPDATING_ERR
 
         tags = [genre.name for genre in an.APIList.genres]
         if an.JSONList:
@@ -68,8 +71,8 @@ def _manga() -> Iterator[FeedItem]:
         if mn.username != os.environ["MAL_USERNAME"]:
             continue
 
-        assert mn.APIList is not None
-        assert mn.JSONList is not None
+        assert mn.APIList is not None, WHILE_UPDATING_ERR
+        assert mn.JSONList is not None, WHILE_UPDATING_ERR
 
         tags = [genre.name for genre in mn.APIList.genres]
         if mn.JSONList:
