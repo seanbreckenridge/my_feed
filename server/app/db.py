@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import Optional, Generator
+from typing import Optional, Iterator
 
 from sqlmodel import SQLModel, Field, create_engine, Session  # type: ignore[import]
 
@@ -45,6 +45,6 @@ def init_db() -> None:
     SQLModel.metadata.create_all(feed_engine)
 
 
-def get_db() -> Generator[Session, None, None]:
+def get_db() -> Iterator[Session]:
     with Session(feed_engine) as session:
         yield session
