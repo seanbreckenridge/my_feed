@@ -79,8 +79,9 @@ def index(echo: bool, output: Optional[Path]) -> None:
     click.echo(f"Total: {click.style(len(items), BLUE)} items")
     if output is not None:
         click.echo(f"Writing to '{output}'")
-        with output.open("wb") as p:
-            pickle.dump(items, p)
+        dumped_items = pickle.dumps(items)
+        with output.open("wb") as f:
+            f.write(dumped_items)
 
 
 if __name__ == "__main__":
