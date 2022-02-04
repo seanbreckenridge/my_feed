@@ -11,6 +11,7 @@ my-media-feed = {editable = true, path = "./.."}
 sqlmodel = "*"
 logzero = "*"
 fastapi-utils = "*"
+orjson = "*"
 
 [dev-packages]
 ipdb = "*"
