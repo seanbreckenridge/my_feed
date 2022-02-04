@@ -6,7 +6,8 @@ import orjson
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import validator
-from sqlmodel import Session, Field, select
+from sqlmodel import Session, Field, select, func
+from sqlalchemy import distinct
 
 
 from app.db import get_db, FeedModel, FeedBase
@@ -38,9 +39,19 @@ class OrderBy(Enum):
 
 class Sort(Enum):
     asc = "asc"
-    ascending = asc
+    ascending = "ascending"
     desc = "desc"
-    descending = desc
+    descending = "descending"
+
+
+@router.get("/types", response_model=List[str])
+async def data_types(
+    session: Session = Depends(get_db),
+) -> List[str]:
+    stmt = select(distinct(FeedModel.ftype))
+    with session:
+        items: List[str] = list(session.exec(stmt))
+    return items
 
 
 @router.get("/", response_model=List[FeedRead])
@@ -55,23 +66,23 @@ async def data(
     subtitle: Optional[str] = Query(default=None, min_length=2),
     session: Session = Depends(get_db),
 ) -> List[FeedRead]:
+    stmt = select(FeedModel)
+    if query is None:
+        if title:
+            stmt = stmt.filter(FeedModel.title.ilike(f"%{title}%"))  # type: ignore
+        if creator:
+            stmt = stmt.filter(FeedModel.creator.ilike(f"%{creator}%"))  # type: ignore
+        if subtitle:
+            stmt = stmt.filter(FeedModel.subtitle.ilike(f"%{subtitle}%"))  # type: ignore
+    else:
+        stmt = stmt.filter(
+            (FeedModel.title.ilike(f"%{query}"))  # type: ignore
+            | (FeedModel.creator.ilike(f"%{query}%"))  # type: ignore
+            | (FeedModel.creator.ilike(f"%{query}%"))  # type: ignore
+        )
+    order_field = FeedModel.when if order_by == OrderBy.when else FeedModel.score
+    order_func = order_field.desc() if sort == Sort.desc else order_field.asc()  # type: ignore
+    stmt = stmt.order_by(order_func).offset(offset).limit(limit)
     with session:
-        stmt = select(FeedModel)
-        if query is None:
-            if title:
-                stmt = stmt.filter(FeedModel.title.ilike(f"%{title}%"))  # type: ignore
-            if creator:
-                stmt = stmt.filter(FeedModel.creator.ilike(f"%{creator}%"))  # type: ignore
-            if subtitle:
-                stmt = stmt.filter(FeedModel.subtitle.ilike(f"%{subtitle}%"))  # type: ignore
-        else:
-            stmt = stmt.filter(
-                (FeedModel.title.ilike(f"%{query}"))  # type: ignore
-                | (FeedModel.creator.ilike(f"%{query}%"))  # type: ignore
-                | (FeedModel.creator.ilike(f"%{query}%"))  # type: ignore
-            )
-        order_field = FeedModel.when if order_by == OrderBy.when else FeedModel.score
-        order_func = order_field.desc() if sort == Sort.desc else order_field.asc()  # type: ignore
-        stmt = stmt.order_by(order_func).offset(offset).limit(limit)
         items: List[FeedModel] = list(session.exec(stmt))
-        return items
+    return items
