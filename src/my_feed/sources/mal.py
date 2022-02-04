@@ -4,6 +4,7 @@ https://github.com/seanbreckenridge/malexport
 """
 
 import os
+from datetime import datetime, timezone
 from typing import Iterator, Optional, Union
 
 import my.mal.export as mal
@@ -63,6 +64,34 @@ def _anime() -> Iterator[FeedItem]:
                 subtitle=an.APIList.title,
                 score=score,
             )
+        if an.XMLData.status.casefold() == "completed":
+            dt: datetime
+            # TODO: use ep count == last episode in history to figure out when I first finished this
+            if an.XMLData.finish_date is not None:
+                dt = datetime.combine(
+                    an.XMLData.finish_date, datetime.min.time(), tzinfo=timezone.utc
+                )
+            elif len(an.history) > 0:
+                dt = an.history[0].at
+            else:
+                continue
+            yield FeedItem(
+                id=f"anime_entry_{an.id}",
+                ftype="anime",
+                tags=tags,
+                when=dt,
+                url=url,
+                data={
+                    "status": an.XMLData.status.casefold(),
+                    "media_type": an.APIList.media_type.casefold(),
+                    "episode_count": an.APIList.episode_count,
+                    "average_episode_duration": an.APIList.episode_count,
+                },
+                image_url=_image_url(an),
+                title=an.APIList.title,
+                release_date=an.APIList.start_date,
+                score=score,
+            )
 
 
 def _manga() -> Iterator[FeedItem]:
@@ -92,12 +121,40 @@ def _manga() -> Iterator[FeedItem]:
                 data={
                     "status": mn.XMLData.status.casefold(),
                     "media_type": mn.APIList.media_type.casefold(),
+                    "chapters": mn.XMLData.chapters,
                 },
                 image_url=_image_url(mn),
-                title=f"Episode {hist.number}",
+                title=f"Chapter {hist.number}",
                 part=hist.number,  # no reliable volume data for manga data
                 release_date=mn.APIList.start_date,
                 subtitle=mn.APIList.title,
+                score=score,
+            )
+        if mn.XMLData.status.casefold() == "completed":
+            dt: datetime
+            # TODO: use chapter count == last episode in history to figure out when I first finished this
+            if mn.XMLData.finish_date is not None:
+                dt = datetime.combine(
+                    mn.XMLData.finish_date, datetime.min.time(), tzinfo=timezone.utc
+                )
+            elif len(mn.history) > 0:
+                dt = mn.history[0].at
+            else:
+                continue
+            yield FeedItem(
+                id=f"manga_entry_{mn.id}",
+                ftype="manga",
+                tags=tags,
+                when=dt,
+                url=url,
+                data={
+                    "status": mn.XMLData.status.casefold(),
+                    "media_type": mn.APIList.media_type.casefold(),
+                    "chapters": mn.XMLData.chapters,
+                },
+                image_url=_image_url(mn),
+                title=mn.APIList.title,
+                release_date=mn.APIList.start_date,
                 score=score,
             )
 
