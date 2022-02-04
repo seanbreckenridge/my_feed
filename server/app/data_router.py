@@ -78,7 +78,7 @@ async def data(
         stmt = stmt.filter(
             (FeedModel.title.ilike(f"%{query}"))  # type: ignore
             | (FeedModel.creator.ilike(f"%{query}%"))  # type: ignore
-            | (FeedModel.creator.ilike(f"%{query}%"))  # type: ignore
+            | (FeedModel.subtitle.ilike(f"%{query}%"))  # type: ignore
         )
     order_field = FeedModel.when if order_by == OrderBy.when else FeedModel.score
     order_func = order_field.desc() if sort == Sort.desc else order_field.asc()  # type: ignore

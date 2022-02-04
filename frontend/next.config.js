@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    domains: ["localhost", "sean.fish"],
     loader: "custom",
   },
 };
