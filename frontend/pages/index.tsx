@@ -65,7 +65,7 @@ const dataBase = `${baseUrl}/data/`;
 const paginationLimit = 100;
 
 const Index: NextPage = () => {
-  const ref = useRef();
+  const ref = useRef(null);
   const isVisible = useOnScreen(ref);
 
   const [queryText, setQueryText] = useState("");
@@ -148,7 +148,7 @@ const Index: NextPage = () => {
             );
           })}
         </div>
-        <div ref={ref as any}>
+        <div ref={ref}>
           {atEnd
             ? "no more data..."
             : !isEmpty && isLoadingMore
