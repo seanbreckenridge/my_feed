@@ -1,7 +1,7 @@
-import type {NextPage} from 'next'
-import Head from 'next/head'
-import Image from '../components/Image'
-import styles from '../styles/Home.module.css'
+import type { NextPage } from "next";
+import Head from "next/head";
+import Image from "../components/Image";
+import styles from "../styles/Home.module.css";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -20,7 +20,7 @@ const Home: NextPage = () => {
         </h1>
 
         <p className={styles.description}>
-          Get started by editing{' '}
+          Get started by editing{" "}
           <code className={styles.code}>pages/index.tsx</code>
         </p>
 
@@ -60,7 +60,7 @@ const Home: NextPage = () => {
         <Image src="https://sean.fish/favicon.ico" width={72} height={16} />
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

@@ -5,13 +5,8 @@ interface ICustomLoader {
 }
 
 // opt-out of image optimization, no-op
-const CustomLoader = ({src}: ICustomLoader) => src;
+const CustomLoader = ({ src }: ICustomLoader) => src;
 
 export default function Image(props: any) {
-  return (
-    <NextImage
-      {...props}
-      loader={CustomLoader}
-    />
-  );
+  return <NextImage {...props} loader={CustomLoader} />;
 }
