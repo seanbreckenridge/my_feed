@@ -73,3 +73,5 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
     }
   }
 );
+
+FeedBody.displayName = "FeedItem"

@@ -1,13 +1,12 @@
 import pickle
 from typing import Optional, Dict, Any, List, cast
 from enum import Enum
-from functools import reduce
 
 import orjson
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import validator
-from sqlmodel import Session, Field, select, func
+from sqlmodel import Session, Field, select
 from sqlalchemy import distinct
 
 
@@ -53,10 +52,6 @@ async def data_types(
     with session:
         items: List[str] = list(session.exec(stmt))
     return items
-
-
-def _comma_filter(query_value: Optional[str]) -> Optional[Any]:
-    pass
 
 
 @router.get("/", response_model=List[FeedRead])
