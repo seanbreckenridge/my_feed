@@ -149,7 +149,7 @@ def history() -> Iterator[FeedItem]:
         yield FeedItem(
             id=f"trakt_{h.history_id}",
             title=title,
-            ftype="movie" if isinstance(m, D.Movie) else "episode",
+            ftype="trakt_movie" if isinstance(m, D.Movie) else "trakt_episode",
             when=h.watched_at,
             part=part,
             subpart=subpart,

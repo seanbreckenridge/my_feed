@@ -1,18 +1,22 @@
-import type { NextPage } from "next";
+import type { GetStaticPropsResult, NextPage } from "next";
 import Head from "next/head";
 import Image from "../components/Image";
+import { FeedGrid } from "../components/FeedItem";
+import Select, { Options } from "react-select";
 import styles from "../styles/Index.module.css";
 import useSWRInfinite from "swr/infinite";
 import { useState, useRef, useEffect, SetStateAction, Dispatch } from "react";
 import { DebounceInput } from "react-debounce-input";
 
 import useOnScreen from "../hooks/useOnScreen";
+import { FeedItemOptions, OrderByOptions } from "../lib/enums";
 
 async function fetcher(...args: any[]) {
   // @ts-ignore
   const res = await fetch(...args);
   return res.json();
 }
+
 const createQuery = (obj: any) => {
   let str = "";
   for (const key in obj) {
@@ -29,6 +33,8 @@ const getKey = (
   previousPageData: any,
   baseUrl: string,
   query: string,
+  selectedTypes: string[],
+  selectedOrder: string,
   limit: number,
   setAtEnd: Dispatch<SetStateAction<boolean>>
 ) => {
@@ -53,6 +59,15 @@ const getKey = (
     params.query = qt;
   }
 
+  if (selectedOrder.length > 0) {
+    params.order_by = selectedOrder;
+    params.sort = "desc";
+  }
+
+  if (selectedTypes.length > 0) {
+    params.ftype = selectedTypes.join(",");
+  }
+
   return `${baseUrl}?${createQuery(params)}`;
 };
 
@@ -63,19 +78,34 @@ if (!baseUrl) {
 
 const dataBase = `${baseUrl}/data/`;
 const paginationLimit = 100;
+const defaultSelectedOrder = OrderByOptions[0];
 
-const Index: NextPage = () => {
+interface IndexProps {}
+
+const Index: NextPage<IndexProps> = ({}: IndexProps) => {
   const ref = useRef(null);
   const isVisible = useOnScreen(ref);
 
   const [queryText, setQueryText] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<string>(
+    defaultSelectedOrder.value
+  );
 
   // hit the end of the data for this query
   const [atEnd, setAtEnd] = useState<boolean>(false);
 
   const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
     (...args) =>
-      getKey(...args, dataBase, queryText, paginationLimit, setAtEnd),
+      getKey(
+        ...args,
+        dataBase,
+        queryText,
+        selectedTypes,
+        selectedOrder,
+        paginationLimit,
+        setAtEnd
+      ),
     fetcher
   );
 
@@ -111,13 +141,34 @@ const Index: NextPage = () => {
         <link rel="icon" href="https://sean.fish/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <DebounceInput
-          value={queryText}
-          minLength={2}
-          debounceTimeout={300}
-          onChange={(e) => setQueryText(e.target.value)}
-          placeholder="..."
-        />
+        <div className={styles.filter_bar}>
+          <DebounceInput
+            className={styles.query_input}
+            value={queryText}
+            minLength={2}
+            debounceTimeout={300}
+            onChange={(e) => setQueryText(e.target.value)}
+            placeholder="Search..."
+          />
+          <Select
+            defaultValue={[]}
+            isMulti
+            instanceId="type_select"
+            inputId="type_select"
+            options={FeedItemOptions}
+            placeholder="Filter Type..."
+            className={styles.type_select}
+            onChange={(e) => setSelectedTypes(e.map((v) => (v as any).value))}
+          />
+          <Select
+            defaultValue={defaultSelectedOrder}
+            instanceId="score_select"
+            inputId="score_select"
+            options={OrderByOptions}
+            className={styles.sort_select}
+            onChange={(e) => e && setSelectedOrder(e.value)}
+          />
+        </div>
         <p>
           showing {size} page(s) of{" "}
           {isLoadingMore && !atEnd ? "..." : feedItems.length} items(s){" "}
@@ -139,15 +190,7 @@ const Index: NextPage = () => {
           </button>
           {isEmpty ? <p>Nothing here...</p> : null}
         */}
-        <div className={styles.grid}>
-          {feedItems.map((feedItem: any) => {
-            return (
-              <div key={feedItem.model_id} className={styles.card}>
-                {JSON.stringify(feedItem)}
-              </div>
-            );
-          })}
-        </div>
+        <FeedGrid data={feedItems} />
         <div ref={ref}>
           {atEnd
             ? "no more data..."

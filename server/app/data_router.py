@@ -1,6 +1,7 @@
+import pickle
 from typing import Optional, Dict, Any, List, cast
 from enum import Enum
-import pickle
+from functools import reduce
 
 import orjson
 
@@ -54,12 +55,17 @@ async def data_types(
     return items
 
 
+def _comma_filter(query_value: Optional[str]) -> Optional[Any]:
+    pass
+
+
 @router.get("/", response_model=List[FeedRead])
 async def data(
     offset: int = 0,
     limit: int = Query(default=100, lte=100),
     order_by: OrderBy = Query(default=OrderBy.when),
     sort: Sort = Query(default=Sort.desc),
+    ftype: Optional[str] = Query(default=None, min_length=2),
     query: Optional[str] = Query(default=None, min_length=2),
     title: Optional[str] = Query(default=None, min_length=2),
     creator: Optional[str] = Query(default=None, min_length=2),
@@ -67,6 +73,10 @@ async def data(
     session: Session = Depends(get_db),
 ) -> List[FeedRead]:
     stmt = select(FeedModel)
+    if ftype is not None and ftype.strip():
+        if parts := ftype.strip().split(","):
+            stmt = stmt.filter(FeedModel.ftype.in_(parts))  # type: ignore
+
     if query is None:
         if title:
             stmt = stmt.filter(FeedModel.title.ilike(f"%{title}%"))  # type: ignore
@@ -79,6 +89,7 @@ async def data(
             (FeedModel.title.ilike(f"%{query}"))  # type: ignore
             | (FeedModel.creator.ilike(f"%{query}%"))  # type: ignore
             | (FeedModel.subtitle.ilike(f"%{query}%"))  # type: ignore
+            | (FeedModel.model_id.ilike(f"%{query}%"))  # type: ignore
         )
     order_field = FeedModel.when if order_by == OrderBy.when else FeedModel.score
     order_func = order_field.desc() if sort == Sort.desc else order_field.asc()  # type: ignore

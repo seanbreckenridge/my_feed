@@ -86,10 +86,10 @@ def osrs() -> Iterator[FeedItem]:
             continue
         id_: str
         desc: str
-        data = {}
+        data = {"path": sc.path}
         if isinstance(sc.description, Level):
             id_ = f"osrs_level_{sc.description.skill.casefold()}_{sc.description.level}_{int(sc.dt.timestamp())}"
-            data = sc.description._asdict()
+            data.update(sc.description._asdict())
             desc = f"{sc.description.skill} Level {sc.description.level}"
         else:
             assert sc.screenshot_type == "Quest"

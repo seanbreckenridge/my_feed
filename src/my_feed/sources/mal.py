@@ -65,16 +65,30 @@ def _anime() -> Iterator[FeedItem]:
                 score=score,
             )
         if an.XMLData.status.casefold() == "completed":
-            dt: datetime
-            # TODO: use ep count == last episode in history to figure out when I first finished this
-            if an.XMLData.finish_date is not None:
-                dt = datetime.combine(
-                    an.XMLData.finish_date, datetime.min.time(), tzinfo=timezone.utc
-                )
-            elif len(an.history) > 0:
-                dt = an.history[0].at
-            else:
-                continue
+            dt: Optional[datetime] = None
+            # if theres only one episode, find the first time I watched this
+            if an.APIList.episode_count is not None and len(an.history) > 0:
+                # its sorted from newest to oldest, so iterate from the beginning
+                # this is the datetime when I completed the last epsisode the first
+                # time (could be multiple times because of rewatches)
+                completed_last_ep_at = [
+                    ep
+                    for ep in reversed(an.history)
+                    if ep.number == an.APIList.episode_count
+                ]
+                if completed_last_ep_at:
+                    dt = completed_last_ep_at[0].at
+            if dt is None:
+                # use finish date
+                if an.XMLData.finish_date is not None:
+                    dt = datetime.combine(
+                        an.XMLData.finish_date, datetime.min.time(), tzinfo=timezone.utc
+                    )
+                elif len(an.history) > 0:
+                    # use history entry
+                    dt = an.history[0].at
+                else:
+                    continue
             yield FeedItem(
                 id=f"anime_entry_{an.id}",
                 ftype="anime",
