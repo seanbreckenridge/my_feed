@@ -5,8 +5,8 @@ https://sean.fish/s/albums
 
 import warnings
 import string
-from datetime import date, datetime, timezone
-from typing import Iterator, Optional
+from datetime import datetime, timezone
+from typing import Iterator, Dict, Any
 
 from my.nextalbums import history as album_history, Album
 
@@ -23,6 +23,21 @@ def _album_id(album: Album) -> str:
         .replace(" ", "_")
         .casefold()
     )
+
+
+def _img_url(al: Album) -> str:
+    for data in al.datas():
+        if imgs := data.get("images"):
+            assert isinstance(imgs, list)
+            primary = [
+                img for img in imgs if "type" in img and img["type"] == "primary"
+            ]
+            if len(primary) > 0:
+                uri = primary[0]["uri"]
+                assert isinstance(uri, str)
+                assert uri.strip(), str(primary)
+                return uri.strip()
+    return al.album_artwork_url
 
 
 def history() -> Iterator[FeedItem]:
@@ -43,11 +58,18 @@ def history() -> Iterator[FeedItem]:
             warnings.warn(f"listened_on is None: {al}")
             continue
 
-        rel_date: Optional[date] = None
-        if al.year:
-            rel_date = date(year=al.year, month=1, day=1)
-
         dt = datetime.combine(al.listened_on, datetime.min.time(), tzinfo=timezone.utc)
+
+        data: Dict[str, Any] = {}
+        image_url = _img_url(al)
+        if al.album_artwork_url != image_url:
+            # if we pulled data from the discogs cache, which
+            # has additional main iamges past the default
+            # al.album_artwork_url, which is typically a thumbnail
+            #
+            # supply the thumbnail as well, can be used when images
+            # are small/don't care about final resolution
+            data["thumbnail"] = al.album_artwork_url
 
         yield FeedItem(
             id=f"album_{album_hash}",
@@ -55,16 +77,10 @@ def history() -> Iterator[FeedItem]:
             title=al.album_name,
             ftype="album",
             when=dt,
-            data={
-                "artists": [
-                    ar.artist_name
-                    for ar in al.main_artists
-                    if ar.artist_name is not None
-                ]
-            },
             tags=al.genres + al.styles + al.reasons,
             subtitle=al.cover_artists,
             url=al.discogs_url,
-            image_url=al.album_artwork_url,
-            release_date=rel_date,
+            image_url=image_url,
+            data=data,
+            release_date=al.release_date(),
         )

@@ -19,12 +19,6 @@ from url_cache.core import (
 from ...log import logger
 
 
-@cache
-def cache_dir() -> str:
-    default_local = os.path.join(os.environ["HOME"], ".local", "share")
-    return os.path.join(default_local, "feed_tmdb")
-
-
 MOVIE_REGEX = re.compile(r"/movie/(\d+)")
 EPISODE_REGEX = re.compile(r"/tv/(\d+)/season/(\d+)/episode/(\d+)")
 SEASON_REGEX = re.compile(r"/tv/(\d+)/season/(\d+)")
@@ -75,7 +69,9 @@ class TMDBCache(URLCache):
 
 @cache
 def tmdb_urlcache() -> TMDBCache:
-    return TMDBCache(cache_dir=cache_dir())
+    default_local = os.path.join(os.environ["HOME"], ".local", "share")
+    cache_dir = os.path.join(default_local, "feed_tmdb")
+    return TMDBCache(cache_dir=cache_dir)
 
 
 def fetch_tmdb_data(url: str) -> Optional[Summary]:
