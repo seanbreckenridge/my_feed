@@ -135,7 +135,7 @@ const CardHeader: React.FC<CardHeaderProps> = ({ title, icon, link }) => {
         {title}
       </p>
       {link && (
-        <a className={styles.iconLink} href="#">
+        <a className={styles.iconLink} href={link} target="_blank">
           <FontAwesomeIcon icon={faLink} />
         </a>
       )}
