@@ -11,6 +11,7 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  max-width: 80%;
 }
 
 .title a {
@@ -111,15 +112,36 @@
   border-color: #0070f3;
 }
 
+.chessSvg {
+  width: 20rem;
+  width: 20rem;
+}
+
+.card .cardFlexBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
 .card h2 {
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
 }
 
-.card p {
+.card p.title {
   margin: 0;
   font-size: 1.25rem;
   line-height: 1.5;
+}
+
+.card .iconPadding {
+  margin-right: 5px;
+}
+
+.card p.subtitle {
+  margin: 0;
+  font-size: 1rem;
 }
 
 .logo {

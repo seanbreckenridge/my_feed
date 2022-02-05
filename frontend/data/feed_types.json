@@ -1,1 +1,15 @@
-["scrobble","game_achievement","game","chess","trakt_episode","trakt_movie","album","anime_episode","anime","manga_chapter","manga"]
+[
+  "scrobble",
+  "game_achievement",
+  "game",
+  "chess",
+  "trakt_show",
+  "trakt_movie",
+  "trakt_history_episode",
+  "trakt_history_movie",
+  "album",
+  "anime_episode",
+  "anime",
+  "manga_chapter",
+  "manga"
+]

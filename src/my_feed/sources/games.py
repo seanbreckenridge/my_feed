@@ -145,16 +145,23 @@ def chess() -> Iterator[FeedItem]:
             data["variant"] = str(game.variant)
         else:
             raise RuntimeError(f"Unexpected game {type(game)} {game}")
+        if game.white.username == CHESS_USERNAME:
+            me = "white"
+        else:
+            me = "black"
         pgn_str = game.pgn
-        data["won"] = won
-        data["pgn"] = pgn_str
+        assert me.strip()
         pgn = chess.pgn.read_game(StringIO(pgn_str))
         assert pgn is not None
-        data["svg"] = str(chess.svg.board(pgn.board()))
-        title = str(pgn.headers.get("Event", "Chess Game"))
+        # iterate through mainline moves
+        board = pgn.board()
+        for move in pgn.mainline_moves():
+            board.push(move)
+        data["svg"] = str(chess.svg.board(board))
+        data["won"] = won
         yield FeedItem(
             id=f"chess_{int(dt.timestamp())}",
-            title=title,
+            title=f"Chess ({me})",
             ftype="chess",
             when=dt,
             data=data,

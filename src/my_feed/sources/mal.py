@@ -16,8 +16,8 @@ def _image_url(data: Union[mal.AnimeData, mal.MangaData]) -> Optional[str]:
     assert data.APIList is not None
     api_images = data.APIList.main_picture
     for k in (
-        "large",
         "medium",
+        "large",
     ):
         if img_url := api_images.get(k):
             return img_url
@@ -57,11 +57,11 @@ def _anime() -> Iterator[FeedItem]:
                     "average_episode_duration": an.APIList.episode_count,
                 },
                 image_url=_image_url(an),
-                title=f"Episode {hist.number}",
+                subtitle=f"Episode {hist.number}",
                 collection=str(an.id),
                 part=hist.number,  # no reliable season data for anime data
                 release_date=an.APIList.start_date,
-                subtitle=an.APIList.title,
+                title=an.APIList.title,
                 score=score,
             )
         if an.XMLData.status.casefold() == "completed":
@@ -138,10 +138,10 @@ def _manga() -> Iterator[FeedItem]:
                     "chapters": mn.XMLData.chapters,
                 },
                 image_url=_image_url(mn),
-                title=f"Chapter {hist.number}",
+                subtitle=f"Chapter {hist.number}",
                 part=hist.number,  # no reliable volume data for manga data
                 release_date=mn.APIList.start_date,
-                subtitle=mn.APIList.title,
+                title=mn.APIList.title,
                 score=score,
             )
         if mn.XMLData.status.casefold() == "completed":

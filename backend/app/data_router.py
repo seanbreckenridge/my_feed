@@ -44,10 +44,15 @@ class Sort(Enum):
     descending = "descending"
 
 
-# TODO: add episodes
 # items which shouldn't be shown when sorted by 'score'
 # since it'd make the feed too busy
-INDIVIDUAL_FEED_TYPES = ["anime_episode", "manga_chapter", "scrobble"]
+INDIVIDUAL_FEED_TYPES = [
+    "anime_episode",
+    "manga_chapter",
+    "scrobble",
+    "trakt_history_episode",
+    "trakt_history_movie",
+]
 
 
 @router.get("/types", response_model=List[str])

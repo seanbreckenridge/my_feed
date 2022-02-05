@@ -1,10 +1,6 @@
-import type { GetStaticPropsResult, NextPage } from "next";
+import type { NextPage } from "next";
 import Head from "next/head";
-import Image from "../components/Image";
-import {
-  FeedGrid,
-  FeedItemStruct,
-} from "../components/FeedItem";
+import { FeedGrid, FeedItemStruct } from "../components/FeedItem";
 import Select, { Options } from "react-select";
 import styles from "../styles/Index.module.css";
 import useSWRInfinite from "swr/infinite";
