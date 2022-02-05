@@ -8,6 +8,7 @@ from app.data_router import router
 from my_feed.log import logger
 
 
+
 def create_app() -> FastAPI:
     current_app = FastAPI(title="my_feed")
 
@@ -22,6 +23,13 @@ def create_app() -> FastAPI:
 
     current_app.include_router(router, prefix="/data")
 
+    @current_app.get("/check")
+    async def check() -> str:
+        from app.load_pickle import update_data
+
+        update_data()
+        return "OK"
+
     @current_app.on_event("startup")
     async def _startup() -> None:
         from app.db import init_db
@@ -31,10 +39,9 @@ def create_app() -> FastAPI:
 
     @repeat_every(seconds=60 * 60, logger=logger)
     async def _tasks() -> None:
-        from app.load_pickle import import_pickled_data, prune_pickle_files
+        from app.load_pickle import update_data
 
-        import_pickled_data()
-        prune_pickle_files()
+        update_data()
 
     return current_app
 

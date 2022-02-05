@@ -72,3 +72,9 @@ def import_pickled_data() -> None:
         sess.flush()
         sess.commit()
     logger.info(f"{added} new items added to the database")
+
+
+def update_data():
+
+    import_pickled_data()
+    prune_pickle_files()

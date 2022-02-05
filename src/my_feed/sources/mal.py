@@ -43,6 +43,11 @@ def _anime() -> Iterator[FeedItem]:
         url = f"https://myanimelist.net/anime/{an.id}"
         score = float(an.XMLData.score) if an.XMLData.score is not None else None
 
+        # if theres only one item here, and I've only watched it once,
+        # don't include an episode -- it gets included in the completed block
+        # if an.XMLData.status.casefold() == "completed" and len(an.history) == 1 and an.APIList.episode_count == 1:
+        #    continue
+
         for hist in an.history:
             yield FeedItem(
                 id=f"anime_episode_{an.id}_{hist.number}_{int(hist.at.timestamp())}",

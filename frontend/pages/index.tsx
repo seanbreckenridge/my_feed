@@ -125,7 +125,20 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
     ) {
       setSize(size + 1);
     }
-  }, [isVisible, isRefreshing, atEnd, isLoadingMore]);
+  }, [
+    isVisible,
+    isRefreshing,
+    atEnd,
+    isLoadingMore,
+    selectedOrder,
+    selectedTypes,
+    queryText,
+  ]);
+
+  // reset 'atEnd' (so new items load when you scroll down) after user changes any of the inputs
+  useEffect(() => {
+    setAtEnd(false);
+  }, [queryText, selectedTypes, selectedOrder]);
 
   if (error) {
     return <div>{error}</div>;
@@ -189,8 +202,10 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
           {isEmpty ? <p>Nothing here...</p> : null}
         */}
         <FeedGrid data={feedItems as FeedItemStruct[]} />
-        <div ref={ref}>
-          {atEnd
+        <div ref={ref} style={{ marginTop: "20vh" }}>
+          {atEnd && selectedOrder === "score"
+            ? "no more data with scores, switch order to 'Date'"
+            : atEnd
             ? "no more data..."
             : !isEmpty && isLoadingMore
             ? "loading..."

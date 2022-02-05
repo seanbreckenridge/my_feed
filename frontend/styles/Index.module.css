@@ -108,8 +108,7 @@
 .card:hover,
 .card:focus,
 .card:active {
-  color: #0070f3;
-  border-color: #0070f3;
+  border-color: #5f71ad;
 }
 
 .chessSvg {
@@ -124,9 +123,29 @@
   justify-content: center;
 }
 
+.cardFooter {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-right: 2rem;
+}
+
+.footerScore {
+  margin-left: 1rem;
+}
+
 .card h2 {
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
+}
+
+.card p {
+  white-space: nowrap;
+  max-width: 300px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .card p.title {

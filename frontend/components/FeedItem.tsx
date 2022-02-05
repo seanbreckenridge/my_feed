@@ -5,7 +5,9 @@ import {
   faBook,
   faChessKnight,
   faFilm,
+  faGamepad,
   faMusic,
+  faRecordVinyl,
   faVideo,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,16 +16,16 @@ export type FeedItemStruct = {
   model_id: string;
   ftype: string;
   title: string;
-  score: string;
-  subtitle: string;
-  creator: string;
-  part: number;
-  subpart: number;
-  collection: string;
+  score: number | null;
+  subtitle: string | null;
+  creator: string | null;
+  part: number | null;
+  subpart: number | null;
+  collection: string | null;
   when: string;
   release_date: string;
-  image_url: string;
-  url: string;
+  image_url: string | null;
+  url: string | null;
   tags: string[];
   data: any;
 };
@@ -47,20 +49,27 @@ export const FeedGrid: React.FC<FeedGridProps> = ({ data }: FeedGridProps) => {
   );
 };
 
-interface TimestampProps {
+interface CardFooterProps {
   dt: string;
+  score?: number | null;
 }
 
-const Timestamp: React.FC<TimestampProps> = React.memo(
-  ({ dt }: TimestampProps) => {
-    return <div>{dt}</div>;
+const CardFooter: React.FC<CardFooterProps> = React.memo(
+  ({ dt, score }: CardFooterProps) => {
+    const sc = score ?? null;
+    return (
+      <div className={styles.cardFooter}>
+        <div>{dt}</div>
+        {score && <div className={styles.footerScore}>{`${sc}/10`}</div>}
+      </div>
+    );
   }
 );
 
-Timestamp.displayName = "Timestamp";
+CardFooter.displayName = "Card Footer";
 
 type CardImageProps = {
-  src: string;
+  src: string | null;
   alt: string;
   minWidth?: string;
   minHeight?: string;
@@ -72,6 +81,9 @@ const CardImage: React.FC<CardImageProps> = ({
   minWidth,
   minHeight,
 }: CardImageProps) => {
+  if (!src) {
+    return <></>;
+  }
   let uMinWidth = minWidth ?? "15";
   let uMinHeight = minHeight ?? "12";
   // hacky poster/still query params set in trakt
@@ -123,13 +135,37 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
           </p>
           <p className={styles.subtitle}>{item.creator}</p>
           <p className={styles.subtitle}>{item.subtitle}</p>
-          <Timestamp dt={item.when} />
+          <CardFooter dt={item.when} />
         </div>
       );
     } else if (item.ftype === "game_achievement") {
-      return <div>{JSON.stringify(item)}</div>;
+      let game_ach_title = item.title;
+      if (item.model_id.startsWith("osrs_")) {
+        game_ach_title = `OSRS - ${game_ach_title}`;
+      }
+      return (
+        <div className={styles.cardFlexBody}>
+          <p className={styles.title}>
+            <FontAwesomeIcon className={styles.iconPadding} icon={faGamepad} />
+            {game_ach_title}
+          </p>
+          <CardImage src={item.image_url} alt={item.title} />
+          <p className={styles.subtitle}>{item.subtitle}</p>
+          <CardFooter dt={item.when} />
+        </div>
+      );
     } else if (item.ftype === "game") {
-      return <div>{JSON.stringify(item)}</div>;
+      return (
+        <div className={styles.cardFlexBody}>
+          <p className={styles.title}>
+            <FontAwesomeIcon className={styles.iconPadding} icon={faGamepad} />
+            {item.title}
+          </p>
+          <CardImage src={item.image_url} alt={item.title} />
+          <p className={styles.subtitle}>{item.subtitle}</p>
+          <CardFooter dt={item.when} score={item.score} />
+        </div>
+      );
     } else if (item.ftype === "chess") {
       const svg = item.data.svg;
       return (
@@ -146,10 +182,9 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
             dangerouslySetInnerHTML={{ __html: svg }}
           ></div>
           <p className={styles.subtitle}>{item.subtitle}</p>
-          <Timestamp dt={item.when} />
+          <CardFooter dt={item.when} />
         </div>
       );
-      return <div>{JSON.stringify(item)}</div>;
     } else if (
       item.ftype === "trakt_history_episode" ||
       item.ftype == "trakt_history_movie" ||
@@ -160,30 +195,44 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
       if (item.part && item.subpart) {
         seasonData = `S${padPart(item.part)}E${padPart(item.subpart)}`;
       }
+      const sc = item.ftype.includes("history") ? null : item.score;
       return (
         <div className={styles.cardFlexBody}>
           <p className={styles.title}>
             <FontAwesomeIcon className={styles.iconPadding} icon={faFilm} />
             {item.title}
           </p>
-          {item.image_url !== null ? (
-            <CardImage src={item.image_url} alt={item.title} />
-          ) : null}
+          <CardImage src={item.image_url} alt={item.title} />
           <p className={styles.subtitle}>{item.subtitle}</p>
           {seasonData.length ? (
             <p className={styles.subtitle}>{seasonData}</p>
           ) : null}
-          <Timestamp dt={item.when} />
+          <CardFooter dt={item.when} score={sc} />
         </div>
       );
     } else if (item.ftype === "album") {
-      return <div>{JSON.stringify(item)}</div>;
+      return (
+        <div className={styles.cardFlexBody}>
+          <p className={styles.title}>
+            <FontAwesomeIcon
+              className={styles.iconPadding}
+              icon={faRecordVinyl}
+            />
+            {item.title}
+          </p>
+          <CardImage src={item.image_url} alt={item.title} />
+          <p className={styles.subtitle}>{item.subtitle}</p>
+          <CardFooter dt={item.when} score={item.score} />
+        </div>
+      );
     } else if (
       item.ftype === "anime_episode" ||
       item.ftype == "anime" ||
       item.ftype == "manga_chapter" ||
       item.ftype == "manga"
     ) {
+      const sc =
+        item.ftype == "anime" || item.ftype == "manga" ? item.score : null;
       const icon = item.ftype.startsWith("anime") ? faFilm : faBook;
       return (
         <div className={styles.cardFlexBody}>
@@ -191,11 +240,9 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
             <FontAwesomeIcon className={styles.iconPadding} icon={icon} />
             {item.subtitle}
           </p>
-          {item.image_url !== null ? (
-            <CardImage src={item.image_url} alt={item.title} />
-          ) : null}
+          <CardImage src={item.image_url} alt={item.title} minHeight="25" />
           <p className={styles.subtitle}>{item.title}</p>
-          <Timestamp dt={item.when} />
+          <CardFooter dt={item.when} score={sc} />
         </div>
       );
     } else {

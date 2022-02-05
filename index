@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+declare RESET
+RESET_FEED=
+
+THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
+cd "${THIS_DIR}" || exit $?
+
+export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
+
+# sync osrs images
+rsync -Pavh -e 'ssh' "$(python3 -m my.utils.backup_to runelite_screenshots)" vultr:~/p/ || exit $?
+
+# run an index
+my_feed index "./backend/data/$(date +'%s').pickle" || exit $?
+
+if [[ "$1" == '-r' ]]; then
+  RESET=1
+fi
+
+echo "$RESET"

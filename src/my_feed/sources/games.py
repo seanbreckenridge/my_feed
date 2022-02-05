@@ -1,3 +1,4 @@
+import os
 import string
 from typing import Iterator, Optional, Dict, Any
 from datetime import datetime, timezone
@@ -87,6 +88,10 @@ def osrs() -> Iterator[FeedItem]:
         id_: str
         desc: str
         data = {"path": sc.path}
+        img: Optional[str] = None
+        if "HPIDATA" in os.environ:
+            if prefix := os.getenv("RUNELITE_PHOTOS_PREFIX"):
+                img = os.path.join(prefix, str(sc.path).lstrip(os.environ["HPIDATA"]))
         if isinstance(sc.description, Level):
             id_ = f"osrs_level_{sc.description.skill.casefold()}_{sc.description.level}_{int(sc.dt.timestamp())}"
             data.update(sc.description._asdict())
@@ -103,6 +108,7 @@ def osrs() -> Iterator[FeedItem]:
             ftype="game_achievement",
             title=desc,
             data=data,
+            image_url=img,
             subtitle=sc.screenshot_type,
             when=dt,
         )
