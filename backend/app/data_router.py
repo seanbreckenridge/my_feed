@@ -43,6 +43,7 @@ class Sort(Enum):
     desc = "desc"
     descending = "descending"
 
+
 # TODO: add episodes
 # items which shouldn't be shown when sorted by 'score'
 # since it'd make the feed too busy
