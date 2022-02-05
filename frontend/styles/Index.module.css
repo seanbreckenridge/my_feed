@@ -3,6 +3,29 @@
   min-height: 100%;
 }
 
+.mainTitle {
+  font-size: 150%;
+}
+
+.nav {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  font-variant: small-caps;
+  width: 80%;
+  margin-bottom: 1rem;
+}
+
+.mutedLink {
+  color: grey;
+}
+
+.about {
+  margin: 2rem;
+}
+
 .main {
   min-height: 100vh;
   padding: 4rem 0;
@@ -11,17 +34,19 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  max-width: 80%;
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.title a {
+.link {
   color: #0070f3;
   text-decoration: none;
 }
 
-.title a:hover,
-.title a:focus,
-.title a:active {
+a.link:hover,
+a.link:focus,
+a.link:active {
   text-decoration: underline;
 }
 
@@ -51,13 +76,7 @@
     Bitstream Vera Sans Mono, Courier New, monospace;
 }
 
-.filter_container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.filter_bar {
+.filterBar {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,7 +85,7 @@
 }
 
 @media (max-width: 600px) {
-  .filter_bar {
+  .filterBar {
     width: 100%;
     flex-direction: column;
   }
@@ -103,6 +122,7 @@
   border: 1px solid #eaeaea;
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
+  border-color: #c3c3c3;
 }
 
 .card:hover,
@@ -114,6 +134,19 @@
 .chessSvg {
   width: 20rem;
   width: 20rem;
+}
+
+.card .cardHeader {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-right: 3px;
+}
+
+.card .iconLink {
+  margin-left: 10px;
 }
 
 .card .cardFlexBody {
@@ -154,7 +187,7 @@
   line-height: 1.5;
 }
 
-.card .iconPadding {
+.card .logo {
   margin-right: 5px;
 }
 

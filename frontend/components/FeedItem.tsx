@@ -6,11 +6,12 @@ import {
   faChessKnight,
   faFilm,
   faGamepad,
+  faLink,
   faMusic,
   faRecordVinyl,
-  faVideo,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 export type FeedItemStruct = {
   model_id: string;
@@ -120,6 +121,30 @@ const padPart = (part: number): string => {
   return String(part).padStart(2, "0");
 };
 
+type CardHeaderProps = {
+  title: string;
+  icon: IconProp;
+  link: string | null;
+};
+
+const CardHeader: React.FC<CardHeaderProps> = ({ title, icon, link }) => {
+  return (
+    <div className={styles.cardHeader}>
+      <p className={styles.title}>
+        <FontAwesomeIcon className={styles.logo} icon={icon} />
+        {title}
+      </p>
+      {link && (
+        <a className={styles.iconLink} href="#">
+          <FontAwesomeIcon icon={faLink} />
+        </a>
+      )}
+    </div>
+  );
+};
+
+CardHeader.displayName = "Card Header";
+
 interface FeedBodyProps {
   item: FeedItemStruct;
 }
@@ -129,26 +154,20 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
     if (item.ftype === "scrobble") {
       return (
         <div className={styles.cardFlexBody}>
-          <p className={styles.title}>
-            <FontAwesomeIcon className={styles.iconPadding} icon={faMusic} />
-            {item.title}
-          </p>
+          <CardHeader title={item.title} icon={faMusic} link={item.url} />
           <p className={styles.subtitle}>{item.creator}</p>
           <p className={styles.subtitle}>{item.subtitle}</p>
           <CardFooter dt={item.when} />
         </div>
       );
     } else if (item.ftype === "game_achievement") {
-      let game_ach_title = item.title;
+      let gameTitle = item.title;
       if (item.model_id.startsWith("osrs_")) {
-        game_ach_title = `OSRS - ${game_ach_title}`;
+        gameTitle = `OSRS - ${gameTitle}`;
       }
       return (
         <div className={styles.cardFlexBody}>
-          <p className={styles.title}>
-            <FontAwesomeIcon className={styles.iconPadding} icon={faGamepad} />
-            {game_ach_title}
-          </p>
+          <CardHeader title={gameTitle} icon={faGamepad} link={item.url} />
           <CardImage src={item.image_url} alt={item.title} />
           <p className={styles.subtitle}>{item.subtitle}</p>
           <CardFooter dt={item.when} />
@@ -157,10 +176,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
     } else if (item.ftype === "game") {
       return (
         <div className={styles.cardFlexBody}>
-          <p className={styles.title}>
-            <FontAwesomeIcon className={styles.iconPadding} icon={faGamepad} />
-            {item.title}
-          </p>
+          <CardHeader title={item.title} icon={faGamepad} link={item.url} />
           <CardImage src={item.image_url} alt={item.title} />
           <p className={styles.subtitle}>{item.subtitle}</p>
           <CardFooter dt={item.when} score={item.score} />
@@ -170,13 +186,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
       const svg = item.data.svg;
       return (
         <div className={styles.cardFlexBody}>
-          <p className={styles.title}>
-            <FontAwesomeIcon
-              className={styles.iconPadding}
-              icon={faChessKnight}
-            />
-            {item.title}
-          </p>
+          <CardHeader title={item.title} icon={faChessKnight} link={item.url} />
           <div
             className={styles.chessSvg}
             dangerouslySetInnerHTML={{ __html: svg }}
@@ -198,10 +208,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
       const sc = item.ftype.includes("history") ? null : item.score;
       return (
         <div className={styles.cardFlexBody}>
-          <p className={styles.title}>
-            <FontAwesomeIcon className={styles.iconPadding} icon={faFilm} />
-            {item.title}
-          </p>
+          <CardHeader title={item.title} icon={faFilm} link={item.url} />
           <CardImage src={item.image_url} alt={item.title} />
           <p className={styles.subtitle}>{item.subtitle}</p>
           {seasonData.length ? (
@@ -213,13 +220,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
     } else if (item.ftype === "album") {
       return (
         <div className={styles.cardFlexBody}>
-          <p className={styles.title}>
-            <FontAwesomeIcon
-              className={styles.iconPadding}
-              icon={faRecordVinyl}
-            />
-            {item.title}
-          </p>
+          <CardHeader title={item.title} icon={faRecordVinyl} link={item.url} />
           <CardImage src={item.image_url} alt={item.title} />
           <p className={styles.subtitle}>{item.subtitle}</p>
           <CardFooter dt={item.when} score={item.score} />
@@ -234,14 +235,12 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
       const sc =
         item.ftype == "anime" || item.ftype == "manga" ? item.score : null;
       const icon = item.ftype.startsWith("anime") ? faFilm : faBook;
+      console.log(item);
       return (
         <div className={styles.cardFlexBody}>
-          <p className={styles.title}>
-            <FontAwesomeIcon className={styles.iconPadding} icon={icon} />
-            {item.subtitle}
-          </p>
+          <CardHeader title={item.title} icon={icon} link={item.url} />
           <CardImage src={item.image_url} alt={item.title} minHeight="25" />
-          <p className={styles.subtitle}>{item.title}</p>
+          {item.subtitle && <p className={styles.subtitle}>{item.subtitle}</p>}
           <CardFooter dt={item.when} score={sc} />
         </div>
       );

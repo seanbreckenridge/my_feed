@@ -4,11 +4,20 @@ import { FeedGrid, FeedItemStruct } from "../components/FeedItem";
 import Select, { Options } from "react-select";
 import styles from "../styles/Index.module.css";
 import useSWRInfinite from "swr/infinite";
-import { useState, useRef, useEffect, SetStateAction, Dispatch } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  SetStateAction,
+  Dispatch,
+  ReactElement,
+} from "react";
 import { DebounceInput } from "react-debounce-input";
 
 import useOnScreen from "../hooks/useOnScreen";
 import { FeedItemOptions, OrderByOptions } from "../lib/enums";
+import Link from "next/link";
+import MyApp from "./_app";
 
 async function fetcher(...args: any[]) {
   // @ts-ignore
@@ -78,12 +87,70 @@ const dataBase = `${baseUrl}/data/`;
 const paginationLimit = 100;
 const defaultSelectedOrder = OrderByOptions[0];
 
+const About: React.FC = () => {
+  return (
+    <div className={styles.about}>
+      <p>A feed of media that I've seen </p>
+      <a
+        style={{ marginLeft: "20px" }}
+        className={styles.link}
+        href="https://github.com/seanbreckenridge/my_feed"
+      >
+        Source Code
+      </a>
+      <p>Any Images here are owned by the respective services:</p>
+      <ul>
+        <li>
+          Scrobbles (Songs), using{" "}
+          <a className={styles.link} href="https://listenbrainz.org/">
+            ListenBrainz
+          </a>
+        </li>
+        <li>
+          Game Achievements from{" "}
+          <a href="https://steamcommunity.com/" className={styles.link}>
+            Steam
+          </a>
+        </li>
+        <li>
+          Album art from{" "}
+          <a href="https://discogs.com/" className={styles.link}>
+            Discogs
+          </a>
+        </li>
+        <li>
+          Anime/Manga from{" "}
+          <a href="https://myanimelist.net/" className={styles.link}>
+            MyAnimeList
+          </a>
+        </li>
+        <li>
+          Games from <a href="https://www.grouvee.com/">Grouvee</a>
+        </li>
+        <li>
+          Movies/TV Shows/Episodes -{" "}
+          <a className={styles.link} href="https://trakt.tv/">
+            Trakt
+          </a>
+          , using{" "}
+          <a className={styles.link} href="https://www.themoviedb.org/">
+            TMDB
+          </a>{" "}
+          (This product uses the TMDB API but is not endorsed or certified by
+          TMDB)
+        </li>
+      </ul>
+    </div>
+  );
+};
+
 interface IndexProps {}
 
 const Index: NextPage<IndexProps> = ({}: IndexProps) => {
   const ref = useRef(null);
   const isVisible = useOnScreen(ref);
 
+  const [showAttribution, setShowAttribution] = useState<boolean>(false);
   const [queryText, setQueryText] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<string>(
@@ -152,7 +219,16 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
         <link rel="icon" href="https://sean.fish/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.filter_bar}>
+        <nav className={styles.nav}>
+          <div className={styles.mainTitle}>- FEED -</div>
+          <div className={styles.mutedLink}>
+            <a href="#" onClick={() => setShowAttribution((toggle) => !toggle)}>
+              About/Attribution
+            </a>
+          </div>
+        </nav>
+        {showAttribution && <About />}
+        <div className={styles.filterBar}>
           <DebounceInput
             className={styles.query_input}
             value={queryText}
@@ -180,11 +256,11 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
             onChange={(e) => e && setSelectedOrder(e.value)}
           />
         </div>
+        {/*
         <p>
           showing {size} page(s) of{" "}
           {isLoadingMore && !atEnd ? "..." : feedItems.length} items(s){" "}
         </p>
-        {/*
           <button
             onClick={() => {
               setQueryText(queryText);
