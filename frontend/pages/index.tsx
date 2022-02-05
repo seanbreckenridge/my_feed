@@ -16,8 +16,6 @@ import { DebounceInput } from "react-debounce-input";
 
 import useOnScreen from "../hooks/useOnScreen";
 import { FeedItemOptions, OrderByOptions } from "../lib/enums";
-import Link from "next/link";
-import MyApp from "./_app";
 
 async function fetcher(...args: any[]) {
   // @ts-ignore

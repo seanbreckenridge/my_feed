@@ -24,7 +24,10 @@ export const FeedItemTypes: Set<string> = new Set<string>(
 );
 
 export const FeedItemOptions = createOptions(
-  Array.from(FeedItemTypes).sort((a, b) => (a < b ? -1 : 1))
+  // remove trakt_history_movie since filtering by that only shows things Ive rewatched, isnt that useful
+  Array.from(FeedItemTypes)
+    .filter((e) => e !== "trakt_history_movie")
+    .sort((a, b) => (a < b ? -1 : 1))
 );
 
 export const OrderByOptions = [

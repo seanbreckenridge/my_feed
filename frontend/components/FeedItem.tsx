@@ -1,6 +1,6 @@
 import Image from "./Image";
 import styles from "../styles/Index.module.css";
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import {
   faBook,
   faChessKnight,
@@ -135,7 +135,12 @@ const CardHeader: React.FC<CardHeaderProps> = ({ title, icon, link }) => {
         {title}
       </p>
       {link && (
-        <a className={styles.iconLink} href={link} target="_blank" rel="noreferrer">
+        <a
+          className={styles.iconLink}
+          href={link}
+          target="_blank"
+          rel="noreferrer"
+        >
           <FontAwesomeIcon icon={faLink} />
         </a>
       )}
