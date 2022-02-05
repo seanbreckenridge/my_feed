@@ -1,7 +1,10 @@
 import type { GetStaticPropsResult, NextPage } from "next";
 import Head from "next/head";
 import Image from "../components/Image";
-import { FeedGrid } from "../components/FeedItem";
+import {
+  FeedGrid,
+  FeedItemStruct,
+} from "../components/FeedItem";
 import Select, { Options } from "react-select";
 import styles from "../styles/Index.module.css";
 import useSWRInfinite from "swr/infinite";
@@ -55,7 +58,6 @@ const getKey = (
 
   const qt = query.trim();
   if (qt.length > 0) {
-    console.log(qt);
     params.query = qt;
   }
 
@@ -95,7 +97,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
   // hit the end of the data for this query
   const [atEnd, setAtEnd] = useState<boolean>(false);
 
-  const { data, error, mutate, size, setSize, isValidating } = useSWRInfinite(
+  const { data, error, size, setSize, isValidating } = useSWRInfinite(
     (...args) =>
       getKey(
         ...args,
@@ -127,7 +129,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
     ) {
       setSize(size + 1);
     }
-  }, [isVisible, isRefreshing, atEnd]);
+  }, [isVisible, isRefreshing, atEnd, isLoadingMore]);
 
   if (error) {
     return <div>{error}</div>;
@@ -190,7 +192,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
           </button>
           {isEmpty ? <p>Nothing here...</p> : null}
         */}
-        <FeedGrid data={feedItems} />
+        <FeedGrid data={feedItems as FeedItemStruct[]} />
         <div ref={ref}>
           {atEnd
             ? "no more data..."

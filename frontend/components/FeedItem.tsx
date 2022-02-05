@@ -2,7 +2,7 @@ import Image from "./Image";
 import styles from "../styles/Index.module.css";
 import React from "react";
 
-type FeedItemStruct = {
+export type FeedItemStruct = {
   model_id: string;
   ftype: string;
   title: string;
@@ -20,17 +20,17 @@ type FeedItemStruct = {
   data: Object;
 };
 interface FeedGridProps {
-  data: Object[];
+  data: FeedItemStruct[];
 }
 
 export const FeedGrid: React.FC<FeedGridProps> = ({ data }: FeedGridProps) => {
   return (
     <div className={styles.grid}>
-      {data.map((feedItem) => {
+      {data.map((feedItem: FeedItemStruct) => {
         return (
-          <div key={(feedItem as FeedItemStruct).model_id}>
+          <div key={feedItem.model_id}>
             <div className={styles.card}>
-              <FeedBody item={feedItem as FeedItemStruct} />
+              <FeedBody item={feedItem} />
             </div>
           </div>
         );
@@ -74,4 +74,4 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
   }
 );
 
-FeedBody.displayName = "FeedItem"
+FeedBody.displayName = "FeedItem";

@@ -44,6 +44,11 @@ class Sort(Enum):
     descending = "descending"
 
 
+# items which shouldn't be shown when sorted by 'score'
+# since it'd make the feed too busy
+INDIVIDUAL_FEED_TYPES = ["anime_episode", "manga_chapter", "scrobble"]
+
+
 @router.get("/types", response_model=List[str])
 async def data_types(
     session: Session = Depends(get_db),
@@ -86,6 +91,9 @@ async def data(
             | (FeedModel.subtitle.ilike(f"%{query}%"))  # type: ignore
             | (FeedModel.model_id.ilike(f"%{query}%"))  # type: ignore
         )
+    if order_by == OrderBy.score:
+        stmt = stmt.filter(FeedModel.score != None)
+        stmt = stmt.filter(FeedModel.ftype.notin_(INDIVIDUAL_FEED_TYPES))  # type: ignore
     order_field = FeedModel.when if order_by == OrderBy.when else FeedModel.score
     order_func = order_field.desc() if sort == Sort.desc else order_field.asc()  # type: ignore
     stmt = stmt.order_by(order_func).offset(offset).limit(limit)
