@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -x
+
 declare RESET
 RESET_FEED=
 
@@ -11,11 +13,21 @@ export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
 # sync osrs images
 rsync -Pavh -e 'ssh' "$(python3 -m my.utils.backup_to runelite_screenshots)" vultr:~/p/ || exit $?
 
+TMPDIR="$(mktemp -d)"
+# https://sean.fish/d/.local/share/shortcuts/epoch?dark
+PICKLE="${TMPDIR}/$(epoch).pickle" || exit $?
+
 # run an index
-my_feed index "./backend/data/$(date +'%s').pickle" || exit $?
+my_feed index "$PICKLE" || exit $?
+scp "${PICKLE}" vultr:~/code/my_feed/backend/data
+rm -fv "${PICKLE}"
 
-if [[ "$1" == '-r' ]]; then
-  RESET=1
-fi
+echo "Running update..."
+curl -sL 'https://sean.fish/feed_api/check'
 
-echo "$RESET"
+# TODO: add reset to remove db/old data
+#if [[ "$1" == '-r' ]]; then
+#  RESET=1
+#fi
+#
+#echo "$RESET"
