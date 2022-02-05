@@ -1,4 +1,6 @@
-A personal feed/website using my [HPI](https://github.com/seanbreckenridge/HPI)
+WIP; a lot of the major infra is in place (normalizing data sources, dumping/loading from client -> server), requesting and rendering an infinite scroll, but needs a lot of work to get this to a usable state
+
+A personal feed/website using [HPI](https://github.com/seanbreckenridge/HPI)
 
 `src/my_feed/` is installed into my global environment in case I ever want to use media_feed as a sort of 'normalized' version of history; installed as `pip install -e .`
 
