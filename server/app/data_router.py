@@ -43,7 +43,7 @@ class Sort(Enum):
     desc = "desc"
     descending = "descending"
 
-
+# TODO: add episodes
 # items which shouldn't be shown when sorted by 'score'
 # since it'd make the feed too busy
 INDIVIDUAL_FEED_TYPES = ["anime_episode", "manga_chapter", "scrobble"]
@@ -94,9 +94,11 @@ async def data(
     if order_by == OrderBy.score:
         stmt = stmt.filter(FeedModel.score != None)
         stmt = stmt.filter(FeedModel.ftype.notin_(INDIVIDUAL_FEED_TYPES))  # type: ignore
-    order_field = FeedModel.when if order_by == OrderBy.when else FeedModel.score
-    order_func = order_field.desc() if sort == Sort.desc else order_field.asc()  # type: ignore
-    stmt = stmt.order_by(order_func).offset(offset).limit(limit)
+        # ORDER BY Score [CHOSEN], When DESC to show things I completed recently higher when sorting by score
+        stmt = stmt.order_by(FeedModel.score.asc() if sort == Sort.asc else FeedModel.score.desc(), FeedModel.when.desc())  # type: ignore
+    else:
+        stmt = stmt.order_by(FeedModel.when.asc() if sort == Sort.asc else FeedModel.when.desc())  # type: ignore
+    stmt = stmt.limit(limit).offset(offset)
     with session:
         items: List[FeedModel] = list(session.exec(stmt))
     return items

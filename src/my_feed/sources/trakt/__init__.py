@@ -124,6 +124,9 @@ def history() -> Iterator[FeedItem]:
     # url to rating object
     rm: Dict[str, D.Rating] = {r.media_data.url: r for r in ratings()}
 
+    # TODO: add ratings for shows history
+    # TODO: add additional field to the same movie that appears multiple times so it can be deduped when sorted by rating
+
     for h in trakt_history():
         if h.action in {"checkin", "scrobble"}:
             continue
