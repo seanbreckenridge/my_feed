@@ -1,4 +1,4 @@
-WIP; a lot of the major infra is in place (normalizing data sources, dumping/loading from client -> server), requesting and rendering an infinite scroll, but needs a lot of work to get this to a usable state
+WIP; a lot of the major infra is in place (normalizing data sources, dumping/loading from client -> server, requesting and rendering from client side as an infinite scroll) but needs a lot of work to get this to a usable state
 
 A personal feed/website using [HPI](https://github.com/seanbreckenridge/HPI)
 
