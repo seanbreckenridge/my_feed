@@ -90,7 +90,6 @@ const defaultSelectedOrder = OrderByOptions[0];
 const About: React.FC = () => {
   return (
     <div className={styles.about}>
-      <p>{`A feed of media that I've seen`}</p>
       <a
         style={{ marginLeft: "20px" }}
         className={styles.link}
