@@ -87,7 +87,7 @@ async def data(
             stmt = stmt.filter(FeedModel.subtitle.ilike(f"%{subtitle}%"))  # type: ignore
     else:
         stmt = stmt.filter(
-            (FeedModel.title.ilike(f"%{query}"))  # type: ignore
+            (FeedModel.title.ilike(f"%{query}%"))  # type: ignore
             | (FeedModel.creator.ilike(f"%{query}%"))  # type: ignore
             | (FeedModel.subtitle.ilike(f"%{query}%"))  # type: ignore
             | (FeedModel.model_id.ilike(f"%{query}%"))  # type: ignore
