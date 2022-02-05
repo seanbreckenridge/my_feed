@@ -1,6 +1,6 @@
-WIP; a lot of the major infra is in place (normalizing data sources, dumping/loading from client -> server, requesting and rendering from client side as an infinite scroll) but needs a lot of work to get this to a usable state
+Still a WIP; A personal feed/website using [`HPI`](https://github.com/seanbreckenridge/HPI)
 
-A personal feed/website using [HPI](https://github.com/seanbreckenridge/HPI)
+<https://sean.fish/feed/>
 
 `src/my_feed/` is installed into my global environment in case I ever want to use media_feed as a sort of 'normalized' version of history; installed as `pip install -e .`
 
@@ -32,6 +32,23 @@ Total: 56195 items
 Writing to 'backend/data/1643954180.pickle'
 ```
 
-... which then gets synced up and combined into the `sqlite` database on the [`backend`](./backend/)
+... which then gets synced up and combined into the `sqlite` database on the [`backend`](./backend/); all handled by [`index`](./index)
 
-That has a front-end so I can view/filter/sort stuff and view the data as an infinite scrollable list
+That has a [front-end](https://sean.fish/feed/) so I can view/filter/sort stuff and view the data as an infinite scrollable list
+
+Served with `nginx` in prod, like:
+
+```
+location /feed/ {
+  proxy_pass http://127.0.0.1:4500/feed;
+}
+
+location /feed/_next/ {
+  # required since the above proxy pass doesnt end with '/'
+  proxy_pass http://127.0.0.1:4500/feed/_next/;
+}
+
+location /feed_api/ {
+  proxy_pass http://127.0.0.1:5100/;
+}
+```
