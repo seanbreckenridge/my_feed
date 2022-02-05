@@ -5,7 +5,7 @@ A personal feed/website using my [HPI](https://github.com/seanbreckenridge/HPI)
 I periodically index all my data in the background:
 
 ```
-$ my_feed index ./server/data/$(epoch).pickle
+$ my_feed index ./backend/data/$(epoch).pickle
 Extracting my_feed.sources.scrobbles.history...
 Extracting my_feed.sources.scrobbles.history: 5342 items (took 0.2 seconds)
 Extracting my_feed.sources.games.steam...
@@ -27,9 +27,9 @@ Extracting my_feed.sources.nextalbums.history: 1938 items (took 2.41 seconds)
 Extracting my_feed.sources.mal.history...
 Extracting my_feed.sources.mal.history: 16638 items (took 3.68 seconds)
 Total: 56195 items
-Writing to 'server/data/1643954180.pickle'
+Writing to 'backend/data/1643954180.pickle'
 ```
 
-... which then gets synced up and combined into the `sqlite` database on the [`server`](./server/)
+... which then gets synced up and combined into the `sqlite` database on the [`backend`](./backend/)
 
-That has a front-end so I can view/filter/sort stuff
+That has a front-end so I can view/filter/sort stuff and view the data as an infinite scrollable list
