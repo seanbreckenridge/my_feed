@@ -6,6 +6,8 @@ TODOs:
 
 - game images
 - better color scheme?
+- more filters
+- grab params from URL
 
 `src/my_feed/` is installed into my global environment in case I ever want to use media_feed as a sort of 'normalized' version of history; installed as `pip install -e .`
 
