@@ -149,6 +149,8 @@ def chess() -> Iterator[FeedItem]:
             elif game.black.username == CHESS_USERNAME and game.winner == "black":
                 won = True
             data["variant"] = str(game.variant)
+            # 9999 skips to the last move of the match
+            url = f"https://lichess.org/{game.game_id}#9999"
         else:
             raise RuntimeError(f"Unexpected game {type(game)} {game}")
         if game.white.username == CHESS_USERNAME:
