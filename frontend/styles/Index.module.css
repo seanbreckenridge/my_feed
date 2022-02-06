@@ -32,7 +32,12 @@
   transition: 100ms;
 }
 
-.toggleDate {
+.filterIcon {
+  min-height: 35px;
+  min-width: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: white;
   padding: 7px;
   border: 1px;
@@ -42,7 +47,7 @@
   cursor: pointer;
 }
 
-.toggleDate:hover {
+.filterIcon:hover {
   background-color: rgb(246, 246, 246);
   transition: 100ms;
 }
@@ -120,7 +125,8 @@ a.link:active {
   }
   .typeSelect,
   .sortSelect,
-  .button {
+  .button,
+  .filterIcon {
     margin-top: 2px;
   }
 }

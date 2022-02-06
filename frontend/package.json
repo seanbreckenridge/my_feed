@@ -13,6 +13,7 @@
     "@fortawesome/react-fontawesome": "^0.1.17",
     "dayjs": "^1.10.7",
     "next": "12.0.10",
+    "next-query-params": "^2.1.2",
     "react": "17.0.2",
     "react-debounce-input": "^3.2.5",
     "react-dom": "17.0.2",

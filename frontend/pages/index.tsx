@@ -6,12 +6,13 @@ import styles from "../styles/Index.module.css";
 import useSWRInfinite from "swr/infinite";
 import { useState, useRef, useEffect, SetStateAction, Dispatch } from "react";
 import { DebounceInput } from "react-debounce-input";
-
+import { useQueryParam, StringParam, withDefault } from "next-query-params";
 import useOnScreen from "../hooks/useOnScreen";
-import { FeedItemOptions, OrderByOptions } from "../lib/enums";
+import { FeedItemOptions, LabelOption, OrderByOptions } from "../lib/enums";
 import PrefsConsumer, { Prefs } from "../lib/prefs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock, faHistory } from "@fortawesome/free-solid-svg-icons";
+import { faClock, faHistory, faTimes } from "@fortawesome/free-solid-svg-icons";
+import About from "../components/About";
 
 async function fetcher(...args: any[]) {
   // @ts-ignore
@@ -81,74 +82,28 @@ const dataBase = `${baseUrl}/data/`;
 const paginationLimit = 100;
 const defaultSelectedOrder = OrderByOptions[0];
 
-const About: React.FC = () => {
-  return (
-    <div className={styles.about}>
-      <a
-        style={{ marginLeft: "20px" }}
-        className={styles.link}
-        href="https://github.com/seanbreckenridge/my_feed"
-      >
-        Source Code
-      </a>
-      <p>Any Images here are owned by the respective services:</p>
-      <ul>
-        <li>
-          Scrobbles (Songs), using{" "}
-          <a className={styles.link} href="https://listenbrainz.org/">
-            ListenBrainz
-          </a>
-        </li>
-        <li>
-          Game Achievements from{" "}
-          <a href="https://steamcommunity.com/" className={styles.link}>
-            Steam
-          </a>
-        </li>
-        <li>
-          Album art from{" "}
-          <a href="https://discogs.com/" className={styles.link}>
-            Discogs
-          </a>
-        </li>
-        <li>
-          Anime/Manga from{" "}
-          <a href="https://myanimelist.net/" className={styles.link}>
-            MyAnimeList
-          </a>
-        </li>
-        <li>
-          Games from <a href="https://www.grouvee.com/">Grouvee</a>
-        </li>
-        <li>
-          Movies/TV Shows/Episodes -{" "}
-          <a className={styles.link} href="https://trakt.tv/">
-            Trakt
-          </a>
-          , using{" "}
-          <a className={styles.link} href="https://www.themoviedb.org/">
-            TMDB
-          </a>{" "}
-          (This product uses the TMDB API but is not endorsed or certified by
-          TMDB)
-        </li>
-      </ul>
-    </div>
-  );
-};
-
 interface IndexProps {}
 
 const Index: NextPage<IndexProps> = ({}: IndexProps) => {
-  const ref = useRef(null);
-  const isVisible = useOnScreen(ref);
+  const scrollRef = useRef(null);
+  const isVisible = useOnScreen(scrollRef);
 
   const [showAttribution, setShowAttribution] = useState<boolean>(false);
-  const [queryText, setQueryText] = useState("");
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<string>(
-    defaultSelectedOrder.value
+
+  // query maps back onto the URL param
+  const [queryText, setQueryText] = useQueryParam(
+    "query",
+    withDefault(StringParam, "")
   );
+
+  // valid type labels, used in Select, sent to API
+  const [selectedTypeLabels, setSelectedTypeLabels] = useState<LabelOption[]>(
+    []
+  );
+
+  // valid order by, used in select and sent to API
+  const [selectedOrderLabel, setSelectedOrderLabel] =
+    useState<LabelOption>(defaultSelectedOrder);
 
   // hit the end of the data for this query
   const [atEnd, setAtEnd] = useState<boolean>(false);
@@ -159,8 +114,8 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
         ...args,
         dataBase,
         queryText,
-        selectedTypes,
-        selectedOrder,
+        selectedTypeLabels.map((e) => e.value),
+        selectedOrderLabel.value,
         paginationLimit,
         setAtEnd
       ),
@@ -190,15 +145,22 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
     isRefreshing,
     atEnd,
     isLoadingMore,
-    selectedOrder,
-    selectedTypes,
+    selectedOrderLabel,
+    selectedTypeLabels,
     queryText,
   ]);
 
   // reset 'atEnd' (so new items load when you scroll down) after user changes any of the inputs
   useEffect(() => {
     setAtEnd(false);
-  }, [queryText, selectedTypes, selectedOrder]);
+  }, [queryText, selectedOrderLabel, selectedTypeLabels]);
+
+  const clear = () => {
+    setQueryText("");
+    setSelectedOrderLabel(defaultSelectedOrder);
+    setSelectedTypeLabels([]);
+    setSize(0);
+  };
 
   if (error) {
     return <div>{error}</div>;
@@ -237,27 +199,33 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   placeholder="Search..."
                 />
                 <Select
-                  defaultValue={[]}
+                  value={selectedTypeLabels}
                   isMulti
                   instanceId="type_select"
                   inputId="type_select"
                   options={FeedItemOptions}
                   placeholder="Filter Type..."
                   className={styles.typeSelect}
-                  onChange={(e) =>
-                    setSelectedTypes(e.map((v) => (v as any).value))
-                  }
+                  onChange={(e) => {
+                    if (e) {
+                      setSelectedTypeLabels(e as LabelOption[]);
+                    }
+                  }}
                 />
                 <Select
-                  defaultValue={defaultSelectedOrder}
+                  value={selectedOrderLabel}
                   instanceId="score_select"
                   inputId="score_select"
                   options={OrderByOptions}
                   className={styles.sortSelect}
-                  onChange={(e) => e && setSelectedOrder(e.value)}
+                  onChange={(e) => {
+                    if (e) {
+                      setSelectedOrderLabel(e);
+                    }
+                  }}
                 />
                 <div
-                  className={styles.toggleDate}
+                  className={styles.filterIcon}
                   title="Toggle Date Format"
                   onClick={() => {
                     // toggle on click
@@ -272,6 +240,13 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   <FontAwesomeIcon
                     icon={prefs.dateAbsolute ? faClock : faHistory}
                   />
+                </div>
+                <div
+                  className={styles.filterIcon}
+                  title="Reset Filters"
+                  onClick={clear}
+                >
+                  <FontAwesomeIcon icon={faTimes} />
                 </div>
               </div>
               {/*
@@ -296,8 +271,8 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
           {isEmpty ? <p>Nothing here...</p> : null}
         */}
               <FeedGrid data={feedItems as FeedItemStruct[]} />
-              <div ref={ref} style={{ marginTop: "20vh" }}>
-                {atEnd && selectedOrder === "score"
+              <div ref={scrollRef} style={{ marginTop: "20vh" }}>
+                {atEnd && selectedOrderLabel.value === "score"
                   ? "no more data with scores, switch order to 'Date'"
                   : atEnd
                   ? "no more data..."
