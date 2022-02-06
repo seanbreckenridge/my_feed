@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-const basePath = process.env.NODE_ENV === "production" ? "/feed": undefined;
+const basePath = process.env.NODE_ENV === "production" ? "/feed" : undefined;
 
 const nextConfig = {
   reactStrictMode: true,

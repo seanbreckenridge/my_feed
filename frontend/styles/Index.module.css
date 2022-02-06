@@ -18,6 +18,20 @@
   margin-bottom: 1rem;
 }
 
+.button {
+  background-color: white;
+  padding: 9px;
+  border: 3px;
+  margin-left: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: rgb(246, 246, 246);
+  transition: 100ms;
+}
+
 .mutedLink {
   color: grey;
 }

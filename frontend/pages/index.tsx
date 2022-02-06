@@ -1,21 +1,15 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { FeedGrid, FeedItemStruct } from "../components/FeedItem";
-import Select, { Options } from "react-select";
+import Select from "react-select";
 import styles from "../styles/Index.module.css";
 import useSWRInfinite from "swr/infinite";
-import {
-  useState,
-  useRef,
-  useEffect,
-  SetStateAction,
-  Dispatch,
-  ReactElement,
-} from "react";
+import { useState, useRef, useEffect, SetStateAction, Dispatch } from "react";
 import { DebounceInput } from "react-debounce-input";
 
 import useOnScreen from "../hooks/useOnScreen";
 import { FeedItemOptions, OrderByOptions } from "../lib/enums";
+import PrefsConsumer, { Prefs } from "../lib/prefs";
 
 async function fetcher(...args: any[]) {
   // @ts-ignore
@@ -209,51 +203,73 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
   }
 
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>media feed</title>
-        <meta name="description" content="my personal media feed" />
-        <link rel="icon" href="https://sean.fish/favicon.ico" />
-      </Head>
-      <main className={styles.main}>
-        <nav className={styles.nav}>
-          <div className={styles.mainTitle}>- FEED -</div>
-          <div className={styles.mutedLink}>
-            <a href="#" onClick={() => setShowAttribution((toggle) => !toggle)}>
-              About/Attribution
-            </a>
-          </div>
-        </nav>
-        {showAttribution && <About />}
-        <div className={styles.filterBar}>
-          <DebounceInput
-            className={styles.query_input}
-            value={queryText}
-            minLength={2}
-            debounceTimeout={300}
-            onChange={(e) => setQueryText(e.target.value)}
-            placeholder="Search..."
-          />
-          <Select
-            defaultValue={[]}
-            isMulti
-            instanceId="type_select"
-            inputId="type_select"
-            options={FeedItemOptions}
-            placeholder="Filter Type..."
-            className={styles.type_select}
-            onChange={(e) => setSelectedTypes(e.map((v) => (v as any).value))}
-          />
-          <Select
-            defaultValue={defaultSelectedOrder}
-            instanceId="score_select"
-            inputId="score_select"
-            options={OrderByOptions}
-            className={styles.sort_select}
-            onChange={(e) => e && setSelectedOrder(e.value)}
-          />
-        </div>
-        {/*
+    <PrefsConsumer>
+      {(prefs: Prefs) => {
+        return (
+          <div className={styles.container}>
+            <Head>
+              <title>media feed</title>
+              <meta name="description" content="my personal media feed" />
+              <link rel="icon" href="https://sean.fish/favicon.ico" />
+            </Head>
+            <main className={styles.main}>
+              <nav className={styles.nav}>
+                <div className={styles.mainTitle}>- FEED -</div>
+                <div className={styles.mutedLink}>
+                  <a
+                    href="#"
+                    onClick={() => setShowAttribution((toggle) => !toggle)}
+                  >
+                    About/Attribution
+                  </a>
+                </div>
+              </nav>
+              {showAttribution && <About />}
+              <div className={styles.filterBar}>
+                <DebounceInput
+                  className={styles.query_input}
+                  value={queryText}
+                  minLength={2}
+                  debounceTimeout={300}
+                  onChange={(e) => setQueryText(e.target.value)}
+                  placeholder="Search..."
+                />
+                <Select
+                  defaultValue={[]}
+                  isMulti
+                  instanceId="type_select"
+                  inputId="type_select"
+                  options={FeedItemOptions}
+                  placeholder="Filter Type..."
+                  className={styles.type_select}
+                  onChange={(e) =>
+                    setSelectedTypes(e.map((v) => (v as any).value))
+                  }
+                />
+                <Select
+                  defaultValue={defaultSelectedOrder}
+                  instanceId="score_select"
+                  inputId="score_select"
+                  options={OrderByOptions}
+                  className={styles.sort_select}
+                  onChange={(e) => e && setSelectedOrder(e.value)}
+                />
+                <button
+                  className={styles.button}
+                  onClick={() => {
+                    // toggle on click
+                    prefs.setPrefs((oldPrefs: Prefs): Prefs => {
+                      return {
+                        ...oldPrefs,
+                        dateAbsolute: !oldPrefs.dateAbsolute,
+                      };
+                    });
+                  }}
+                >
+                  {`Date: ${prefs.dateAbsolute ? "Full" : "Relative"}`}
+                </button>
+              </div>
+              {/*
         <p>
           showing {size} page(s) of{" "}
           {isLoadingMore && !atEnd ? "..." : feedItems.length} items(s){" "}
@@ -274,18 +290,21 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
           </button>
           {isEmpty ? <p>Nothing here...</p> : null}
         */}
-        <FeedGrid data={feedItems as FeedItemStruct[]} />
-        <div ref={ref} style={{ marginTop: "20vh" }}>
-          {atEnd && selectedOrder === "score"
-            ? "no more data with scores, switch order to 'Date'"
-            : atEnd
-            ? "no more data..."
-            : !isEmpty && isLoadingMore
-            ? "loading..."
-            : ""}
-        </div>
-      </main>
-    </div>
+              <FeedGrid data={feedItems as FeedItemStruct[]} />
+              <div ref={ref} style={{ marginTop: "20vh" }}>
+                {atEnd && selectedOrder === "score"
+                  ? "no more data with scores, switch order to 'Date'"
+                  : atEnd
+                  ? "no more data..."
+                  : !isEmpty && isLoadingMore
+                  ? "loading..."
+                  : ""}
+              </div>
+            </main>
+          </div>
+        );
+      }}
+    </PrefsConsumer>
   );
 };
 

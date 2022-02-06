@@ -55,7 +55,6 @@ INDIVIDUAL_FEED_TYPES = [
 ]
 
 
-
 @router.get("/types", response_model=List[str])
 async def data_types(
     session: Session = Depends(get_db),

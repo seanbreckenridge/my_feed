@@ -4,7 +4,6 @@ Live at <https://sean.fish/feed/>
 
 TODOs:
 
-- fix datetimes to use client side dates
 - game images
 - better color scheme?
 - more filters

@@ -62,7 +62,7 @@ def import_pickled_data() -> None:
                     collection=f.collection,
                     tags=json.dumps(f.tags),
                     data=pickle.dumps(f.data) if bool(f.data) else None,
-                    when=f.when,
+                    when=int(f.when.timestamp()),
                     release_date=f.release_date,
                     image_url=f.image_url,
                     url=f.url,

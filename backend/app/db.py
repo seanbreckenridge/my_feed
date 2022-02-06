@@ -22,7 +22,7 @@ class FeedBase(SQLModel):  # type: ignore
     collection: Optional[str] = Field(default=None)
 
     # dates
-    when: datetime
+    when: int
     release_date: Optional[date] = Field(default=None)
 
     # urls

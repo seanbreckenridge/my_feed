@@ -12,6 +12,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import PrefsConsumer, { Prefs } from "../lib/prefs";
+import dayjs, { unix } from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 export type FeedItemStruct = {
   model_id: string;
@@ -23,7 +27,7 @@ export type FeedItemStruct = {
   part: number | null;
   subpart: number | null;
   collection: string | null;
-  when: string;
+  when: number;
   release_date: string;
   image_url: string | null;
   url: string | null;
@@ -51,21 +55,32 @@ export const FeedGrid: React.FC<FeedGridProps> = ({ data }: FeedGridProps) => {
 };
 
 interface CardFooterProps {
-  dt: string;
+  dt: number;
   score?: number | null;
 }
 
-const CardFooter: React.FC<CardFooterProps> = React.memo(
-  ({ dt, score }: CardFooterProps) => {
-    const sc = score ?? null;
-    return (
-      <div className={styles.cardFooter}>
-        <div>{dt}</div>
-        {score && <div className={styles.footerScore}>{`${sc}/10`}</div>}
-      </div>
-    );
-  }
-);
+const CardFooter: React.FC<CardFooterProps> = ({
+  dt,
+  score,
+}: CardFooterProps) => {
+  const sc = score ?? null;
+  return (
+    <PrefsConsumer>
+      {(prefs: Prefs) => {
+        const d = unix(dt);
+        const ds = prefs.dateAbsolute
+          ? d.format("YYYY-MM-DD hh:mm A")
+          : d.fromNow();
+        return (
+          <div className={styles.cardFooter}>
+            <div>{ds}</div>
+            {score && <div className={styles.footerScore}>{`${sc}/10`}</div>}
+          </div>
+        );
+      }}
+    </PrefsConsumer>
+  );
+};
 
 CardFooter.displayName = "Card Footer";
 

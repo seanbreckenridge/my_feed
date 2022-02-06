@@ -8,7 +8,6 @@ from app.data_router import router
 from my_feed.log import logger
 
 
-
 def create_app() -> FastAPI:
     current_app = FastAPI(title="my_feed")
 
