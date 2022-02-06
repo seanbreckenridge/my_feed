@@ -12,6 +12,25 @@ TODOs:
 
 `src/my_feed/` is installed into my global environment in case I ever want to use media_feed as a sort of 'normalized' version of history; installed as `pip install -e .`
 
+This uses HPI as the data source, and then handles cleaning up the data some/enriching it by making API requests.
+
+Data Sources:
+
+- Scrobbles
+  - [listenbrainz_export](https://github.com/seanbreckenridge/listenbrainz_export) for scrobbles
+  - [mpv_history_daemon](https://github.com/seanbreckenridge/mpv-history-daemon) for mpv history
+- Movies/TV Shows
+  - [traktexport](https://github.com/seanbreckenridge/traktexport), grabbing data from Trakt. Trakt provides [TMDB](http://themoviedb.org/) IDs, so I can fetch images for each episode
+- Video Games
+  - [grouvee_export](https://github.com/seanbreckenridge/grouvee_export) to parse the CSV export from Grouvee
+  - [steamscraper](https://github.com/seanbreckenridge/steamscraper) to scrape my steam achievements
+- Albums
+  - [albums](https://github.com/seanbreckenridge/albums) which requests out to [discogs](https://www.discogs.com/)
+- Anime/Manga
+  - [malexport](https://github.com/seanbreckenridge/malexport/), saving my data from [MAL](https://myanimelist.net/)
+
+If not mentioned its likely a module in [HPI](https://github.com/seanbreckenridge/HPI)
+
 I periodically index all my data in the background:
 
 ```
