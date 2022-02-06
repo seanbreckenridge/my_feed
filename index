@@ -2,6 +2,8 @@
 
 set -x
 
+wait-for-internet
+
 declare RESET
 RESET_FEED=
 
