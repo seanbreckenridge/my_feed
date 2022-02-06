@@ -22,9 +22,10 @@ Data Sources:
   - [mpv_history_daemon](https://github.com/seanbreckenridge/mpv-history-daemon) for mpv history
 - Movies/TV Shows
   - [traktexport](https://github.com/seanbreckenridge/traktexport), grabbing data from Trakt. Trakt provides [TMDB](http://themoviedb.org/) IDs, so I can fetch images for each episode
-- Video Games
+- Games
   - [grouvee_export](https://github.com/seanbreckenridge/grouvee_export) to parse the CSV export from Grouvee
   - [steamscraper](https://github.com/seanbreckenridge/steamscraper) to scrape my steam achievements
+  - [chess_export](https://github.com/seanbreckenridge/chess_export) for chess games, the [python-chess.svg](https://python-chess.readthedocs.io/en/latest/) package to parse the PGNs into SVGs
 - Albums
   - [albums](https://github.com/seanbreckenridge/albums) which requests out to [discogs](https://www.discogs.com/)
 - Anime/Manga
