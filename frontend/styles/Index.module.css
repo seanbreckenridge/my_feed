@@ -32,6 +32,21 @@
   transition: 100ms;
 }
 
+.toggleDate {
+  background-color: white;
+  padding: 7px;
+  border: 1px;
+  border-color: grey;
+  border-radius: 2px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.toggleDate:hover {
+  background-color: rgb(246, 246, 246);
+  transition: 100ms;
+}
+
 .mutedLink {
   color: grey;
 }
@@ -103,15 +118,20 @@ a.link:active {
     width: 100%;
     flex-direction: column;
   }
+  .typeSelect,
+  .sortSelect,
+  .button {
+    margin-top: 2px;
+  }
 }
 
-.type_select,
-.sort_select {
+.typeSelect,
+.sortSelect {
   min-width: 10em;
   margin-left: 5px;
 }
 
-.query_input {
+.queryInput {
   min-width: 15rem;
   padding: 5px 8px;
   margin: 0.5rem;

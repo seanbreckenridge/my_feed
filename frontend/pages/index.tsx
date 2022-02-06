@@ -10,6 +10,8 @@ import { DebounceInput } from "react-debounce-input";
 import useOnScreen from "../hooks/useOnScreen";
 import { FeedItemOptions, OrderByOptions } from "../lib/enums";
 import PrefsConsumer, { Prefs } from "../lib/prefs";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClock, faHistory } from "@fortawesome/free-solid-svg-icons";
 
 async function fetcher(...args: any[]) {
   // @ts-ignore
@@ -227,7 +229,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
               {showAttribution && <About />}
               <div className={styles.filterBar}>
                 <DebounceInput
-                  className={styles.query_input}
+                  className={styles.queryInput}
                   value={queryText}
                   minLength={2}
                   debounceTimeout={300}
@@ -241,7 +243,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   inputId="type_select"
                   options={FeedItemOptions}
                   placeholder="Filter Type..."
-                  className={styles.type_select}
+                  className={styles.typeSelect}
                   onChange={(e) =>
                     setSelectedTypes(e.map((v) => (v as any).value))
                   }
@@ -251,11 +253,12 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   instanceId="score_select"
                   inputId="score_select"
                   options={OrderByOptions}
-                  className={styles.sort_select}
+                  className={styles.sortSelect}
                   onChange={(e) => e && setSelectedOrder(e.value)}
                 />
-                <button
-                  className={styles.button}
+                <div
+                  className={styles.toggleDate}
+                  title="Toggle Date Format"
                   onClick={() => {
                     // toggle on click
                     prefs.setPrefs((oldPrefs: Prefs): Prefs => {
@@ -266,8 +269,10 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                     });
                   }}
                 >
-                  {`Date: ${prefs.dateAbsolute ? "Full" : "Relative"}`}
-                </button>
+                  <FontAwesomeIcon
+                    icon={prefs.dateAbsolute ? faClock : faHistory}
+                  />
+                </div>
               </div>
               {/*
         <p>
