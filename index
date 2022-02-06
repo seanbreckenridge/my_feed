@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
+# if ./index -r, this deletes
+# the remote database and re-builds it
 
-set -x
-
-wait-for-internet
+set -e
 
 declare RESET
-RESET_FEED=
+RESET=
+
+# if we want to delete the remote database
+[[ "$1" == "-r" ]] && RESET=1
+declare -rx RESET
+
+wait-for-internet
 
 THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 cd "${THIS_DIR}" || exit $?
@@ -15,21 +21,34 @@ export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
 # sync osrs images
 rsync -Pavh -e 'ssh' "$(python3 -m my.utils.backup_to runelite_screenshots)" vultr:~/p/ || exit $?
 
+# temporary dir for new data
 TMPDIR="$(mktemp -d)"
 # https://sean.fish/d/.local/share/shortcuts/epoch?dark
 PICKLE="${TMPDIR}/$(epoch).pickle" || exit $?
 
 # run an index
 my_feed index "$PICKLE" || exit $?
+
+# delete remote pickle's if we want to reset
+if [[ -n "$RESET" ]]; then
+	ssh vultr 'rm -vf ~/code/my_feed/backend/data/*.pickle'
+fi
+
+# copy up to the server
 scp "${PICKLE}" vultr:~/code/my_feed/backend/data
-rm -fv "${PICKLE}"
 
-echo "Running update..."
-curl -sL 'https://sean.fish/feed_api/check'
+# delete temp file
+rm -f "${PICKLE}"
 
-# TODO: add reset to remove db/old data
-#if [[ "$1" == '-r' ]]; then
-#  RESET=1
-#fi
-#
-#echo "$RESET"
+if [[ -n "$RESET" ]]; then
+	echo 'Deleting database...'
+	set -x
+	ssh vultr 'rm -vf ~/code/my_feed/backend/feeddata.sqlite && ~/vps/super --ctl restart feed-backend'
+	set +x
+	echo '(remote is rebuilding database, should be done in a couple seconds)'
+else
+	# otherwise this is just new data, just ping the server to check for new files
+	echo 'Running update...'
+	set -x
+	curl -sL 'https://sean.fish/feed_api/check'
+fi

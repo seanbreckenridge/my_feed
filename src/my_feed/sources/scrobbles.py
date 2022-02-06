@@ -20,12 +20,13 @@ from ..log import logger
 from .common import _click, FeedBackgroundError
 
 # defaults from listenbrainz/media player, when the artist was unknown
-BROKEN_ARTISTS = {"unknown artist", "<unknown>"}
+# tags are either the artist or the release name
+BROKEN_TAGS = {"unknown artist", "<unknown>"}
 
 try:
-    from my.config.feed import broken_artists  # type: ignore[import]
+    from my.config.feed import broken_tags  # type: ignore[import]
 
-    BROKEN_ARTISTS.update(broken_artists)
+    BROKEN_TAGS.update(broken_tags)
 except ImportError as e:
     logger.warning("Could not import feed configuration", exc_info=e)
 
@@ -79,7 +80,11 @@ def history() -> Iterator[FeedItem]:
         title: str = listen.track_name
         subtitle: Optional[str] = listen.release_name
         creator: str = listen.artist_name
-        if listen.artist_name.lower() in BROKEN_ARTISTS:
+        # if I've marked this as broken
+        if listen.artist_name.lower() in BROKEN_TAGS or (
+            listen.release_name is not None
+            and listen.release_name.lower() in BROKEN_TAGS
+        ):
             try:
                 title, subtitle, creator = _manually_fix_scrobble(listen)
             except FeedBackgroundError as e:

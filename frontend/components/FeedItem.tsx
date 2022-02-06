@@ -240,7 +240,6 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(
       const sc =
         item.ftype == "anime" || item.ftype == "manga" ? item.score : null;
       const icon = item.ftype.startsWith("anime") ? faFilm : faBook;
-      console.log(item);
       return (
         <div className={styles.cardFlexBody}>
           <CardHeader title={item.title} icon={icon} link={item.url} />
