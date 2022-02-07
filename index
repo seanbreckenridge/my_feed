@@ -49,7 +49,6 @@ if [[ -n "$RESET" ]]; then
 else
 	# otherwise this is just new data, just ping the server to check for new files
 	echo 'Running update...'
-	set -x
 	curl -sL 'https://sean.fish/feed_api/check'
 	echo
 fi
