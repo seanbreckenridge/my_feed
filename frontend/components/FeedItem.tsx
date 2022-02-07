@@ -153,6 +153,8 @@ const CardHeader: React.FC<CardHeaderProps> = ({ title, icon, link }) => {
         <a
           className={styles.iconLink}
           href={link}
+          aria-label="link"
+          title="link"
           target="_blank"
           rel="noreferrer"
         >

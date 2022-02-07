@@ -9,6 +9,10 @@ const nextConfig = {
     domains: ["localhost", "sean.fish"],
     loader: "custom",
   },
+  i18n: {
+    locales: ["en"],
+    defaultLocale: "en",
+  },
 };
 
 module.exports = nextConfig;

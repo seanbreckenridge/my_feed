@@ -194,36 +194,43 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   className={styles.queryInput}
                   value={queryText}
                   minLength={2}
+                  aria-label="Search"
                   debounceTimeout={300}
                   onChange={(e) => setQueryText(e.target.value)}
                   placeholder="Search..."
                 />
-                <Select
-                  value={selectedTypeLabels}
-                  isMulti
-                  instanceId="type_select"
-                  inputId="type_select"
-                  options={FeedItemOptions}
-                  placeholder="Filter Type..."
-                  className={styles.typeSelect}
-                  onChange={(e) => {
-                    if (e) {
-                      setSelectedTypeLabels(e as LabelOption[]);
-                    }
-                  }}
-                />
-                <Select
-                  value={selectedOrderLabel}
-                  instanceId="score_select"
-                  inputId="score_select"
-                  options={OrderByOptions}
-                  className={styles.sortSelect}
-                  onChange={(e) => {
-                    if (e) {
-                      setSelectedOrderLabel(e);
-                    }
-                  }}
-                />
+                <label>
+                  <Select
+                    value={selectedTypeLabels}
+                    isMulti
+                    instanceId="type_select"
+                    inputId="type_select"
+                    options={FeedItemOptions}
+                    placeholder="Filter Type..."
+                    aria-label="Filter Types"
+                    className={styles.typeSelect}
+                    onChange={(e) => {
+                      if (e) {
+                        setSelectedTypeLabels(e as LabelOption[]);
+                      }
+                    }}
+                  />
+                </label>
+                <label>
+                  <Select
+                    value={selectedOrderLabel}
+                    instanceId="order_select"
+                    inputId="order_select"
+                    aria-label="Select Order"
+                    options={OrderByOptions}
+                    className={styles.sortSelect}
+                    onChange={(e) => {
+                      if (e) {
+                        setSelectedOrderLabel(e);
+                      }
+                    }}
+                  />
+                </label>
                 <div
                   className={styles.filterIcon}
                   title="Toggle Date Format"
