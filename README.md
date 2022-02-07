@@ -4,6 +4,7 @@ Live at <https://sean.fish/feed/>
 
 TODOs:
 
+- flip episode title/subtitle
 - game images
 - better color scheme?
 - more filters
@@ -32,7 +33,7 @@ Data Sources:
 
 If not mentioned its likely a module in [HPI](https://github.com/seanbreckenridge/HPI)
 
-I periodically index all my data in the background:
+I periodically index all my data [in the background](https://sean.fish/d/my_feed_index.job?dark):
 
 ```
 $ my_feed index ./backend/data/$(epoch).pickle
