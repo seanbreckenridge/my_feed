@@ -4,12 +4,11 @@ Live at <https://sean.fish/feed/>
 
 TODOs:
 
-- flip episode title/subtitle
-- game images
-- better color scheme?
 - more filters
 - grab params from URL
 - activity graphs
+- better color scheme?
+- cache images?
 
 `src/my_feed/` is installed into my global environment in case I ever want to use media_feed as a sort of 'normalized' version of history; installed as `pip install -e .`
 

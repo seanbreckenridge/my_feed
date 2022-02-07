@@ -219,9 +219,10 @@ def history() -> Iterator[FeedItem]:
         subtitle: Optional[str] = None
         collection: str
         if isinstance(m, D.Episode):
+            title = m.show.title
+            subtitle = m.title
             part = m.season
             subpart = m.episode
-            subtitle = m.show.title
             assert m.show.ids.trakt_slug is not None
             collection = m.show.ids.trakt_slug
         else:

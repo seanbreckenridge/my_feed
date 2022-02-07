@@ -104,7 +104,7 @@ const CardImage: React.FC<CardImageProps> = ({
   let uMinHeight = minHeight ?? "12";
   // hacky poster/still query params set in trakt
   if (src.endsWith("?p")) {
-    uMinHeight = "30";
+    uMinHeight = "24";
     src = src.slice(0, src.length - 2);
   } else if (src.endsWith("?s")) {
     uMinWidth = "20";

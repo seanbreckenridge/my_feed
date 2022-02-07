@@ -51,4 +51,5 @@ else
 	echo 'Running update...'
 	set -x
 	curl -sL 'https://sean.fish/feed_api/check'
+	echo
 fi

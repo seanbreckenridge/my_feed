@@ -6,8 +6,8 @@ import orjson
 
 from fastapi import APIRouter, Depends, Query
 from pydantic import validator
-from sqlmodel import Session, Field, select
-from sqlalchemy import distinct
+from sqlmodel import Session, Field, select  # type: ignore[import]
+from sqlalchemy import distinct  # type: ignore[import]
 
 
 from app.db import get_db, FeedModel, FeedBase
@@ -15,7 +15,7 @@ from app.db import get_db, FeedModel, FeedBase
 router = APIRouter()
 
 
-class FeedRead(FeedBase):  # type: ignore
+class FeedRead(FeedBase):
     # parse from the backend to data structures
     tags: List[str] = Field(default_factory=list)
     data: Dict[str, Any] = Field(default_factory={})

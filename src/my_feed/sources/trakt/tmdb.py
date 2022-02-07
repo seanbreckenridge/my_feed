@@ -60,8 +60,9 @@ class TMDBCache(URLCache):
         # 404 means data couldn't be found -- could periodically invalidate anything
         # which has errors as cached information and retry incase new data has been
         # pushed to TMDB
-        if r.status_code > 400 and r.status_code != 404:
-            logger.info(f"Failed for {uurl}, writing error to cache")
+        if r.status_code == 404:
+            logger.info(f"Failed to cache {uurl}, writing error to cache")
+        else:
             r.raise_for_status()
         # raises before it returns summary which would then get saved by 'URLCache.get'
         return Summary(url=uurl, data={}, metadata=r.json(), timestamp=datetime.now())

@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 from typing import Optional, Iterator
 
 from sqlmodel import SQLModel, Field, create_engine, Session  # type: ignore[import]
@@ -8,7 +8,7 @@ from app.settings import settings
 
 
 # base non-table sql model
-class FeedBase(SQLModel):  # type: ignore
+class FeedBase(SQLModel):  # type: ignore[misc]
     model_id: str
     ftype: str  # feed item type
     title: str
