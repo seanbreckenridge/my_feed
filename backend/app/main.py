@@ -26,8 +26,8 @@ def create_app() -> FastAPI:
     async def check() -> str:
         from app.load_pickle import update_data
 
-        update_data()
-        return "OK"
+        added = update_data()
+        return f"OK; added {added}"
 
     @current_app.on_event("startup")
     async def _startup() -> None:

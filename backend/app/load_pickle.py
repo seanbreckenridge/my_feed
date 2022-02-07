@@ -43,7 +43,7 @@ def _model_ids() -> set[str]:
     return model_ids
 
 
-def import_pickled_data() -> None:
+def import_pickled_data() -> int:
     added = 0
     with Session(feed_engine) as sess:
         model_ids = _model_ids()
@@ -72,9 +72,11 @@ def import_pickled_data() -> None:
         sess.flush()
         sess.commit()
     logger.info(f"{added} new items added to the database")
+    return added
 
 
-def update_data():
+def update_data() -> int:
 
-    import_pickled_data()
+    added = import_pickled_data()
     prune_pickle_files()
+    return added
