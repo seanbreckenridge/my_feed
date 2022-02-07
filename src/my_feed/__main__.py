@@ -42,7 +42,7 @@ def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
     yield mal_history
 
 
-def data(echo: bool) -> Iterator[FeedItem]:
+def data(echo: bool = False) -> Iterator[FeedItem]:
     for producer in _sources():
         emitted: set[str] = set()
         start_time = time.time()

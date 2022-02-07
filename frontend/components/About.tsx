@@ -37,7 +37,7 @@ const About: React.FC = () => {
           </a>
         </li>
         <li>
-          Games from <a href="https://www.grouvee.com/">Grouvee</a>
+          Games from <a href="https://www.grouvee.com/" className={styles.link}>Grouvee</a>
         </li>
         <li>
           Movies/TV Shows/Episodes -{" "}
