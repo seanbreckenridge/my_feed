@@ -17,13 +17,13 @@ This uses HPI as the data source, and then handles cleaning up the data some/enr
 Data Sources:
 
 - Scrobbles
-  - [listenbrainz_export](https://github.com/seanbreckenridge/listenbrainz_export) for scrobbles
-  - [mpv_history_daemon](https://github.com/seanbreckenridge/mpv-history-daemon) for mpv history
+  - [listenbrainz_export](https://github.com/seanbreckenridge/listenbrainz_export) for scrobbles, from [listenbrainz](https://listenbrainz.org/) (last.fm)
+  - [mpv_history_daemon](https://github.com/seanbreckenridge/mpv-history-daemon) for [mpv](https://github.com/mpv-player/mpv) history
 - Movies/TV Shows
-  - [traktexport](https://github.com/seanbreckenridge/traktexport), grabbing data from Trakt. Trakt provides [TMDB](http://themoviedb.org/) IDs, so I can fetch images for each episode
+  - [traktexport](https://github.com/seanbreckenridge/traktexport), grabbing data from [Trakt](https://trakt.tv/). Trakt provides [TMDB](http://themoviedb.org/) IDs, so I can fetch images for each episode
 - Games
-  - [grouvee_export](https://github.com/seanbreckenridge/grouvee_export) to parse the CSV export from Grouvee
-  - [steamscraper](https://github.com/seanbreckenridge/steamscraper) to scrape my steam achievements
+  - [grouvee_export](https://github.com/seanbreckenridge/grouvee_export) to parse the CSV export from [Grouvee](https://www.grouvee.com/) with images from [GiantBomb](https://www.giantbomb.com/)
+  - [steamscraper](https://github.com/seanbreckenridge/steamscraper) to scrape my [steam](https://steamcommunity.com/) achievements
   - [chess_export](https://github.com/seanbreckenridge/chess_export) for chess games, the [python-chess.svg](https://python-chess.readthedocs.io/en/latest/) package to parse the PGNs into SVGs
 - Albums
   - [albums](https://github.com/seanbreckenridge/albums) which requests out to [discogs](https://www.discogs.com/)
