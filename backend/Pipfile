@@ -12,6 +12,7 @@ sqlmodel = "*"
 logzero = "*"
 fastapi-utils = "*"
 orjson = "*"
+pytz = "*"
 
 [dev-packages]
 ipdb = "*"

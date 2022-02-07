@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8070aecca284922d21436c4e1947d067a357083fd658aedb47ec0e42dd62dd81"
+            "sha256": "bb239fb3e8e7f1a0e19b7456b13f7cbe5e06b420ce18e227b1acab91f12a38a9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -257,6 +257,14 @@
             "index": "pypi",
             "version": "==0.19.2"
         },
+        "pytz": {
+            "hashes": [
+                "sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c",
+                "sha256:acad2d8b20a1af07d4e4c9d2e9285c5ed9104354062f275f3fcd88dcef4f1326"
+            ],
+            "index": "pypi",
+            "version": "==2021.3"
+        },
         "pyyaml": {
             "hashes": [
                 "sha256:0283c35a6a9fbf047493e3a0ce8d79ef5030852c51e9d911a27badfde0605293",
@@ -382,11 +390,11 @@
                 "standard"
             ],
             "hashes": [
-                "sha256:3ab1bf48aa512692db93a91c514576a0739a9d3522827e1656a172ee87118fa5",
-                "sha256:3cebddac78c7dd6bfce2f8f838c2c9b0cfcf3dddf417315ba62378ebe7e8fae2"
+                "sha256:25850bbc86195a71a6477b3e4b3b7b4c861fb687fb96912972ce5324472b1011",
+                "sha256:e85872d84fb651cccc4c5d2a71cf7ead055b8fb4d8f1e78e36092282c0cf2aec"
             ],
             "index": "pypi",
-            "version": "==0.17.3"
+            "version": "==0.17.4"
         },
         "uvloop": {
             "hashes": [
@@ -641,11 +649,11 @@
         },
         "prompt-toolkit": {
             "hashes": [
-                "sha256:4bcf119be2200c17ed0d518872ef922f1de336eb6d1ddbd1e089ceb6447d97c6",
-                "sha256:a51d41a6a45fd9def54365bca8f0402c8f182f2b6f7e29c74d55faeb9fb38ac4"
+                "sha256:cb7dae7d2c59188c85a1d6c944fad19aded6a26bd9c8ae115a4e1c20eb90b713",
+                "sha256:f2b6a8067a4fb959d3677d1ed764cc4e63e0f6f565b9a4fc7edc2b18bf80217b"
             ],
             "markers": "python_full_version >= '3.6.2'",
-            "version": "==3.0.26"
+            "version": "==3.0.27"
         },
         "ptyprocess": {
             "hashes": [
@@ -671,11 +679,11 @@
         },
         "setuptools": {
             "hashes": [
-                "sha256:a4dc3af29a67e7a45620aba43dde2c1af2dd6bc49726d78168f0cc6c4fb0c01b",
-                "sha256:c9097cbcdefe88a64da966a764f2d95feb1cfaff77cc304528a23cefe3359d9a"
+                "sha256:07e97e2f1e5607d240454e98c75c7004560ac8417ca5ae1dbaa50811cb6cc95c",
+                "sha256:23aad87cc27f4ae704079618c1d117a71bd43d41e355f0698c35f6b1c796d26c"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==60.7.1"
+            "version": "==60.8.1"
         },
         "six": {
             "hashes": [

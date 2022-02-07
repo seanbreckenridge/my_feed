@@ -145,8 +145,7 @@ def grouvee() -> Iterator[FeedItem]:
 
 def osrs() -> Iterator[FeedItem]:
     from my.runelite.screenshots import screenshots, Level
-
-    # TODO: use HPI location provider to determine my tz
+    from my.time.tz.via_location import localize
 
     for sc in screenshots():
         # ignore clue scrolls/other stuff
@@ -156,20 +155,19 @@ def osrs() -> Iterator[FeedItem]:
         desc: str
         data = {"path": sc.path}
         img: Optional[str] = None
+        dt = localize(sc.dt)
         if "HPIDATA" in os.environ:
             if prefix := os.getenv("RUNELITE_PHOTOS_PREFIX"):
                 img = os.path.join(prefix, str(sc.path).lstrip(os.environ["HPIDATA"]))
         if isinstance(sc.description, Level):
-            id_ = f"osrs_level_{sc.description.skill.casefold()}_{sc.description.level}_{int(sc.dt.timestamp())}"
+            id_ = f"osrs_level_{sc.description.skill.casefold()}_{sc.description.level}_{int(dt.timestamp())}"
             data.update(sc.description._asdict())
             desc = f"{sc.description.skill} Level {sc.description.level}"
         else:
             assert sc.screenshot_type == "Quest"
-            id_ = f"osrs_quest_{int(sc.dt.timestamp())}"
+            id_ = f"osrs_quest_{int(dt.timestamp())}"
             assert isinstance(sc.description, str)
             desc = sc.description
-        # convert naive (assumed local) to UTC, use HPI to improve this
-        dt = datetime.fromtimestamp(sc.dt.timestamp(), tz=timezone.utc)
         yield FeedItem(
             id=id_,
             ftype="game_achievement",
