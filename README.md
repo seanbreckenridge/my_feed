@@ -5,6 +5,7 @@ Live at <https://sean.fish/feed/>
 TODOs:
 
 - more filters
+- filter by tags
 - grab params from URL
 - activity graphs
 - better color scheme?
@@ -14,7 +15,7 @@ TODOs:
 
 This uses HPI as the data source, and then handles cleaning up the data some/enriching it by using local data/cached API requests
 
-Data Sources:
+### Data Sources:
 
 - Scrobbles
   - [listenbrainz_export](https://github.com/seanbreckenridge/listenbrainz_export) for scrobbles, from [listenbrainz](https://listenbrainz.org/) (last.fm)
