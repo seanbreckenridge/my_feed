@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Scrobbles from my local mpv history
+Listens from my local mpv history
 
 This tries to use some path matching/ID3/heuristics
 to improve the metadata here
@@ -176,7 +176,7 @@ album: '{daemon_data.get('album')}' -> '{album}'
     # even if the data wasnt broken
     #
     # if we couldn't, but this had decent data to begin with, dont prompt me
-    # (else we'd be prompting all the thousands of scrobbles)
+    # (else we'd be prompting all the thousands of mpv history entries)
     if not is_broken:
         return _daemon_to_metadata(daemon_data)
 
@@ -307,7 +307,7 @@ def history() -> Iterator[FeedItem]:
         # TODO: attach to album somehow (parent_id/collection)?
         yield FeedItem(
             id=f"mpv_{int(dt.timestamp())}",
-            ftype="scrobble",
+            ftype="listen",
             title=title,
             subtitle=subtitle,
             creator=creator,

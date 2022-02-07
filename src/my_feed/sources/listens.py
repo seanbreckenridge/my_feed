@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 """
-Scrobbles, with some manual fixes because of lacking metadata
+Listens (music), with some manual fixes because of lacking metadata
 
 All of the metadata *should* be correct now because of
-https://sean.fish/d/id3stuff?dark, but some older scrobbles
-have bad metadata
+https://sean.fish/d/id3stuff?dark, but some older entries have bad metadata
 """
 
 import os
@@ -31,27 +30,27 @@ except ImportError as e:
     logger.warning("Could not import feed configuration", exc_info=e)
 
 
-def _manual_scrobble_datafile() -> Path:
-    return Path(os.path.join(os.environ["HPIDATA"], "feed_scrobble_fixes.json"))
+def _manual_listen_datafile() -> Path:
+    return Path(os.path.join(os.environ["HPIDATA"], "feed_listen_fixes.json"))
 
 
 Metadata = Tuple[str, str, str]
 
 
-def _manually_fix_scrobble(l: Listen) -> Metadata:
-    """Fix broken metadata on scrobbles, and save my responses to a cache file"""
+def _manually_fix_listen(l: Listen) -> Metadata:
+    """Fix broken metadata on listens, and save my responses to a cache file"""
 
     # load data
-    datafile = _manual_scrobble_datafile()
+    datafile = _manual_listen_datafile()
     data: Dict[str, Metadata] = {}
     if datafile.exists():
         data = cast(Dict[str, Metadata], json.loads(datafile.read_text()))
 
-    # use timestamp to uniquely identify scrobbles to fix
+    # use timestamp to uniquely identify a single fix
     assert l.listened_at is not None
     ts = str(int(l.listened_at.timestamp()))
     if ts in data:
-        logger.debug(f"Replacing manual scrobble fix {data[ts]}")
+        logger.debug(f"Replacing manual listen fix {data[ts]}")
         return data[ts]
 
     # prompt me to manually type in the correct data
@@ -86,7 +85,7 @@ def history() -> Iterator[FeedItem]:
             and listen.release_name.lower() in BROKEN_TAGS
         ):
             try:
-                title, subtitle, creator = _manually_fix_scrobble(listen)
+                title, subtitle, creator = _manually_fix_listen(listen)
             except FeedBackgroundError as e:
                 logger.warning(
                     f"Running in the background, cannot prompt for {listen}", exc_info=e
@@ -95,8 +94,8 @@ def history() -> Iterator[FeedItem]:
         ts: int = int(listen.listened_at.timestamp())
         # TODO: attach to album somehow (parent_id/collection)?
         yield FeedItem(
-            id=f"scrobble_{ts}",
-            ftype="scrobble",
+            id=f"listen_{ts}",
+            ftype="listen",
             title=title,
             creator=creator,
             subtitle=subtitle,

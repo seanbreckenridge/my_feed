@@ -173,7 +173,7 @@ interface FeedBodyProps {
 
 export const FeedBody: React.FC<FeedBodyProps> = React.memo(
   ({ item }: FeedBodyProps) => {
-    if (item.ftype === "scrobble") {
+    if (item.ftype === "listen") {
       return (
         <div className={styles.cardFlexBody}>
           <CardHeader title={item.title} icon={faMusic} link={item.url} />

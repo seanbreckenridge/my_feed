@@ -17,8 +17,8 @@ This uses HPI as the data source, and then handles cleaning up the data some/enr
 
 ### Data Sources:
 
-- Scrobbles
-  - [listenbrainz_export](https://github.com/seanbreckenridge/listenbrainz_export) for scrobbles, from [listenbrainz](https://listenbrainz.org/) (last.fm)
+- Music
+  - [listenbrainz_export](https://github.com/seanbreckenridge/listenbrainz_export) for scrobbles, from [listenbrainz](https://listenbrainz.org/) (similar to last.fm)
   - [mpv_history_daemon](https://github.com/seanbreckenridge/mpv-history-daemon) for [mpv](https://github.com/mpv-player/mpv) history
 - Movies/TV Shows
   - [traktexport](https://github.com/seanbreckenridge/traktexport), grabbing data from [Trakt](https://trakt.tv/). Trakt provides [TMDB](http://themoviedb.org/) IDs, so I can fetch images for each episode
@@ -36,29 +36,28 @@ If not mentioned its likely a module in [HPI](https://github.com/seanbreckenridg
 I periodically index all my data [in the background](https://sean.fish/d/my_feed_index.job?dark):
 
 ```
-$ my_feed index ./backend/data/$(epoch).pickle
-Extracting my_feed.sources.scrobbles.history...
-Extracting my_feed.sources.scrobbles.history: 5342 items (took 0.2 seconds)
+Extracting my_feed.sources.listens.history...
+Extracting my_feed.sources.listens.history: 5388 items (took 0.14 seconds)
 Extracting my_feed.sources.games.steam...
 Extracting my_feed.sources.games.steam: 285 items (took 0.01 seconds)
 Extracting my_feed.sources.games.osrs...
-Extracting my_feed.sources.games.osrs: 924 items (took 0.02 seconds)
+Extracting my_feed.sources.games.osrs: 924 items (took 0.03 seconds)
 Extracting my_feed.sources.games.game_center...
 Extracting my_feed.sources.games.game_center: 141 items (took 0.02 seconds)
 Extracting my_feed.sources.games.grouvee...
-Extracting my_feed.sources.games.grouvee: 242 items (took 0.05 seconds)
+Extracting my_feed.sources.games.grouvee: 243 items (took 0.15 seconds)
 Extracting my_feed.sources.games.chess...
-Extracting my_feed.sources.games.chess: 676 items (took 2.61 seconds)
+Extracting my_feed.sources.games.chess: 681 items (took 2.98 seconds)
 Extracting my_feed.sources.trakt.history...
-Extracting my_feed.sources.trakt.history: 16355 items (took 23.43 seconds)
+Extracting my_feed.sources.trakt.history: 15327 items (took 11.51 seconds)
 Extracting my_feed.sources.mpv.history...
-Extracting my_feed.sources.mpv.history: 13654 items (took 19.3 seconds)
+Extracting my_feed.sources.mpv.history: 13807 items (took 13.67 seconds)
 Extracting my_feed.sources.nextalbums.history...
-Extracting my_feed.sources.nextalbums.history: 1938 items (took 2.41 seconds)
+Extracting my_feed.sources.nextalbums.history: 1938 items (took 2.36 seconds)
 Extracting my_feed.sources.mal.history...
-Extracting my_feed.sources.mal.history: 16638 items (took 3.68 seconds)
-Total: 56195 items
-Writing to 'backend/data/1643954180.pickle'
+Extracting my_feed.sources.mal.history: 20865 items (took 3.58 seconds)
+Total: 59599 items
+Writing to 'backend/data/1644267551.pickle'
 ```
 
 ... which then gets synced up and combined into the `sqlite` database on the [`backend`](./backend/); all handled by [`index`](./index)

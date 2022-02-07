@@ -49,7 +49,7 @@ class Sort(Enum):
 INDIVIDUAL_FEED_TYPES = [
     "anime_episode",
     "manga_chapter",
-    "scrobble",
+    "listen",
     "trakt_history_episode",
     "trakt_history_movie",
 ]

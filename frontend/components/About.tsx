@@ -13,7 +13,7 @@ const About: React.FC = () => {
       <p>Any Images here are owned by the respective services:</p>
       <ul>
         <li>
-          Scrobbles (Songs), using{" "}
+          Listens (Songs), using{" "}
           <a className={styles.link} href="https://listenbrainz.org/">
             ListenBrainz
           </a>
@@ -37,7 +37,14 @@ const About: React.FC = () => {
           </a>
         </li>
         <li>
-          Games from <a href="https://www.grouvee.com/" className={styles.link}>Grouvee</a>, with images from <a href="https://www.giantbomb.com/" className={styles.link}>GiantBomb</a>
+          Games from{" "}
+          <a href="https://www.grouvee.com/" className={styles.link}>
+            Grouvee
+          </a>
+          , with images from{" "}
+          <a href="https://www.giantbomb.com/" className={styles.link}>
+            GiantBomb
+          </a>
         </li>
         <li>
           Movies/TV Shows/Episodes -{" "}

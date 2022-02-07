@@ -9,7 +9,7 @@ from .log import logger
 from .sources.model import FeedItem
 
 from .sources.trakt import history as tr_history
-from .sources.scrobbles import history as sc_history
+from .sources.listens import history as ls_history
 from .sources.nextalbums import history as al_history
 from .sources.mal import history as mal_history
 from .sources.mpv import history as mpv_history
@@ -34,7 +34,7 @@ def _games() -> Iterator[Callable[[], Iterator[FeedItem]]]:
 
 
 def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
-    yield sc_history
+    yield ls_history
     yield from _games()
     yield tr_history
     yield mpv_history
