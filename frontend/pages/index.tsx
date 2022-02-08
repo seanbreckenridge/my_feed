@@ -172,14 +172,14 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
         return (
           <div className={styles.container}>
             <Head>
-              <title>media feed</title>
+              <title>feed</title>
               <meta name="description" content="my personal media feed" />
               <link rel="icon" href="https://sean.fish/favicon.ico" />
             </Head>
             <main className={styles.main}>
               <nav className={styles.nav}>
                 <div className={styles.mainTitle}>- FEED -</div>
-                <div className={styles.mutedLink}>
+                <div className={styles.aboutLink}>
                   <a
                     href="#"
                     onClick={() => setShowAttribution((toggle) => !toggle)}
@@ -231,52 +231,33 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                     }}
                   />
                 </label>
-                <div
-                  className={styles.filterIcon}
-                  title="Toggle Date Format"
-                  onClick={() => {
-                    // toggle on click
-                    prefs.setPrefs((oldPrefs: Prefs): Prefs => {
-                      return {
-                        ...oldPrefs,
-                        dateAbsolute: !oldPrefs.dateAbsolute,
-                      };
-                    });
-                  }}
-                >
-                  <FontAwesomeIcon
-                    icon={prefs.dateAbsolute ? faClock : faHistory}
-                  />
-                </div>
-                <div
-                  className={styles.filterIcon}
-                  title="Reset Filters"
-                  onClick={clear}
-                >
-                  <FontAwesomeIcon icon={faTimes} />
+                <div className={styles.filterButtons}>
+                  <div
+                    className={styles.filterIcon}
+                    title="Toggle Date Format"
+                    onClick={() => {
+                      // toggle on click
+                      prefs.setPrefs((oldPrefs: Prefs): Prefs => {
+                        return {
+                          ...oldPrefs,
+                          dateAbsolute: !oldPrefs.dateAbsolute,
+                        };
+                      });
+                    }}
+                  >
+                    <FontAwesomeIcon
+                      icon={prefs.dateAbsolute ? faClock : faHistory}
+                    />
+                  </div>
+                  <div
+                    className={styles.filterIcon}
+                    title="Reset Filters"
+                    onClick={clear}
+                  >
+                    <FontAwesomeIcon icon={faTimes} />
+                  </div>
                 </div>
               </div>
-              {/*
-        <p>
-          showing {size} page(s) of{" "}
-          {isLoadingMore && !atEnd ? "..." : feedItems.length} items(s){" "}
-        </p>
-          <button
-            onClick={() => {
-              setQueryText(queryText);
-              setSize(1);
-            }}
-          >
-            Fetch
-          </button>
-          <button disabled={isRefreshing} onClick={() => mutate()}>
-            {isRefreshing ? "refreshing..." : "refresh"}
-          </button>
-          <button disabled={!size} onClick={() => setSize(0)}>
-            clear
-          </button>
-          {isEmpty ? <p>Nothing here...</p> : null}
-        */}
               <FeedGrid data={feedItems as FeedItemStruct[]} />
               <div ref={scrollRef} style={{ marginTop: "20vh" }}>
                 {atEnd && selectedOrderLabel.value === "score"

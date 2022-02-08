@@ -8,7 +8,6 @@ TODOs:
 - filter by tags
 - grab params from URL
 - activity graphs
-- better color scheme?
 - cache images?
 
 `src/my_feed/` is installed into my global environment in case I ever want to use media_feed as a sort of 'normalized' version of history; installed as `pip install -e .`
