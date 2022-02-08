@@ -61,7 +61,7 @@ def history() -> Iterator[FeedItem]:
 
         # combine datetime with ~2:00 PM, average time I listen to an
         # album. Use HPI locations to determine timezone
-        dt_naive = datetime.combine(al.listened_on, time(hour=2))
+        dt_naive = datetime.combine(al.listened_on, time(hour=14))
         tz = _get_tz(dt_naive)
         assert tz is not None
         dt = dt_naive.replace(tzinfo=tz)
