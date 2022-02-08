@@ -2,7 +2,7 @@ import os
 import string
 import warnings
 from typing import Iterator, Optional, Dict, Any, cast
-from datetime import datetime, timezone, date
+from datetime import datetime, date
 from functools import cache
 
 import requests

@@ -5,10 +5,11 @@ https://sean.fish/s/albums
 
 import warnings
 import string
-from datetime import datetime, timezone
+from datetime import datetime, time
 from typing import Iterator, Dict, Any
 
 from my.nextalbums import history as album_history, Album
+from my.time.tz.via_location import _get_tz
 
 from .model import FeedItem
 
@@ -58,7 +59,12 @@ def history() -> Iterator[FeedItem]:
             warnings.warn(f"listened_on is None: {al}")
             continue
 
-        dt = datetime.combine(al.listened_on, datetime.min.time(), tzinfo=timezone.utc)
+        # combine datetime with ~2:00 PM, average time I listen to an
+        # album. Use HPI locations to determine timezone
+        dt_naive = datetime.combine(al.listened_on, time(hour=2))
+        tz = _get_tz(dt_naive)
+        assert tz is not None
+        dt = dt_naive.replace(tzinfo=tz)
 
         data: Dict[str, Any] = {}
         image_url = _img_url(al)
