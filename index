@@ -11,7 +11,7 @@ RESET=
 [[ "$1" == "-r" ]] && RESET=1
 declare -rx RESET
 
-wait-for-internet
+wait-for-internet -q --timeout 30 || exit 0
 
 THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 cd "${THIS_DIR}" || exit $?
@@ -28,6 +28,8 @@ PICKLE="${TMPDIR}/$(epoch).pickle" || exit $?
 
 # run an index
 my_feed index "$PICKLE" || exit $?
+
+wait-for-internet -q --timeout 30 || exit 0
 
 # delete remote pickle's if we want to reset
 if [[ -n "$RESET" ]]; then
