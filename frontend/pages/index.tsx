@@ -1,5 +1,6 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import Script from "next/script";
 import { FeedGrid, FeedItemStruct } from "../components/FeedItem";
 import Select from "react-select";
 import styles from "../styles/Index.module.css";
@@ -273,7 +274,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   : ""}
               </div>
             </main>
-            <script src="https://sean.fish/p/back-arrow-bundle.js"></script>
+            <Script src="https://sean.fish/p/back-arrow-bundle.js"></Script>
           </div>
         );
       }}
