@@ -173,6 +173,10 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
           <div className={styles.container}>
             <Head>
               <title>feed</title>
+              {/* https://github.com/seanbreckenridge/back-arrow-script/*/}
+              <meta property="ba:title" content="back home" />
+              <meta property="ba:url" content="https://sean.fish" />
+              <meta property="ba:color" content="#45a29e" />
               <meta name="description" content="my personal media feed" />
               <link rel="icon" href="https://sean.fish/favicon.ico" />
             </Head>
@@ -269,6 +273,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   : ""}
               </div>
             </main>
+            <script src="https://sean.fish/p/back-arrow-bundle.js"></script>
           </div>
         );
       }}
