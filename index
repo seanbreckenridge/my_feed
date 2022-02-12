@@ -4,12 +4,19 @@
 
 set -e
 
-declare RESET
+declare RESET SSH_TARGET
 RESET=
+SSH_TARGET="${SSH_TARGET:-vultr}"
 
 # if we want to delete the remote database
 [[ "$1" == "-r" ]] && RESET=1
 declare -rx RESET
+
+if ((RESET)); then
+	echo "Reindexing..."
+else
+	echo "Indexing..."
+fi
 
 wait-for-internet -q --timeout 30 || exit 0
 
@@ -19,7 +26,7 @@ cd "${THIS_DIR}" || exit $?
 export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
 
 # sync osrs images
-rsync -Pavh -e 'ssh' "$(python3 -m my.utils.backup_to runelite_screenshots)" vultr:~/p/ || exit $?
+rsync -Pavh -e 'ssh' "$(python3 -m my.utils.backup_to runelite_screenshots)" "${SSH_TARGET}":~/p/ || exit $?
 
 # temporary dir for new data
 TMPDIR="$(mktemp -d)"
@@ -33,11 +40,11 @@ wait-for-internet -q --timeout 30 || exit 0
 
 # delete remote pickle's if we want to reset
 if [[ -n "$RESET" ]]; then
-	ssh vultr 'rm -vf ~/code/my_feed/backend/data/*.pickle'
+	ssh "${SSH_TARGET}" 'rm -vf ~/code/my_feed/backend/data/*.pickle'
 fi
 
 # copy up to the server
-scp "${PICKLE}" vultr:~/code/my_feed/backend/data
+scp "${PICKLE}" "${SSH_TARGET}":~/code/my_feed/backend/data
 
 # delete temp file
 rm -f "${PICKLE}"
@@ -45,7 +52,7 @@ rm -f "${PICKLE}"
 if [[ -n "$RESET" ]]; then
 	echo 'Deleting database...'
 	set -x
-	ssh vultr 'rm -vf ~/code/my_feed/backend/feeddata.sqlite && ~/vps/super --ctl restart feed-backend'
+	ssh "${SSH_TARGET}" 'rm -vf ~/code/my_feed/backend/feeddata.sqlite && ~/vps/super --ctl restart feed-backend'
 	set +x
 	echo '(remote is rebuilding database, should be done in a couple seconds)'
 else
