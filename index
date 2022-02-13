@@ -24,7 +24,7 @@ THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 cd "${THIS_DIR}" || exit $?
 
 # sync osrs images
-REMSYNC_PUBLIC=1 "${REPOS}/vps/remsync" "$(python3 -m my.utils.backup_to runelite_screenshots)" || exit $?
+REMSYNC_PUBLIC=1 "${REPOS}/vps/remsync" "$(python3 -m my.utils.backup_to runelite_screenshots)" 2>&1 >/dev/null || exit $?
 
 # temporary dir for new data
 TMPDIR="$(mktemp -d)"
