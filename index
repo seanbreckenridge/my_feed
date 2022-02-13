@@ -23,10 +23,8 @@ wait-for-internet -q --timeout 30 || exit 0
 THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 cd "${THIS_DIR}" || exit $?
 
-export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
-
 # sync osrs images
-rsync -Pavh -e 'ssh' "$(python3 -m my.utils.backup_to runelite_screenshots)" "${SSH_TARGET}":~/p/ || exit $?
+REMSYNC_PUBLIC=1 "${REPOS}/vps/remsync" "$(python3 -m my.utils.backup_to runelite_screenshots)" || exit $?
 
 # temporary dir for new data
 TMPDIR="$(mktemp -d)"
