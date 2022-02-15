@@ -33,8 +33,8 @@ def _anime() -> Iterator[FeedItem]:
         if an.username != os.environ["MAL_USERNAME"]:
             continue
 
-        assert an.APIList is not None, WHILE_UPDATING_ERR
-        assert an.JSONList is not None, WHILE_UPDATING_ERR
+        assert an.APIList is not None, WHILE_UPDATING_ERR + f"; for {an}"
+        assert an.JSONList is not None, WHILE_UPDATING_ERR + f"; for {an}"
 
         tags = [genre.name for genre in an.APIList.genres]
         if an.JSONList:
@@ -119,8 +119,8 @@ def _manga() -> Iterator[FeedItem]:
         if mn.username != os.environ["MAL_USERNAME"]:
             continue
 
-        assert mn.APIList is not None, WHILE_UPDATING_ERR
-        assert mn.JSONList is not None, WHILE_UPDATING_ERR
+        assert mn.APIList is not None, WHILE_UPDATING_ERR + f"; for {mn}"
+        assert mn.JSONList is not None, WHILE_UPDATING_ERR + f"; for {mn}"
 
         tags = [genre.name for genre in mn.APIList.genres]
         if mn.JSONList:
