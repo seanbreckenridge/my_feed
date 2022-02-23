@@ -30,10 +30,10 @@ def _fetch_image(url: str, width: int) -> Optional[str]:
         # then the show poster
         if still_path := summary.metadata.get("still_path"):
             assert still_path.startswith("/")
-            return f"https://image.tmdb.org/t/p/w{400}{still_path}?s"
+            return f"https://image.tmdb.org/t/p/w{width}{still_path}?s"
         if poster_path := summary.metadata.get("poster_path"):
             assert poster_path.startswith("/")
-            return f"https://image.tmdb.org/t/p/w{400}{poster_path}?p"
+            return f"https://image.tmdb.org/t/p/w{width}{poster_path}?p"
     return None
 
 
@@ -162,7 +162,7 @@ def _history_mapping(hst: List[D.HistoryEntry]) -> Dict[str, datetime]:
 
 def history() -> Iterator[FeedItem]:
 
-    emitted: set[Tuple[str, datetime]] = set()
+    emitted: set[Tuple[str, str, datetime]] = set()
 
     hst = list(trakt_history())
 
@@ -187,7 +187,7 @@ def history() -> Iterator[FeedItem]:
         assert m.ids.trakt_slug is not None
 
         # add this rating to emitted, so we don't have movies right next to each other
-        key: Tuple[str, datetime] = (m.ids.trakt_slug, dt)
+        key: Tuple[str, str, datetime] = (m.ids.trakt_slug, type(m).__name__, dt)
         emitted.add(key)
 
         yield FeedItem(
@@ -229,9 +229,12 @@ def history() -> Iterator[FeedItem]:
             assert m.ids.trakt_slug is not None
             collection = m.ids.trakt_slug
 
-        # this was already added while adding ratings; ignore it
-        key = (collection, h.watched_at)
-        if key in emitted:
+        # if this was already added while adding ratings, and this is a movie, ignore it
+        # this is to prevent duplicate movie/rating entries from appearing when I've only watched
+        # the movie once. if its an episode of a show, still want the episode and the season/show
+        # to appear on the feed multiple times
+        key = (collection, type(m).__name__, h.watched_at)
+        if key in emitted and isinstance(m, D.Movie):
             continue
 
         yield FeedItem(

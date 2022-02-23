@@ -117,10 +117,10 @@ def grouvee() -> Iterator[FeedItem]:
         if rel_str := res.get("original_release_date"):
             try:
                 rel = date.fromisoformat(rel_str.strip())
-            except:
+            except ValueError:
                 pass
 
-        dt: datetime
+        dt: datetime | None = None
         for s in g.shelves:
             dt = s.added
             break
@@ -184,11 +184,14 @@ CHESS_USERNAME = "seanbreckenridge"
 
 
 def chess() -> Iterator[FeedItem]:
+    from io import StringIO
+
+    import chess.pgn
+    import chess.svg
+
     from my.chess.export import history
     from chess_export.chessdotcom.model import ChessDotComGame
     from chess_export.lichess.model import LichessGame
-    import chess.pgn, chess.svg
-    from io import StringIO
 
     for game in history():
         if game.pgn is None:

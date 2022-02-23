@@ -37,7 +37,7 @@ def _manual_listen_datafile() -> Path:
 Metadata = Tuple[str, str, str]
 
 
-def _manually_fix_listen(l: Listen) -> Metadata:
+def _manually_fix_listen(ls: Listen) -> Metadata:
     """Fix broken metadata on listens, and save my responses to a cache file"""
 
     # load data
@@ -47,14 +47,14 @@ def _manually_fix_listen(l: Listen) -> Metadata:
         data = cast(Dict[str, Metadata], json.loads(datafile.read_text()))
 
     # use timestamp to uniquely identify a single fix
-    assert l.listened_at is not None
-    ts = str(int(l.listened_at.timestamp()))
+    assert ls.listened_at is not None
+    ts = str(int(ls.listened_at.timestamp()))
     if ts in data:
         logger.debug(f"Replacing manual listen fix {data[ts]}")
         return data[ts]
 
     # prompt me to manually type in the correct data
-    _click().echo(f"broken: {l}", err=True)
+    _click().echo(f"broken: {ls}", err=True)
     title = _click().prompt("title").strip()
     subtitle = _click().prompt("album name").strip()
     creator = _click().prompt("artist name").strip()

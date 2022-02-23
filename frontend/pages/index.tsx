@@ -274,7 +274,10 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   : ""}
               </div>
             </main>
-            <Script src="https://sean.fish/p/back-arrow-bundle.js" strategy="beforeInteractive"></Script>
+            <Script
+              src="https://sean.fish/p/back-arrow-bundle.js"
+              strategy="beforeInteractive"
+            ></Script>
           </div>
         );
       }}
