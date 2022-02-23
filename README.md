@@ -8,6 +8,7 @@ TODOs:
 - filter by tags
 - grab params from URL
 - activity graphs
+- clicking on item creates popup and displays text without wrapping?
 - cache images?
 
 `src/my_feed/` is installed into my global environment in case I ever want to use media_feed as a sort of 'normalized' version of history; installed as `pip install -e .`
