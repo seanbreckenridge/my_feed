@@ -2,15 +2,6 @@ A personal feed/website using [`HPI`](https://github.com/seanbreckenridge/HPI)
 
 Live at <https://sean.fish/feed/>
 
-TODOs:
-
-- more filters
-- filter by tags
-- grab params from URL
-- activity graphs
-- clicking on item creates popup and displays text without wrapping?
-- cache images?
-
 `src/my_feed/` is installed into my global environment in case I ever want to use media_feed as a sort of 'normalized' version of history; installed as `pip install -e .`
 
 This uses HPI as the data source, and then handles cleaning up the data some/enriching it by using local data/cached API requests
