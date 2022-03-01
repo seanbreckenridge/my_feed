@@ -80,9 +80,13 @@ def history() -> Iterator[FeedItem]:
         subtitle: Optional[str] = listen.release_name
         creator: str = listen.artist_name
         # if I've marked this as broken
-        if listen.artist_name.lower() in BROKEN_TAGS or (
-            listen.release_name is not None
-            and listen.release_name.lower() in BROKEN_TAGS
+        if (
+            listen.artist_name.lower() in BROKEN_TAGS
+            or listen.track_name.lower() in BROKEN_TAGS
+            or (
+                listen.release_name is not None
+                and listen.release_name.lower() in BROKEN_TAGS
+            )
         ):
             try:
                 title, subtitle, creator = _manually_fix_listen(listen)
