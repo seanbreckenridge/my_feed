@@ -35,9 +35,9 @@ def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
     from .sources.mpv import history as mpv_history
 
     yield ls_history
+    yield mpv_history
     yield from _games()
     yield tr_history
-    yield mpv_history
     yield al_history
     yield mal_history
 

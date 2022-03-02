@@ -25,7 +25,7 @@ BROKEN_TAGS = {"unknown artist", "<unknown>"}
 try:
     from my.config.feed import broken_tags  # type: ignore[import]
 
-    BROKEN_TAGS.update(broken_tags)
+    BROKEN_TAGS.update({s.lower() for s in broken_tags})
 except ImportError as e:
     logger.warning("Could not import feed configuration", exc_info=e)
 
@@ -79,9 +79,14 @@ def history() -> Iterator[FeedItem]:
         title: str = listen.track_name
         subtitle: Optional[str] = listen.release_name
         creator: str = listen.artist_name
+        # some unique filename part like (Album Version (Explicit))
+        tag_matches_title_substring = any(
+            [b.lower() in listen.track_name.lower() for b in BROKEN_TAGS]
+        )
         # if I've marked this as broken
         if (
-            listen.artist_name.lower() in BROKEN_TAGS
+            tag_matches_title_substring
+            or listen.artist_name.lower() in BROKEN_TAGS
             or listen.track_name.lower() in BROKEN_TAGS
             or (
                 listen.release_name is not None
