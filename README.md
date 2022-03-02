@@ -6,7 +6,7 @@ This uses HPI as the data source, and then handles cleaning up the data some/enr
 
 `src/my_feed/` is installed into my global environment so I can use the data this generates as a sort of 'normalized' version of history; installed as `pip install -e .`:
 
-- [`listens`](https://github.com/seanbreckenridge:HPI-personal/blob/master/scripts/listens)
+- [`listens`](https://github.com/seanbreckenridge/HPI-personal/blob/master/scripts/listens)
 
 ### Data Sources:
 
