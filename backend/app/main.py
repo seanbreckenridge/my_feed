@@ -36,7 +36,7 @@ def create_app() -> FastAPI:
         init_db()
         await _tasks()
 
-    @repeat_every(seconds=60 * 60, logger=logger)
+    @repeat_every(seconds=60 * 60 * 6, logger=logger)
     async def _tasks() -> None:
         from app.load_pickle import update_data
 
