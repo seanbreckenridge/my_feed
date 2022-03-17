@@ -23,6 +23,8 @@ wait-for-internet -q --timeout 30 || exit 0
 THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 cd "${THIS_DIR}" || exit $?
 
+source "$HPIDATA/tokens"
+
 # set prefix for indexer
 export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
 
