@@ -16,7 +16,7 @@ from my.listenbrainz.export import history as lb_history, Listen
 
 from .model import FeedItem
 from ..log import logger
-from .common import _click, FeedBackgroundError
+from .common import click, FeedBackgroundError
 
 # defaults from listenbrainz/media player, when the artist was unknown
 # tags are either the artist or the release name
@@ -54,10 +54,10 @@ def _manually_fix_listen(ls: Listen) -> Metadata:
         return data[ts]
 
     # prompt me to manually type in the correct data
-    _click().echo(f"broken: {ls}", err=True)
-    title = _click().prompt("title").strip()
-    subtitle = _click().prompt("album name").strip()
-    creator = _click().prompt("artist name").strip()
+    click().echo(f"broken: {ls}", err=True)
+    title = click().prompt("title").strip()
+    subtitle = click().prompt("album name").strip()
+    creator = click().prompt("artist name").strip()
 
     new_data = (
         title,

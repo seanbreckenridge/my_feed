@@ -20,7 +20,7 @@ from my.mpv.history_daemon import history as mpv_history, Media
 
 from .model import FeedItem
 from ..log import logger
-from .common import _click, FeedBackgroundError
+from .common import click, FeedBackgroundError
 
 
 def _path_keys(p: Path | str) -> Iterator[Tuple[str, ...]]:
@@ -133,6 +133,7 @@ def _fix_media(
         logger.debug(f"Using cached data for {m.path}: {JSONData.data[m.path]}")
         return JSONData.data[m.path]
 
+    album, artist, title = None, None, None
     if m.media_duration is None:
         logger.debug(f"No media duration on {m}, cant compare to local files")
     else:
@@ -168,7 +169,8 @@ artist: '{daemon_data.get('artist')}' -> '{artist}'
 album: '{daemon_data.get('album')}' -> '{album}'
 """
                         )
-                    if _click().confirm("Use metadata?", default=True):
+                    if click().confirm("Use metadata?", default=True):
+                        assert title and artist and album
                         return JSONData._save_data(
                             {"title": title, "artist": artist, "album": album}, m.path
                         )
@@ -182,10 +184,10 @@ album: '{daemon_data.get('album')}' -> '{album}'
         return _daemon_to_metadata(daemon_data)
 
     # use path as a key
-    _click().echo(f"Missing data: {m}", err=True)
-    title = _click().prompt("title").strip()
-    subtitle = _click().prompt("album name").strip()
-    creator = _click().prompt("artist name").strip()
+    click().echo(f"Missing data: {m}", err=True)
+    title = click().prompt("title").strip()
+    subtitle = click().prompt("album name").strip()
+    creator = click().prompt("artist name").strip()
 
     # write data
     return JSONData._save_data(
