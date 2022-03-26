@@ -2,6 +2,8 @@ A personal feed/website using [`HPI`](https://github.com/seanbreckenridge/HPI)
 
 Live at <https://sean.fish/feed/>
 
+<img src="https://github.com/seanbreckenridge/my_feed/blob/master/.github/my_feed.png" width=500/>
+
 This uses HPI as the data source, and then handles cleaning up the data some/enriching it by using local data/cached API requests
 
 `src/my_feed/` is installed into my global environment so I can use the data this generates as a sort of 'normalized' version of history; installed as `pip install -e .`:
