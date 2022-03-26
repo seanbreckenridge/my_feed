@@ -1,7 +1,6 @@
 import os
 
 from typing import Any
-from functools import cache
 
 
 class FeedError(RuntimeError):
@@ -12,7 +11,6 @@ class FeedBackgroundError(FeedError):
     pass
 
 
-@cache
 def click() -> Any:
     """
     Wrapper for the click module when using it to prompt me
