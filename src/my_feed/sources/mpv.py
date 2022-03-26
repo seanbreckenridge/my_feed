@@ -32,7 +32,8 @@ def _path_keys(p: Path | str) -> Iterator[Tuple[str, ...]]:
 
     yield tuple([artist, album, song])
     yield tuple([album, song])
-    yield tuple([album, song.split("(")[0].strip()])  # if I removed something like '(Explicit)' from the file name
+    # if I removed something like '(Explicit)' from the file name
+    yield tuple([album, song.split("(")[0].strip()])
     yield tuple([song])
 
 
