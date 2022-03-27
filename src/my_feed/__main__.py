@@ -33,7 +33,9 @@ def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
     from .sources.nextalbums import history as al_history
     from .sources.mal import history as mal_history
     from .sources.mpv import history as mpv_history
+    from .sources.facebook_spotify_listens import history as old_spotify_listens
 
+    yield old_spotify_listens
     yield ls_history
     yield mpv_history
     yield from _games()
@@ -59,7 +61,7 @@ def data(echo: bool = False) -> Iterator[FeedItem]:
             yield item
         took = time.time() - start_time
         click.echo(
-            f"{ext}: {click.style(len(emitted), fg=BLUE)} items (took {click.style(round(took, 2), fg=BLUE)} seconds)",
+            f"{ext}: {click.style(str(len(emitted)), fg=BLUE)} items (took {click.style(round(took, 2), fg=BLUE)} seconds)",
             err=True,
         )
 
