@@ -1,36 +1,38 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import Script from "next/script";
-import { FeedGrid, FeedItemStruct } from "../components/FeedItem";
-import Select from "react-select";
-import styles from "../styles/Index.module.css";
-import useSWRInfinite from "swr/infinite";
-import { useState, useRef, useEffect, SetStateAction, Dispatch } from "react";
-import { DebounceInput } from "react-debounce-input";
-import { useQueryParam, StringParam, withDefault } from "next-query-params";
-import useOnScreen from "../hooks/useOnScreen";
-import { FeedItemOptions, LabelOption, OrderByOptions } from "../lib/enums";
-import PrefsConsumer, { Prefs } from "../lib/prefs";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock, faHistory, faTimes } from "@fortawesome/free-solid-svg-icons";
-import About from "../components/About";
+import { faClock, faHistory, faTimes } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import type { NextPage } from "next"
+import Head from "next/head"
+import { useRouter } from "next/router"
+import Script from "next/script"
+import { StringParam, useQueryParam, withDefault } from "next-query-params"
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
+import { DebounceInput } from "react-debounce-input"
+import Select from "react-select"
+import useSWRInfinite from "swr/infinite"
+
+import About from "../components/About"
+import { FeedGrid, FeedItemStruct } from "../components/FeedItem"
+import useOnScreen from "../hooks/useOnScreen"
+import { FeedItemOptions, LabelOption, OrderByOptions } from "../lib/enums"
+import PrefsConsumer, { Prefs } from "../lib/prefs"
+import styles from "../styles/Index.module.css"
 
 async function fetcher(...args: any[]) {
   // @ts-ignore
-  const res = await fetch(...args);
-  return res.json();
+  const res = await fetch(...args)
+  return res.json()
 }
 
 const createQuery = (obj: any) => {
-  let str = "";
+  let str = ""
   for (const key in obj) {
     if (str != "") {
-      str += "&";
+      str += "&"
     }
-    str += key + "=" + encodeURIComponent(obj[key]);
+    str += key + "=" + encodeURIComponent(obj[key])
   }
-  return str;
-};
+  return str
+}
 
 const getKey = (
   pageIndex: number,
@@ -43,71 +45,66 @@ const getKey = (
   setAtEnd: Dispatch<SetStateAction<boolean>>
 ) => {
   if (previousPageData && !previousPageData.length) {
-    setAtEnd(true);
-    return null; // reached the end
+    setAtEnd(true)
+    return null // reached the end
   }
 
-  let offset = 0;
+  let offset = 0
   if (pageIndex > 0) {
-    offset = pageIndex * 100;
+    offset = pageIndex * 100
   }
 
   let params: any = {
     offset: offset,
     limit: limit,
-  };
+  }
 
-  const qt = query.trim();
+  const qt = query.trim()
   if (qt.length > 0) {
-    params.query = qt;
+    params.query = qt
   }
 
   if (selectedOrder.length > 0) {
-    params.order_by = selectedOrder;
-    params.sort = "desc";
+    params.order_by = selectedOrder
+    params.sort = "desc"
   }
 
   if (selectedTypes.length > 0) {
-    params.ftype = selectedTypes.join(",");
+    params.ftype = selectedTypes.join(",")
   }
 
-  return `${baseUrl}?${createQuery(params)}`;
-};
-
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-if (!baseUrl) {
-  throw new Error(`No base URL: ${baseUrl}`);
+  return `${baseUrl}?${createQuery(params)}`
 }
 
-const dataBase = `${baseUrl}/data/`;
-const paginationLimit = 100;
-const defaultSelectedOrder = OrderByOptions[0];
+const baseUrl = process.env.NEXT_PUBLIC_API_URL
+if (!baseUrl) {
+  throw new Error(`No base URL: ${baseUrl}`)
+}
+
+const dataBase = `${baseUrl}/data/`
+const paginationLimit = 100
+const defaultSelectedOrder = OrderByOptions[0]
 
 interface IndexProps {}
 
 const Index: NextPage<IndexProps> = ({}: IndexProps) => {
-  const scrollRef = useRef(null);
-  const isVisible = useOnScreen(scrollRef);
+  const scrollRef = useRef(null)
+  const isVisible = useOnScreen(scrollRef)
+  const { query } = useRouter()
 
-  const [showAttribution, setShowAttribution] = useState<boolean>(false);
+  const [showAttribution, setShowAttribution] = useState<boolean>(false)
 
   // query maps back onto the URL param
-  const [queryText, setQueryText] = useQueryParam(
-    "query",
-    withDefault(StringParam, "")
-  );
+  const [queryText, setQueryText] = useQueryParam("query", withDefault(StringParam, ""))
 
   // valid type labels, used in Select, sent to API
-  const [selectedTypeLabels, setSelectedTypeLabels] = useState<LabelOption[]>(
-    []
-  );
+  const [selectedTypeLabels, setSelectedTypeLabels] = useState<LabelOption[]>([])
 
   // valid order by, used in select and sent to API
-  const [selectedOrderLabel, setSelectedOrderLabel] =
-    useState<LabelOption>(defaultSelectedOrder);
+  const [selectedOrderLabel, setSelectedOrderLabel] = useState<LabelOption>(defaultSelectedOrder)
 
   // hit the end of the data for this query
-  const [atEnd, setAtEnd] = useState<boolean>(false);
+  const [atEnd, setAtEnd] = useState<boolean>(false)
 
   const { data, error, size, setSize, isValidating } = useSWRInfinite(
     (...args) =>
@@ -121,25 +118,18 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
         setAtEnd
       ),
     fetcher
-  );
+  )
 
-  const feedItems = data ? [].concat(...data) : [];
-  const isLoadingInitialData = !data && !error;
+  const feedItems = data ? [].concat(...data) : []
+  const isLoadingInitialData = !data && !error
   const isLoadingMore =
-    isLoadingInitialData ||
-    (size > 0 && data && typeof data[size - 1] === "undefined");
-  const isEmpty = data?.[0]?.length === 0;
-  const isRefreshing = isValidating && data && data.length === size;
+    isLoadingInitialData || (size > 0 && data && typeof data[size - 1] === "undefined")
+  const isEmpty = data?.[0]?.length === 0
+  const isRefreshing = isValidating && data && data.length === size
 
   useEffect(() => {
-    if (
-      isVisible &&
-      !atEnd &&
-      !isRefreshing &&
-      !isLoadingInitialData &&
-      !isLoadingMore
-    ) {
-      setSize(size + 1);
+    if (isVisible && !atEnd && !isRefreshing && !isLoadingInitialData && !isLoadingMore) {
+      setSize(size + 1)
     }
   }, [
     isVisible,
@@ -149,22 +139,22 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
     selectedOrderLabel,
     selectedTypeLabels,
     queryText,
-  ]);
+  ])
 
   // reset 'atEnd' (so new items load when you scroll down) after user changes any of the inputs
   useEffect(() => {
-    setAtEnd(false);
-  }, [queryText, selectedOrderLabel, selectedTypeLabels]);
+    setAtEnd(false)
+  }, [queryText, selectedOrderLabel, selectedTypeLabels])
 
   const clear = () => {
-    setQueryText("");
-    setSelectedOrderLabel(defaultSelectedOrder);
-    setSelectedTypeLabels([]);
-    setSize(0);
-  };
+    setQueryText("")
+    setSelectedOrderLabel(defaultSelectedOrder)
+    setSelectedTypeLabels([])
+    setSize(0)
+  }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div>{error}</div>
   }
 
   return (
@@ -185,10 +175,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
               <nav className={styles.nav}>
                 <div className={styles.mainTitle}>- FEED -</div>
                 <div className={styles.aboutLink}>
-                  <a
-                    href="#"
-                    onClick={() => setShowAttribution((toggle) => !toggle)}
-                  >
+                  <a href="#" onClick={() => setShowAttribution((toggle) => !toggle)}>
                     About/Attribution
                   </a>
                 </div>
@@ -216,7 +203,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                     className={styles.typeSelect}
                     onChange={(e) => {
                       if (e) {
-                        setSelectedTypeLabels(e as LabelOption[]);
+                        setSelectedTypeLabels(e as LabelOption[])
                       }
                     }}
                   />
@@ -231,7 +218,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                     className={styles.sortSelect}
                     onChange={(e) => {
                       if (e) {
-                        setSelectedOrderLabel(e);
+                        setSelectedOrderLabel(e)
                       }
                     }}
                   />
@@ -246,19 +233,13 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                         return {
                           ...oldPrefs,
                           dateAbsolute: !oldPrefs.dateAbsolute,
-                        };
-                      });
+                        }
+                      })
                     }}
                   >
-                    <FontAwesomeIcon
-                      icon={prefs.dateAbsolute ? faClock : faHistory}
-                    />
+                    <FontAwesomeIcon icon={prefs.dateAbsolute ? faClock : faHistory} />
                   </div>
-                  <div
-                    className={styles.filterIcon}
-                    title="Reset Filters"
-                    onClick={clear}
-                  >
+                  <div className={styles.filterIcon} title="Reset Filters" onClick={clear}>
                     <FontAwesomeIcon icon={faTimes} />
                   </div>
                 </div>
@@ -279,10 +260,10 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
               strategy="beforeInteractive"
             ></Script>
           </div>
-        );
+        )
       }}
     </PrefsConsumer>
-  );
-};
+  )
+}
 
-export default Index;
+export default Index
