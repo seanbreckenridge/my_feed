@@ -1,4 +1,4 @@
-import styles from "../styles/Index.module.css";
+import styles from "../styles/Index.module.css"
 
 const About: React.FC = () => {
   return (
@@ -55,12 +55,11 @@ const About: React.FC = () => {
           <a className={styles.link} href="https://www.themoviedb.org/">
             TMDB
           </a>{" "}
-          (This product uses the TMDB API but is not endorsed or certified by
-          TMDB)
+          (This product uses the TMDB API but is not endorsed or certified by TMDB)
         </li>
       </ul>
     </div>
-  );
-};
+  )
+}
 
-export default About;
+export default About

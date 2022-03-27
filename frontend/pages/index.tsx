@@ -1,10 +1,16 @@
-import { faClock, faHistory, faTimes } from "@fortawesome/free-solid-svg-icons"
+import {
+  faClock,
+  faCopy,
+  faHeart,
+  faHistory,
+  faSyncAlt,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import type { NextPage } from "next"
 import Head from "next/head"
 import { useRouter } from "next/router"
 import Script from "next/script"
-import { StringParam, useQueryParam, withDefault } from "next-query-params"
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
 import { DebounceInput } from "react-debounce-input"
 import Select from "react-select"
@@ -34,6 +40,31 @@ const createQuery = (obj: any) => {
   return str
 }
 
+const attachParams = (
+  baseParams: any,
+  query: string,
+  selectedTypes: string[],
+  selectedOrder: string,
+  sort: string
+): any => {
+  const qt = query.trim()
+  if (qt.length > 0) {
+    baseParams.query = qt
+  }
+
+  if (selectedOrder.length > 0) {
+    baseParams.order_by = selectedOrder
+    if (sort) {
+      baseParams.sort = sort
+    }
+  }
+
+  if (selectedTypes.length > 0) {
+    baseParams.ftype = selectedTypes.join(",")
+  }
+  return baseParams
+}
+
 const getKey = (
   pageIndex: number,
   previousPageData: any,
@@ -41,6 +72,7 @@ const getKey = (
   query: string,
   selectedTypes: string[],
   selectedOrder: string,
+  sort: string,
   limit: number,
   setAtEnd: Dispatch<SetStateAction<boolean>>
 ) => {
@@ -59,20 +91,19 @@ const getKey = (
     limit: limit,
   }
 
-  const qt = query.trim()
-  if (qt.length > 0) {
-    params.query = qt
-  }
+  params = attachParams(params, query, selectedTypes, selectedOrder, sort)
 
-  if (selectedOrder.length > 0) {
-    params.order_by = selectedOrder
-    params.sort = "desc"
-  }
+  return `${baseUrl}?${createQuery(params)}`
+}
 
-  if (selectedTypes.length > 0) {
-    params.ftype = selectedTypes.join(",")
-  }
-
+const generateLink = (
+  query: string,
+  selectedTypes: string[],
+  selectedOrder: string,
+  sort: string
+): string => {
+  const baseUrl = window.location.href.split("?")[0]
+  const params = attachParams({}, query, selectedTypes, selectedOrder, sort)
   return `${baseUrl}?${createQuery(params)}`
 }
 
@@ -94,14 +125,17 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
 
   const [showAttribution, setShowAttribution] = useState<boolean>(false)
 
-  // query maps back onto the URL param
-  const [queryText, setQueryText] = useQueryParam("query", withDefault(StringParam, ""))
+  // query text
+  const [queryText, setQueryText] = useState<string>("")
 
   // valid type labels, used in Select, sent to API
   const [selectedTypeLabels, setSelectedTypeLabels] = useState<LabelOption[]>([])
 
   // valid order by, used in select and sent to API
   const [selectedOrderLabel, setSelectedOrderLabel] = useState<LabelOption>(defaultSelectedOrder)
+
+  // order sort
+  const [sort, setSort] = useState<string>("desc")
 
   // hit the end of the data for this query
   const [atEnd, setAtEnd] = useState<boolean>(false)
@@ -114,6 +148,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
         queryText,
         selectedTypeLabels.map((e) => e.value),
         selectedOrderLabel.value,
+        sort,
         paginationLimit,
         setAtEnd
       ),
@@ -136,21 +171,79 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
     isRefreshing,
     atEnd,
     isLoadingMore,
+    isLoadingInitialData,
+    setSize,
+    size,
     selectedOrderLabel,
     selectedTypeLabels,
     queryText,
   ])
 
+  // parse query params
+  useEffect(() => {
+    // feed item type
+    if (query.ftype) {
+      const selectedTypes: string[] = (query.ftype as string).split(",")
+      const validTypes: LabelOption[] = selectedTypes
+        .filter((e) => FeedItemOptions.some((l) => l.value === e))
+        .map((e) => FeedItemOptions.find((l) => l.value === e))
+        .filter((e) => e !== undefined) as LabelOption[]
+      setSelectedTypeLabels(validTypes)
+    }
+    // query
+    if (query.query) {
+      const qs = query.query.toString()
+      if (qs.length > 0) {
+        setQueryText(qs)
+      }
+    }
+    // order by
+    if (query.order_by) {
+      const sort = OrderByOptions.find((e) => e.value === query.order_by)
+      if (sort) {
+        setSelectedOrderLabel(sort)
+      }
+    }
+    // sort
+    if (query.sort) {
+      if (query.sort === "asc") {
+        setSort("asc")
+      } else if (query.sort === "desc") {
+        setSort("desc")
+      }
+    }
+  }, [query])
+
   // reset 'atEnd' (so new items load when you scroll down) after user changes any of the inputs
   useEffect(() => {
     setAtEnd(false)
-  }, [queryText, selectedOrderLabel, selectedTypeLabels])
+  }, [queryText, selectedOrderLabel, selectedTypeLabels, sort])
 
   const clear = () => {
     setQueryText("")
     setSelectedOrderLabel(defaultSelectedOrder)
     setSelectedTypeLabels([])
     setSize(0)
+  }
+
+  const swapSort = () => {
+    if (sort === "desc") {
+      setSort("asc")
+    } else {
+      setSort("desc")
+    }
+  }
+
+  const copyLink = () => {
+    const url = generateLink(
+      queryText,
+      selectedTypeLabels.map((e) => e.value),
+      selectedOrderLabel.value,
+      sort
+    )
+    navigator.clipboard.writeText(url).then(() => {
+      alert(`Copied ${url} to clipboard`)
+    })
   }
 
   if (error) {
@@ -238,6 +331,29 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                     }}
                   >
                     <FontAwesomeIcon icon={prefs.dateAbsolute ? faClock : faHistory} />
+                  </div>
+                  <div className={styles.filterIcon} title="Swap Sort Order" onClick={swapSort}>
+                    <FontAwesomeIcon icon={faSyncAlt} />
+                  </div>
+                  <div
+                    className={styles.filterIcon}
+                    title="Copy Link To Clipboard"
+                    onClick={copyLink}
+                  >
+                    <FontAwesomeIcon icon={faCopy} />
+                  </div>
+                  <div
+                    className={styles.filterIcon}
+                    style={{
+                      color: "#f73e3e",
+                    }}
+                    title="Show Favorites"
+                    onClick={() => {
+                      clear()
+                      setSelectedOrderLabel(OrderByOptions[1])
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faHeart} />
                   </div>
                   <div className={styles.filterIcon} title="Reset Filters" onClick={clear}>
                     <FontAwesomeIcon icon={faTimes} />

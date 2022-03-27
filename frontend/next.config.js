@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-const basePath = process.env.NODE_ENV === "production" ? "/feed" : undefined;
+const basePath = process.env.NODE_ENV === "production" ? "/feed" : undefined
 
 const nextConfig = {
   reactStrictMode: true,
@@ -13,6 +13,6 @@ const nextConfig = {
     locales: ["en"],
     defaultLocale: "en",
   },
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig

@@ -1,21 +1,19 @@
-import { useState, useEffect, MutableRefObject } from "react";
+import { useState, useEffect, MutableRefObject } from "react"
 
 export default function useOnScreen(ref: MutableRefObject<any>) {
-  const [isIntersecting, setIntersecting] = useState(false);
+  const [isIntersecting, setIntersecting] = useState(false)
 
   useEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current) return
 
-    const observer = new IntersectionObserver(([entry]) =>
-      setIntersecting(entry.isIntersecting)
-    );
+    const observer = new IntersectionObserver(([entry]) => setIntersecting(entry.isIntersecting))
 
-    observer.observe(ref.current);
+    observer.observe(ref.current)
     // Remove the observer as soon as the component is unmounted
     return () => {
-      observer.disconnect();
-    };
-  }, []);
+      observer.disconnect()
+    }
+  }, [])
 
-  return isIntersecting;
+  return isIntersecting
 }
