@@ -320,6 +320,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   <div
                     className={styles.filterIcon}
                     title="Toggle Date Format"
+                    role="button"
                     onClick={() => {
                       // toggle on click
                       prefs.setPrefs((oldPrefs: Prefs): Prefs => {
@@ -332,10 +333,16 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   >
                     <FontAwesomeIcon icon={prefs.dateAbsolute ? faClock : faHistory} />
                   </div>
-                  <div className={styles.filterIcon} title="Swap Sort Order" onClick={swapSort}>
+                  <div
+                    role="button"
+                    className={styles.filterIcon}
+                    title="Swap Sort Order"
+                    onClick={swapSort}
+                  >
                     <FontAwesomeIcon icon={faSyncAlt} />
                   </div>
                   <div
+                    role="button"
                     className={styles.filterIcon}
                     title="Copy Link To Clipboard"
                     onClick={copyLink}
@@ -343,6 +350,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                     <FontAwesomeIcon icon={faCopy} />
                   </div>
                   <div
+                    role="button"
                     className={styles.filterIcon}
                     style={{
                       color: "#f73e3e",
@@ -355,20 +363,31 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                   >
                     <FontAwesomeIcon icon={faHeart} />
                   </div>
-                  <div className={styles.filterIcon} title="Reset Filters" onClick={clear}>
+                  <div
+                    role="button"
+                    className={styles.filterIcon}
+                    title="Reset Filters"
+                    onClick={clear}
+                  >
                     <FontAwesomeIcon icon={faTimes} />
                   </div>
                 </div>
               </div>
               <FeedGrid data={feedItems as FeedItemStruct[]} />
               <div ref={scrollRef} style={{ marginTop: "20vh" }}>
-                {atEnd && selectedOrderLabel.value === "score"
-                  ? "no more data with scores, switch order to 'Date'"
-                  : atEnd
-                  ? "no more data..."
-                  : !isEmpty && isLoadingMore
-                  ? "loading..."
-                  : ""}
+                {atEnd ? (
+                  <div>
+                    {"no more items" +
+                      (selectedOrderLabel.value === "score" ? " with scores, " : ", ")}
+                    <a className={styles.aboutLink} href="#" onClick={clear}>
+                      {"reset?"}
+                    </a>
+                  </div>
+                ) : !isEmpty && isLoadingMore ? (
+                  "loading..."
+                ) : (
+                  ""
+                )}
               </div>
             </main>
             <Script
