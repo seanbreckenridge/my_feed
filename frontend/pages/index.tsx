@@ -360,6 +360,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                       setQueryText("")
                       setSelectedTypeLabels([])
                       setSize(0)
+                      setSort("desc")
                       setSelectedOrderLabel(OrderByOptions[1])
                     }}
                   >
