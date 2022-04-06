@@ -357,7 +357,9 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                     }}
                     title="Show Favorites"
                     onClick={() => {
-                      clear()
+                      setQueryText("")
+                      setSelectedTypeLabels([])
+                      setSize(0)
                       setSelectedOrderLabel(OrderByOptions[1])
                     }}
                   >
