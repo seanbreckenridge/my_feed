@@ -9,7 +9,7 @@ from typing import Iterator, Dict, Any
 
 from my.nextalbums import history as album_history, Album
 from nextalbums.discogs_update import slugify
-from my.time.tz.via_location import _get_tz
+from my.time.tz.via_location import localize
 
 from .model import FeedItem
 
@@ -42,9 +42,7 @@ def history() -> Iterator[FeedItem]:
         # average time I listen to an album.
         # Use HPI locations module to determine timezone
         dt_naive = datetime.combine(al.listened_on, time(hour=12))
-        tz = _get_tz(dt_naive)
-        assert tz is not None
-        dt = dt_naive.replace(tzinfo=tz)
+        dt = localize(dt_naive)
 
         data: Dict[str, Any] = {}
         image_url = al.album_artwork_url
