@@ -107,6 +107,8 @@ const CardImage: React.FC<CardImageProps> = ({ src, alt, minWidth, minHeight }: 
       style={{
         minWidth: `${uMinWidth}rem`,
         minHeight: `${uMinHeight}rem`,
+        marginTop: "2px",
+        marginBottom: "2px",
         width: "100%",
         height: "100%",
         position: "relative",
@@ -219,10 +221,14 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
       </div>
     )
   } else if (item.ftype === "album") {
+    let release_year = ""
+    if (item.release_date) {
+      release_year = ` (${item.release_date.split("-")[0]})`
+    }
     return (
       <div className={styles.cardFlexBody}>
-        <CardHeader title={item.title} icon={faRecordVinyl} link={item.url} />
-        <CardImage src={item.image_url} alt={item.title} />
+        <CardHeader title={`${item.title}${release_year}`} icon={faRecordVinyl} link={item.url} />
+        <CardImage src={item.image_url} alt={item.title} minHeight="15" />
         <p className={styles.subtitle}>{item.subtitle}</p>
         <CardFooter dt={item.when} score={item.score} />
       </div>
