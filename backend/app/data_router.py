@@ -68,7 +68,7 @@ async def data_types(
 @router.get("/", response_model=List[FeedRead])
 async def data(
     offset: int = 0,
-    limit: int = Query(default=100, lte=100),
+    limit: int = Query(default=100, gt=9, lt=501),
     order_by: OrderBy = Query(default=OrderBy.when),
     sort: Sort = Query(default=Sort.desc),
     ftype: Optional[str] = Query(default=None, min_length=2),
