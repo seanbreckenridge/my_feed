@@ -54,7 +54,7 @@ def data(echo: bool = False) -> Iterator[FeedItem]:
         for item in producer():
             item.check()
             if item.id in emitted:
-                logger.warning(f"Duplicate id: {item.id}")
+                logger.warning(f"Duplicate id: {item.id} {item}")
             emitted.add(item.id)
             if echo:
                 print(item)
