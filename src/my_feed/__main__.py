@@ -1,7 +1,7 @@
 import time
 import pickle
 from pathlib import Path
-from typing import Iterator, Callable, Optional
+from typing import Iterator, Callable, Optional, List, TypeGuard, Any
 
 import click
 
@@ -17,41 +17,42 @@ def main():
 BLUE = (83, 158, 206)
 
 
-def _games() -> Iterator[Callable[[], Iterator[FeedItem]]]:
-    from .sources.games import steam, osrs, game_center, grouvee, chess
-
-    yield steam
-    yield osrs
-    yield game_center
-    yield grouvee
-    yield chess
+def _check_source(source: Any) -> TypeGuard[Callable[[], Iterator[FeedItem]]]:
+    if not callable(source):
+        click.echo(f"{source} is not callable, ignoring source", err=True)
+        return False
+    return True
 
 
 def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
-    from .sources.trakt import history as tr_history
-    from .sources.listens import history as ls_history
-    from .sources.nextalbums import history as al_history
-    from .sources.mal import history as mal_history
-    from .sources.mpv import history as mpv_history
-    from .sources.facebook_spotify_listens import history as old_spotify_listens
+    try:
+        from my.config.feed import sources  # type: ignore[import]
+    except Exception:
+        click.echo(
+            "Could not import sources from my.config.feed, see docs or https://github.com/seanbreckenridge/dotfiles/blob/master/.config/my/my/config/feed.py as an example",
+            err=True,
+        )
+        return
 
-    yield old_spotify_listens
-    yield ls_history
-    yield mpv_history
-    yield from _games()
-    yield tr_history
-    yield al_history
-    yield mal_history
+    assert callable(sources), f"sources imported from my.config.feed is not a function"
+    for src in iter(sources()):
+        if _check_source(src):
+            yield src
 
 
-def data(echo: bool = False) -> Iterator[FeedItem]:
+def data(filter_sources: List[str], echo: bool = False) -> Iterator[FeedItem]:
     for producer in _sources():
+        func = f"{producer.__module__}.{producer.__qualname__}"
+        if len(filter_sources) > 0:
+            if not any([substr in func for substr in filter_sources]):
+                continue
         emitted: set[str] = set()
         start_time = time.time()
         func = f"{producer.__module__}.{producer.__qualname__}"
         ext = f"Extracting {click.style(func, fg='green')}"
         click.echo(f"{ext}...")
         for item in producer():
+            assert isinstance(item, FeedItem)
             item.check()
             if item.id in emitted:
                 logger.warning(f"Duplicate id: {item.id} {item}")
@@ -73,11 +74,19 @@ def data(echo: bool = False) -> Iterator[FeedItem]:
     is_flag=True,
     help="Print feed items as they're computed",
 )
+@click.option(
+    "--filter-sources",
+    default=None,
+    help="A comma delimited list of substrings of sources. e.g. 'mpv,trakt,listens'",
+)
 @click.argument(
     "OUTPUT", type=click.Path(writable=True, path_type=Path), required=False
 )
-def index(echo: bool, output: Optional[Path]) -> None:
-    items = list(data(echo=echo))
+def index(echo: bool, filter_sources: Optional[str], output: Optional[Path]) -> None:
+    filter_lst: List[str] = []
+    if filter_sources:
+        filter_lst = [p.strip() for p in filter_sources.strip().split(",")]
+    items = list(data(filter_lst, echo=echo))
     click.echo(f"Total: {click.style(len(items), BLUE)} items")
     if output is not None:
         click.echo(f"Writing to '{output}'")

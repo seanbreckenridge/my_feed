@@ -6,7 +6,14 @@ Live at <https://sean.fish/feed/>
 
 This uses HPI as the data source, and then handles cleaning up the data some/enriching it by using local data/cached API requests
 
-`src/my_feed/` is installed into my global environment so I can use the data this generates as a sort of 'normalized' version of history; installed as `pip install -e .`:
+`src/my_feed/` is installed into my global environment so I can use the data this generates as a sort of 'normalized' version of history.
+
+To install:
+
+```bash
+git clone https://github.com/seanbreckenridge/my_feed
+pip install -e ./my_feed
+```
 
 - [`listens`](https://github.com/seanbreckenridge/HPI-personal/blob/master/scripts/listens)
 
@@ -74,4 +81,43 @@ location /feed/_next/ {
 location /feed_api/ {
   proxy_pass http://127.0.0.1:5100/;
 }
+```
+
+### Config:
+
+This uses the `HPI` config structure (which you'd probably already have setup if you're using this)
+
+So, in `~/.config/my/my/config/feed.py`, create a top-level `sources` function, which returns each _function_:
+
+```python
+from typing import Iterator, Callable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from my_feed.sources.model import FeedItem
+
+
+def sources() -> Iterator[Callable[[], Iterator["FeedItem"]]]:
+    from my_feed.sources import games
+
+    yield games.steam
+    yield games.osrs
+    yield games.game_center
+    yield games.grouvee
+    yield games.chess
+
+    from my_feed.sources import (
+        trakt,
+        listens,
+        nextalbums,
+        mal,
+        mpv,
+        facebook_spotify_listens,
+    )
+
+    yield trakt.history
+    yield listens.history
+    yield nextalbums.history
+    yield mal.history
+    yield mpv.history
+    yield facebook_spotify_listens.history
 ```
