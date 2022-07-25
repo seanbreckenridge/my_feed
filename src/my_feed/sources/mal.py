@@ -10,6 +10,7 @@ from typing import Iterator, Optional, Union
 import my.mal.export as mal
 
 from .model import FeedItem
+from ..log import logger
 
 
 def _image_url(data: Union[mal.AnimeData, mal.MangaData]) -> Optional[str]:
@@ -33,8 +34,9 @@ def _anime() -> Iterator[FeedItem]:
         if an.username != os.environ["MAL_USERNAME"]:
             continue
 
-        assert an.APIList is not None, WHILE_UPDATING_ERR + f"; for {an}"
-        assert an.JSONList is not None, WHILE_UPDATING_ERR + f"; for {an}"
+        if an.APIList is None or an.JSONList is None:
+            logger.warning(WHILE_UPDATING_ERR + f"; for {an}")
+            continue
 
         tags = [genre.name for genre in an.APIList.genres]
         if an.JSONList:
@@ -119,8 +121,9 @@ def _manga() -> Iterator[FeedItem]:
         if mn.username != os.environ["MAL_USERNAME"]:
             continue
 
-        assert mn.APIList is not None, WHILE_UPDATING_ERR + f"; for {mn}"
-        assert mn.JSONList is not None, WHILE_UPDATING_ERR + f"; for {mn}"
+        if mn.APIList is None or mn.JSONList is None:
+            logger.warning(WHILE_UPDATING_ERR + f"; for {mn}")
+            continue
 
         tags = [genre.name for genre in mn.APIList.genres]
         if mn.JSONList:
