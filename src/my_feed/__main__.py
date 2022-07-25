@@ -34,7 +34,7 @@ def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
         )
         return
 
-    assert callable(sources), f"sources imported from my.config.feed is not a function"
+    assert callable(sources), "sources imported from my.config.feed is not a function"
     for src in iter(sources()):
         if _check_source(src):
             yield src
