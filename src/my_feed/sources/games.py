@@ -71,7 +71,7 @@ class GiantBombCache(URLCache):
 
 @cache
 def gb_cache() -> GiantBombCache:
-    default_local = os.path.join(os.environ["HOME"], ".local", "share")
+    default_local = os.path.expanduser("~/.local/share")
     cache_dir = os.path.join(default_local, "giantbomb_cache")
     return GiantBombCache(cache_dir=cache_dir, sleep_time=5)
 
