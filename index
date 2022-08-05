@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# if ./index -r, this deletes
+# if FEED_REINDEX=1 ./index , this deletes
 # the remote database and re-builds it
 
 set -e
@@ -9,7 +9,7 @@ RESET=
 SSH_TARGET="${SSH_TARGET:-vultr}"
 
 # if we want to delete the remote database
-[[ "$1" == "-r" ]] && RESET=1
+[[ -n "$FEED_REINDEX" ]] && RESET=1
 declare -rx RESET
 
 if ((RESET)); then
