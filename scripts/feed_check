@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+
+import subprocess
+import shlex
+from functools import cache
+from pathlib import Path
+from typing import List, Any, Dict, Iterator
+from urllib.parse import urljoin
+
+import click
+import requests
+from logzero import logger
+import more_itertools
+
+
+@cache
+def evry_data_dir() -> Path:
+    proc = subprocess.run(
+        shlex.split("evry location -tag"), stdout=subprocess.PIPE, check=True
+    )
+    return Path(proc.stdout.decode("utf-8").strip()).parent
+
+
+def evry_clear(tag: str) -> None:
+    target = evry_data_dir() / tag
+    if target.exists():
+        click.echo(f"removing '{target}'", err=True)
+        target.unlink()
+
+
+BASE = "http://localhost:5100/data/"
+
+Json = Any
+
+
+def request_data(params: str) -> Json:
+    if "&" not in params and "=" not in params:
+        params = f"ftype={params}"
+    url = urljoin(BASE, "?offset=0&order_by=when&sort=desc&" + params)
+    logger.info(f"Requesting {url}")
+    req = requests.get(url)
+    req.raise_for_status()
+    return req.json()
+
+
+def check_mpv(**kwargs: str) -> str | None:
+    remote_ids = {
+        ll["model_id"]
+        for ll in request_data("ftype=listen")
+        if ll["model_id"].startswith("mpv_")
+    }
+    if len(remote_ids) == 0:
+        return
+    from my_feed.sources.mpv import history
+
+    if more_itertools.last(history()).id not in remote_ids:
+        return "mpv.history"
+
+
+def check_listens(**kwargs: str) -> str | None:
+    from listenbrainz_export.export import request_listens
+
+    remote_ids = [
+        ll for ll in request_data("ftype=listen") if ll["model_id"].startswith("listen")
+    ]
+
+    username = kwargs.get("listenbrainz-username")
+    if username is None:
+        logger.warning(f"No username set, use the --listenbrainz-username flag")
+        return
+    listens = [
+        ls
+        for ls in request_listens(username=username, pages=1)
+        if ls["listened_at"] is not None
+    ]
+    assert len(listens) > 0, f"recieved no listens from listenbrainz"
+    most_recent_epoch = listens[0]["listened_at"]
+    if int(most_recent_epoch) > int(remote_ids[0]["when"]):
+        evry_clear("partial_listenbrainz_scrobbles")
+        return "listens.history"
+
+
+def check(**kwargs: Any) -> Iterator[str | None]:
+    for func in (check_mpv, check_listens):
+        try:
+            logger.info(f"Checking '{func.__qualname__}'")
+            yield func(**kwargs)
+        except Exception as e:
+            logger.exception(f"{func.__qualname__} failed...", exc_info=e)
+
+
+def _parse_unknown(unknown: List[str]) -> Dict[str, str]:
+    kwargs: Dict[str, str] = {}
+    for flag, val in more_itertools.sliced(unknown, 2):
+        kwargs[flag.lstrip("-").strip()] = val
+    return kwargs
+
+
+@click.command(
+    context_settings=dict(
+        ignore_unknown_options=True,
+        allow_extra_args=True,
+    )
+)
+@click.option("--remote-base", help="Base of remote feed API", type=str, default=BASE)
+@click.argument("KWARGS", nargs=-1, type=click.UNPROCESSED)
+def main(remote_base: str, kwargs: Any) -> None:
+    global BASE
+    BASE = remote_base
+    kw = _parse_unknown(kwargs)
+    expired = [f for f in check(**kw) if f is not None]
+    if expired:
+        click.echo(",".join(expired))
+
+
+if __name__ == "__main__":
+    main()
