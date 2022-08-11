@@ -7,7 +7,7 @@
 main() {
 	source "$HPIDATA/personal_aliases" 2>/dev/null
 	source "$HPIDATA/tokens"
-	wait-for-internet --quiet
+	wait-for-internet --quiet --timeout 10 || exit 0
 	EXPIRED="$(MY_FEED_BG=1 feed_check "$@")" || return $?
 	if [[ -n "$EXPIRED" ]]; then
 		printf 'Expired: %s\n' "$EXPIRED"
