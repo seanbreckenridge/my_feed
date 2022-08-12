@@ -112,8 +112,32 @@ def check_chess(**kwargs: str) -> str | None:
         return "chess"
 
 
+def check_trakt(**kwargs: str) -> str | None:
+    from traktexport.export import partial_export
+
+    username = kwargs.get("trakt-username")
+    if username is None:
+        logger.warning("No username set, use the --trakt-username flag")
+        return
+    hist_ids = [
+        int(data["id"])
+        for data in partial_export(username=username, pages=1)["history"]
+    ]
+    if len(hist_ids) == 0:
+        return
+
+    remote_ids = {
+        int(data["model_id"].split("_")[-1])
+        for data in request_data("ftype=trakt_history_movie,trakt_history_episode")
+    }
+
+    if hist_ids[0] not in remote_ids:
+        evry_clear("backup_trakt_partial")
+        return "trakt.history"
+
+
 def check(**kwargs: Any) -> Iterator[str | None]:
-    for func in (check_chess, check_mpv, check_listens):
+    for func in (check_trakt, check_chess, check_mpv, check_listens):
         try:
             logger.info(f"Checking '{func.__qualname__}'")
             yield func(**kwargs)

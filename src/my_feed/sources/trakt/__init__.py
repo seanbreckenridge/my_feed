@@ -162,7 +162,7 @@ def _history_mapping(hst: List[D.HistoryEntry]) -> Dict[str, datetime]:
 
 def history() -> Iterator[FeedItem]:
 
-    emitted: set[Tuple[str, str, datetime]] = set()
+    # emitted: set[Tuple[str, str, datetime]] = set()
 
     hst = list(trakt_history())
 
@@ -187,8 +187,8 @@ def history() -> Iterator[FeedItem]:
         assert m.ids.trakt_slug is not None
 
         # add this rating to emitted, so we don't have movies right next to each other
-        key: Tuple[str, str, datetime] = (m.ids.trakt_slug, type(m).__name__, dt)
-        emitted.add(key)
+        # key: Tuple[str, str, datetime] = (m.ids.trakt_slug, type(m).__name__, dt)
+        # emitted.add(key)
 
         yield FeedItem(
             id=f"trakt_{m.__class__.__name__.lower()}_{m.ids.trakt_slug}",
@@ -233,9 +233,9 @@ def history() -> Iterator[FeedItem]:
         # this is to prevent duplicate movie/rating entries from appearing when I've only watched
         # the movie once. if its an episode of a show, still want the episode and the season/show
         # to appear on the feed multiple times
-        key = (collection, type(m).__name__, h.watched_at)
-        if key in emitted and isinstance(m, D.Movie):
-            continue
+        # key = (collection, type(m).__name__, h.watched_at)
+        # if key in emitted and isinstance(m, D.Movie):
+        #     continue
 
         yield FeedItem(
             id=f"trakt_{h.history_id}",
