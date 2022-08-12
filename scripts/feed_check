@@ -80,8 +80,32 @@ def check_listens(**kwargs: str) -> str | None:
         return "listens.history"
 
 
+def check_chess(**kwargs: str) -> str | None:
+    from chess_export.chessdotcom.export import (
+        safe_request,
+        get_player_game_archives,
+    )
+
+    remote_end_times = {int(ll["when"]) for ll in request_data("ftype=chess")}
+
+    username = kwargs.get("chessdotcom-username")
+    if username is None:
+        logger.warning("No username set, use the --chessdotcom-username flag")
+        return
+    chess_last_month_url = get_player_game_archives(username)[-1]
+    games = safe_request(chess_last_month_url).json()["games"]
+    games.sort(key=lambda g: g["end_time"])
+    if len(games) == 0:
+        return
+    latest_end_time = int(games[-1]["end_time"])
+
+    if latest_end_time not in remote_end_times:
+        evry_clear("backup_chess_daily")
+        return "chess"
+
+
 def check(**kwargs: Any) -> Iterator[str | None]:
-    for func in (check_mpv, check_listens):
+    for func in (check_chess, check_mpv, check_listens):
         try:
             logger.info(f"Checking '{func.__qualname__}'")
             yield func(**kwargs)

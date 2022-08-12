@@ -11,9 +11,9 @@ main() {
 	EXPIRED="$(MY_FEED_BG=1 feed_check "$@")" || return $?
 	if [[ -n "$EXPIRED" ]]; then
 		printf 'Expired: %s\n' "$EXPIRED"
-		bgproc_on_machine -qo
-		rm -fv "$(evry location -my-feed-index-bg)"
-		bgproc_on_machine -qo
+		bgproc_on_machine -qo                       # update local data
+		rm -fv "$(evry location -my-feed-index-bg)" # reset background index
+		bgproc_on_machine -qo                       # run background index
 	fi
 }
 
