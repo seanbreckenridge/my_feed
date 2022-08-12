@@ -33,6 +33,7 @@ BASE = "http://localhost:5100/data/"
 Json = Any
 
 
+@cache
 def request_data(params: str) -> Json:
     if "&" not in params and "=" not in params:
         params = f"ftype={params}"
@@ -51,9 +52,16 @@ def check_mpv(**kwargs: str) -> str | None:
     }
     if len(remote_ids) == 0:
         return
+
+    from my.mpv.history_daemon import inputs
     from my_feed.sources.mpv import history
 
-    if more_itertools.last(history()).id not in remote_ids:
+    def _inputs() -> List[Path]:
+        return list(reversed(inputs()))
+
+    last = next(history(from_paths=_inputs))
+
+    if last.id not in remote_ids:
         return "mpv.history"
 
 

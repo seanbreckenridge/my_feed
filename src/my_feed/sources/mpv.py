@@ -17,6 +17,7 @@ from typing import Iterator, Tuple, Optional, Dict, TypeGuard
 from mutagen.mp3 import MP3  # type: ignore[import]
 from mutagen.easyid3 import EasyID3  # type: ignore[import]
 from my.mpv.history_daemon import history as mpv_history, Media
+from my.utils.input_source import InputSource
 
 from .model import FeedItem
 from ..log import logger
@@ -247,8 +248,12 @@ except ImportError as e:
     logger.warning("Could not import feed configuration", exc_info=e)
 
 
-def history() -> Iterator[FeedItem]:
-    for media in mpv_history():
+def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
+    kwargs = {}
+    if from_paths is not None:
+        kwargs["from_paths"] = from_paths
+
+    for media in mpv_history(**kwargs):
         if media.is_stream or media.path.startswith("/tmp"):
             continue
 
