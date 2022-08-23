@@ -34,10 +34,10 @@ Json = Any
 
 
 @cache
-def request_data(params: str) -> Json:
+def request_data(params: str, limit: int = 500) -> Json:
     if "&" not in params and "=" not in params:
         params = f"ftype={params}"
-    url = urljoin(BASE, "?offset=0&order_by=when&sort=desc&" + params)
+    url = urljoin(BASE, f"?offset=0&order_by=when&sort=desc&limit={limit}&" + params)
     logger.info(f"Requesting {url}")
     req = requests.get(url)
     req.raise_for_status()
@@ -94,7 +94,7 @@ def check_chess(**kwargs: str) -> str | None:
         get_player_game_archives,
     )
 
-    remote_end_times = {int(ll["when"]) for ll in request_data("ftype=chess")}
+    remote_end_times = {int(ll["when"]) for ll in request_data("ftype=chess", limit=10)}
 
     username = kwargs.get("chessdotcom-username")
     if username is None:
@@ -128,7 +128,9 @@ def check_trakt(**kwargs: str) -> str | None:
 
     remote_ids = {
         int(data["model_id"].split("_")[-1])
-        for data in request_data("ftype=trakt_history_movie,trakt_history_episode")
+        for data in request_data(
+            "ftype=trakt_history_movie,trakt_history_episode", limit=10
+        )
     }
 
     if hist_ids[0] not in remote_ids:
