@@ -47,7 +47,7 @@ def request_data(params: str, limit: int = 500) -> Json:
 def check_mpv(**kwargs: str) -> str | None:
     remote_ids = {
         ll["model_id"]
-        for ll in request_data("ftype=listen")
+        for ll in request_data("listen")
         if ll["model_id"].startswith("mpv_")
     }
     if len(remote_ids) == 0:
@@ -69,7 +69,7 @@ def check_listens(**kwargs: str) -> str | None:
     from listenbrainz_export.export import request_listens
 
     remote_ids = [
-        ll for ll in request_data("ftype=listen") if ll["model_id"].startswith("listen")
+        ll for ll in request_data("listen") if ll["model_id"].startswith("listen")
     ]
 
     username = kwargs.get("listenbrainz-username")
@@ -94,7 +94,7 @@ def check_chess(**kwargs: str) -> str | None:
         get_player_game_archives,
     )
 
-    remote_end_times = {int(ll["when"]) for ll in request_data("ftype=chess", limit=10)}
+    remote_end_times = {int(ll["when"]) for ll in request_data("chess", limit=10)}
 
     username = kwargs.get("chessdotcom-username")
     if username is None:
@@ -128,9 +128,7 @@ def check_trakt(**kwargs: str) -> str | None:
 
     remote_ids = {
         int(data["model_id"].split("_")[-1])
-        for data in request_data(
-            "ftype=trakt_history_movie,trakt_history_episode", limit=10
-        )
+        for data in request_data("trakt_history_movie,trakt_history_episode", limit=10)
     }
 
     if hist_ids[0] not in remote_ids:
