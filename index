@@ -36,6 +36,9 @@ TMPDIR="$(mktemp -d)"
 # https://sean.fish/d/.local/share/shortcuts/epoch?dark
 PICKLE="${TMPDIR}/$(epoch).pickle" || exit $?
 
+# warm tz cache incase its expired
+hpi doctor -S my.time.tz.via_location
+
 # run an index
 my_feed index "$PICKLE" || exit $?
 
