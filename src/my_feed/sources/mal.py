@@ -25,9 +25,6 @@ def _image_url(data: Union[mal.AnimeData, mal.MangaData]) -> Optional[str]:
     return None
 
 
-WHILE_UPDATING_ERR = "No API info"
-
-
 def _anime() -> Iterator[FeedItem]:
     for an in mal.anime():
 
@@ -35,7 +32,7 @@ def _anime() -> Iterator[FeedItem]:
             continue
 
         if an.APIList is None:
-            logger.warning(WHILE_UPDATING_ERR + f" for {an}")
+            logger.warning(f"No API info for {an}")
             continue
 
         tags = [genre.name for genre in an.APIList.genres]
@@ -122,7 +119,7 @@ def _manga() -> Iterator[FeedItem]:
             continue
 
         if mn.APIList is None:
-            logger.warning(WHILE_UPDATING_ERR + f"; for {mn}")
+            logger.warning(f"No API info for {mn}")
             continue
 
         tags = [genre.name for genre in mn.APIList.genres]
