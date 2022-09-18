@@ -84,7 +84,7 @@ def check_listens(**kwargs: str) -> str | None:
     assert len(listens) > 0, f"received no listens from listenbrainz"
     most_recent_epoch = listens[0]["listened_at"]
     if int(most_recent_epoch) > int(remote_ids[0]["when"]):
-        evry_clear("partial_listenbrainz_scrobbles")
+        evry_clear("backup_listenbrainz_partial")
         return "listens.history"
 
 
