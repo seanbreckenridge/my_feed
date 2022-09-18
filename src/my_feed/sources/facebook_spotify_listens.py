@@ -20,8 +20,6 @@ def history() -> Iterator[FeedItem]:
     for e in events():
         if not isinstance(e, Action):
             continue
-        if "listened to" not in e.description:
-            continue
         match = re.match(listened_regex, e.description)
         if match:
             ts = int(e.dt.timestamp())
