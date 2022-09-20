@@ -315,7 +315,7 @@ def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
 
         # TODO: attach to album somehow (parent_id/collection)?
         yield FeedItem(
-            id=f"mpv_{int(dt.timestamp())}",
+            id=f"mpv_{dt.timestamp()}",
             ftype="listen",
             title=title,
             subtitle=subtitle,
