@@ -231,6 +231,7 @@ IGNORE_EXTS = {
     ".aiff",
     ".iso",
     ".flv",
+    ".unknown_video",
 }
 
 
