@@ -24,7 +24,7 @@ def history() -> Iterator[FeedItem]:
         if match:
             ts = int(e.dt.timestamp())
             yield FeedItem(
-                id=f"listen_{ts}",
+                id=f"facebook_spotify_listen_{ts}",
                 ftype="listen",
                 title=str(match.group(1)),
                 creator=str(match.group(2)),
