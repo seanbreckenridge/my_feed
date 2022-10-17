@@ -27,8 +27,12 @@ def load_pickled_feeditems() -> Iterator[FeedItem]:
         yield from items
 
 
-def prune_pickle_files() -> None:
-    old_files = _list_pickle_files()[:-1]  # remove last file (sorted by mod time)
+def prune_pickle_files(remove_all: bool = False) -> None:
+    if remove_all:
+        old_files = _list_pickle_files()
+    else:
+        # remove all but last file (sorted by mod time)
+        old_files = _list_pickle_files()[:-1]
     if len(old_files):
         for f in old_files:
             logger.info(f"Removing old pickle file: '{f}'")
@@ -77,6 +81,15 @@ def import_pickled_data() -> int:
 
 def update_data() -> int:
 
-    added = import_pickled_data()
-    prune_pickle_files()
+    added = 0
+    try:
+        added = import_pickled_data()
+    except Exception as e:
+        logger.exception(str(e), exc_info=e)
+        logger.warning("Found broken files, removing all pickled data files...")
+        # if this failed, pickle files may have failed to upload properly, so
+        # we should remove all pickle files
+        prune_pickle_files(remove_all=True)
+    else:
+        prune_pickle_files()
     return added
