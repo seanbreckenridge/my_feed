@@ -33,7 +33,7 @@ def create_app() -> FastAPI:
     current_app.include_router(router, prefix="/data")
 
     @current_app.get("/check")
-    async def check(auth: None = Depends(bearer_auth))-> str:
+    async def check(auth: None = Depends(bearer_auth)) -> str:
         from app.load_pickle import update_data
 
         added = update_data()

@@ -25,6 +25,11 @@ cd "${THIS_DIR}" || exit $?
 
 source "$HPIDATA/tokens"
 
+declare -a CURL_AUTH_OPTS=()
+if [[ -n "$MY_FEED_SECRET" ]]; then
+	CURL_AUTH_OPTS=("-H" "Authorization:$MY_FEED_SECRET")
+fi
+
 # set prefix for indexer
 export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
 
@@ -64,6 +69,6 @@ if [[ -n "$RESET" ]]; then
 else
 	# otherwise this is just new data, just ping the server to check for new files
 	echo 'Running update...'
-	curl -sL 'https://sean.fish/feed_api/check'
+	curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/check'
 	echo
 fi
