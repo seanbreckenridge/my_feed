@@ -8,12 +8,12 @@ from app.data_router import router
 from my_feed.log import logger
 
 
-def bearer_auth(authorization: str = Header(default="")) -> None:
+def bearer_auth(token: str = Header(default="")) -> None:
     print(settings.BEARER_SECRET)
     if settings.BEARER_SECRET.strip() == "":
         return
     assert len(settings.BEARER_SECRET) > 0
-    if authorization == settings.BEARER_SECRET:
+    if token == settings.BEARER_SECRET:
         return
     raise HTTPException(status_code=401, detail="Need to pass bearer secret to update")
 
@@ -33,7 +33,7 @@ def create_app() -> FastAPI:
     current_app.include_router(router, prefix="/data")
 
     @current_app.get("/check")
-    async def check(auth: None = Depends(bearer_auth)) -> str:
+    async def check(token: None = Depends(bearer_auth)) -> str:
         from app.load_pickle import update_data
 
         added = update_data()

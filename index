@@ -27,7 +27,7 @@ source "$HPIDATA/tokens"
 
 declare -a CURL_AUTH_OPTS=()
 if [[ -n "$MY_FEED_SECRET" ]]; then
-	CURL_AUTH_OPTS=("-H" "Authorization:$MY_FEED_SECRET")
+	CURL_AUTH_OPTS=("-H" "token:$MY_FEED_SECRET")
 fi
 
 # set prefix for indexer
