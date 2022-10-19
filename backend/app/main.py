@@ -9,7 +9,6 @@ from my_feed.log import logger
 
 
 def bearer_auth(token: str = Header(default="")) -> None:
-    print(settings.BEARER_SECRET)
     if settings.BEARER_SECRET.strip() == "":
         return
     assert len(settings.BEARER_SECRET) > 0
