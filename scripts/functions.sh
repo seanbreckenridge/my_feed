@@ -16,6 +16,10 @@ feed_favorite_albums() {
 	curl -sL 'https://sean.fish/feed_api/data/?offset=0&limit=100&order_by=score&sort=desc&ftype=album' | jq
 }
 
+feed_albums() {
+	curl -sL 'https://sean.fish/feed_api/data/?offset=0&limit=100&ftype=album'
+}
+
 feed_recent_albums() {
 	local recent="${1?:provide recent duration}"
 	local after_epoch="$(date -d "-$recent" +%s)"
