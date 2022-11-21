@@ -2,10 +2,12 @@
 
 import subprocess
 import shlex
+import itertools
 from functools import cache
 from pathlib import Path
 from typing import List, Any, Dict, Iterator
 from urllib.parse import urljoin
+from datetime import date
 
 import click
 import requests
@@ -42,6 +44,32 @@ def request_data(params: str, limit: int = 500) -> Json:
     req = requests.get(url)
     req.raise_for_status()
     return req.json()
+
+
+def check_albums(**kwargs: str) -> str | None:
+    from nextalbums.export import export_data
+    from my_feed.sources.nextalbums import _album_id
+
+    recent_albums = sorted(
+        (
+            a
+            for a in export_data()
+            if not isinstance(a, Exception) and a.listened_on is not None
+        ),
+        key=lambda p: p.listened_on or date.min,
+        reverse=True,
+    )
+
+    # remove 'album_' prefix from albums
+    remote_ids = {
+        ll["model_id"].split("_", maxsplit=1)[1] for ll in request_data("album")
+    }
+
+    for r in map(_album_id, itertools.islice(recent_albums, 50)):
+        if r not in remote_ids:
+            click.echo(f"Missing {r}", err=True)
+            evry_clear("backup_albums")
+            return "nextalbums.history"
 
 
 def check_mpv(**kwargs: str) -> str | None:
@@ -143,7 +171,7 @@ def check_trakt(**kwargs: str) -> str | None:
 
 
 def check(**kwargs: Any) -> Iterator[str | None]:
-    for func in (check_trakt, check_chess, check_mpv, check_listens):
+    for func in (check_albums, check_trakt, check_chess, check_mpv, check_listens):
         try:
             logger.info(f"Checking '{func.__qualname__}'")
             yield func(**kwargs)
