@@ -127,7 +127,7 @@ def _fix_media(
     """Fix broken metadata on scrobbles, and save my responses to a cache file"""
 
     # if we can find the file locally still, use that to extract data from fixed (I've
-    # since ran https://sean.fish/d/id3stuff?dark on all my music, so it has correct tags)
+    # since ran https://github.com/seanbreckenridge/plaintext_playlist_py/blob/master/bin/id3stuff on all my music, so it has correct tags)
     # mp3 file
 
     # if we've fixed this in the past

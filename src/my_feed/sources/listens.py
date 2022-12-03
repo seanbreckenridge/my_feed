@@ -4,7 +4,8 @@
 Listens (music), with some manual fixes because of lacking metadata
 
 All of the metadata *should* be correct now because of
-https://sean.fish/d/id3stuff?dark, but some older entries have bad metadata
+https://github.com/seanbreckenridge/plaintext_playlist_py/blob/master/bin/id3stuff
+but some older entries have bad metadata
 """
 
 import os
