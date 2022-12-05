@@ -108,14 +108,14 @@ def check_listens(**kwargs: str) -> str | None:
 
     username = kwargs.get("listenbrainz-username")
     if username is None:
-        logger.warning(f"No username set, use the --listenbrainz-username flag")
+        logger.warning("No username set, use the --listenbrainz-username flag")
         return
     listens = [
         ls
         for ls in request_listens(username=username, pages=1)
         if ls["listened_at"] is not None
     ]
-    assert len(listens) > 0, f"received no listens from listenbrainz"
+    assert len(listens) > 0, "received no listens from listenbrainz"
     most_recent_epoch = listens[0]["listened_at"]
     if int(most_recent_epoch) > int(remote_ids[0]["when"]):
         evry_clear("backup_listenbrainz_partial")

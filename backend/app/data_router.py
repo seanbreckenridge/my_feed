@@ -98,7 +98,7 @@ async def data(
             | (FeedModel.model_id.ilike(f"%{query}%"))  # type: ignore
         )
     if order_by == OrderBy.score:
-        stmt = stmt.filter(FeedModel.score != None)
+        stmt = stmt.filter(FeedModel.score is not None)
         stmt = stmt.filter(FeedModel.ftype.notin_(INDIVIDUAL_FEED_TYPES))  # type: ignore
         # ORDER BY Score [CHOSEN], When DESC to show things I completed recently higher when sorting by score
         stmt = stmt.order_by(FeedModel.score.asc() if sort == Sort.asc else FeedModel.score.desc(), FeedModel.when.desc())  # type: ignore

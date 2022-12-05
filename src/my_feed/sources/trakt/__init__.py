@@ -6,7 +6,7 @@ to get feed data for movies and TV episodes
 Use TMDB to fetch image and release date information for feed items
 """
 
-from typing import Iterator, Dict, Optional, Union, List, Tuple
+from typing import Iterator, Dict, Optional, Union, List
 from datetime import date, datetime
 
 import traktexport.dal as D
