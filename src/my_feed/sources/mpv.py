@@ -114,7 +114,7 @@ class JSONCache:
 
     def _write(self):
         logger.debug(f"Writing to {self.datafile}...")
-        encoded = json.dumps(self.data, indent=4)
+        encoded = json.dumps(self.data, separators=(",", ":"))
         self.datafile.write_text(encoded)
 
 

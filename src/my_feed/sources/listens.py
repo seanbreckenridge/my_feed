@@ -67,7 +67,7 @@ def _manually_fix_listen(ls: Listen) -> Metadata:
     )
     # write data
     data[ts] = new_data
-    datafile.write_text(json.dumps(data, indent=4))
+    datafile.write_text(json.dumps(data, separators=(",", ":")))
     return new_data
 
 
