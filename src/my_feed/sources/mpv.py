@@ -14,7 +14,7 @@ from functools import cache
 from math import isclose
 from typing import Iterator, Tuple, Optional, Dict, TypeGuard
 
-from mutagen.mp3 import MP3  # type: ignore[import]
+from mutagen.mp3 import MP3, MutagenError  # type: ignore[import]
 from mutagen.easyid3 import EasyID3  # type: ignore[import]
 from my.mpv.history_daemon import history as mpv_history, Media
 from my.utils.input_source import InputSource
@@ -146,7 +146,10 @@ def _fix_media(
                 # media duration is within 1%
                 if isclose(m.media_duration, mp3_f.info.length, rel_tol=0.01):
                     # if this has id3 data to pull from
-                    id3 = EasyID3(str(match))
+                    try:
+                        id3 = EasyID3(str(match))
+                    except MutagenError:
+                        continue
                     if all(_has_id3_data(id3, tag) for tag in BASIC_ID3_TAGS):
                         title = id3["title"][0]
                         artist = id3["artist"][0]
