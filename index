@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 # if FEED_REINDEX=1 ./index , this deletes
 # the remote database and re-builds it
 
@@ -25,7 +25,7 @@ THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 cd "${THIS_DIR}" || exit $?
 
 # shellcheck disable=SC1091
-source "$HPIDATA/tokens"
+source "${HOME}/.local/scripts/generic/with-secrets" || true
 
 declare -a CURL_AUTH_OPTS=()
 if [[ -n "$MY_FEED_SECRET" ]]; then
