@@ -43,8 +43,8 @@ TMPDIR="$(mktemp -d)"
 # https://github.com/seanbreckenridge/core/blob/main/shellscripts/epoch
 PICKLE="${TMPDIR}/$(epoch).pickle" || exit $?
 
-# warm tz cache incase its expired
-hpi doctor -S my.time.tz.via_location
+# warm tz cache incase its expired, use flock incase something else is already running doctor
+flock ~/.local/tz-lock with-secrets hpi doctor -S my.time.tz.via_location
 
 # run an index
 my_feed index "$PICKLE" || exit $?
