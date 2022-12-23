@@ -44,10 +44,10 @@ TMPDIR="$(mktemp -d)"
 PICKLE="${TMPDIR}/$(epoch).pickle" || exit $?
 
 # warm tz cache incase its expired, use flock incase something else is already running doctor
-flock ~/.local/tz-lock with-secrets hpi doctor -S my.time.tz.via_location
+flock ~/.local/tz-lock hpi doctor -S my.time.tz.via_location
 
 # run an index
-my_feed index "$PICKLE" || exit $?
+flock ~/.local/feed-lock my_feed index "$PICKLE" || exit $?
 
 # https://github.com/seanbreckenridge/core
 fd -d 1 --full-path '.*fixes.json' "$HPIDATA" -X json-compress
@@ -61,7 +61,7 @@ if [[ -n "$RESET" ]]; then
 fi
 
 # copy up to the server
-scp "${PICKLE}" "${SSH_TARGET}":~/code/my_feed/backend/data
+flock ~/.local/feed-sync-lock scp "${PICKLE}" "${SSH_TARGET}":~/code/my_feed/backend/data
 
 # delete temp file
 rm -f "${PICKLE}"
