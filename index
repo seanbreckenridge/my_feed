@@ -2,35 +2,24 @@
 # if FEED_REINDEX=1 ./index , this deletes
 # the remote database and re-builds it
 
-set -e
-
-declare RESET SSH_TARGET
-RESET=
-# setup Host in your ~/.ssh/config file
-SSH_TARGET="${SSH_TARGET:-vultr}"
-
-# if we want to delete the remote database
-[[ -n "$FEED_REINDEX" ]] && RESET=1
-declare -rx RESET
-
-if ((RESET)); then
-	echo "Reindexing..."
-else
-	echo "Indexing..."
-fi
-
-wait-for-internet -q --timeout 30 || exit 0
-
-THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
-cd "${THIS_DIR}" || exit $?
-
 # shellcheck disable=SC1091
 source "${HOME}/.local/scripts/generic/with-secrets" || true
 
+set -e
+
+declare SSH_TARGET
 declare -a CURL_AUTH_OPTS=()
-if [[ -n "$MY_FEED_SECRET" ]]; then
-	CURL_AUTH_OPTS=("-H" "token:$MY_FEED_SECRET")
-fi
+# setup Host in your ~/.ssh/config file
+SSH_TARGET="${SSH_TARGET:-vultr}"
+
+[[ -n "$FEED_REINDEX" ]] && printf 'Re'
+echo "Indexing..."
+
+wait-for-internet -q --timeout 30 || exit 0
+
+cd "$(realpath "$(dirname "${BASH_SOURCE[0]}")")" || exit $?
+
+[[ -n "$MY_FEED_SECRET" ]] && CURL_AUTH_OPTS=("-H" "token:$MY_FEED_SECRET")
 
 # set prefix for indexer
 export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
@@ -56,9 +45,7 @@ fd -d 1 --full-path '.*fixes.json' "$HPIDATA" -X json-compress
 wait-for-internet -q --timeout "${WFI_TIMEOUT:-10}" || exit 0
 
 # delete remote pickle's if we want to reset
-if [[ -n "$RESET" ]]; then
-	ssh "${SSH_TARGET}" 'rm -vf ~/code/my_feed/backend/data/*.pickle'
-fi
+[[ -n "$FEED_REINDEX" ]] && ssh "${SSH_TARGET}" 'rm -vf ~/code/my_feed/backend/data/*.pickle'
 
 # copy up to the server
 flock ~/.local/feed-sync-lock scp "${PICKLE}" "${SSH_TARGET}":~/code/my_feed/backend/data
@@ -66,13 +53,12 @@ flock ~/.local/feed-sync-lock scp "${PICKLE}" "${SSH_TARGET}":~/code/my_feed/bac
 # delete temp file
 rm -f "${PICKLE}"
 
-if [[ -n "$RESET" ]]; then
+if [[ -n "$FEED_REINDEX" ]]; then
 	echo 'Deleting database...'
 	ssh "${SSH_TARGET}" 'rm -vf ~/code/my_feed/backend/feeddata.sqlite && ~/vps/super --ctl restart feed-backend'
 	echo '(remote is rebuilding database, should be done in a couple seconds)'
 else
 	# otherwise this is just new data, just ping the server to check for new files
 	echo 'Running update...'
-	curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/check'
-	echo
+	printf '%s\n' "$(curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/check')"
 fi
