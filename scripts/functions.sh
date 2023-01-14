@@ -13,7 +13,7 @@ feed_img() {
 }
 
 feed_favorite_albums() {
-	curl -sL 'https://sean.fish/feed_api/data/?offset=0&limit=100&order_by=score&sort=desc&ftype=album' | jq
+	curl -sL 'https://sean.fish/feed_api/data/?offset=0&limit=500&order_by=score&sort=desc&ftype=album' | jq
 }
 
 feed_albums() {

@@ -51,7 +51,7 @@ wait-for-internet -q --timeout "${WFI_TIMEOUT:-10}" || exit 0
 flock ~/.local/feed-sync-lock scp "${PICKLE}" "${SSH_TARGET}":~/code/my_feed/backend/data
 
 # delete temp file
-rm -f "${PICKLE}"
+command rm -f "${PICKLE}"
 
 if [[ -n "$FEED_REINDEX" ]]; then
 	echo 'Deleting database...'
