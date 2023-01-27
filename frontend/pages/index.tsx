@@ -24,9 +24,19 @@ import PrefsConsumer, { Prefs } from "../lib/prefs"
 import styles from "../styles/Index.module.css"
 
 async function fetcher(...args: any[]) {
-  // @ts-ignore
-  const res = await fetch(...args)
-  return res.json()
+  try {
+    // @ts-ignore
+    const res = await fetch(...args)
+    if (!res.ok) {
+      const error = new Error("An error occurred while fetching the data.")
+      throw error
+    }
+    return res.json()
+  } catch (e) {
+    console.error(e)
+    const error = new Error("An error occurred while fetching the data.")
+    throw error
+  }
 }
 
 const createQuery = (obj: any) => {
@@ -254,7 +264,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
     <PrefsConsumer>
       {(prefs: Prefs) => {
         return (
-          <div className={styles.container}>
+          <>
             <Head>
               <title>feed</title>
               {/* https://github.com/seanbreckenridge/back-arrow-script/*/}
@@ -397,7 +407,7 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
               src="https://sean.fish/p/back-arrow-bundle.js"
               strategy="beforeInteractive"
             ></Script>
-          </div>
+          </>
         )
       }}
     </PrefsConsumer>
