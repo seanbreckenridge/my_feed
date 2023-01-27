@@ -35,6 +35,10 @@ PICKLE="${TMPDIR}/$(epoch).pickle" || exit $?
 # warm tz cache incase its expired, use flock incase something else is already running doctor
 flock ~/.local/tz-lock hpi doctor -S my.time.tz.via_location
 
+# update approved IDs for computing deleted anime entry data
+# https://github.com/seanbreckenridge/malexport/#recover_deleted
+python3 -m malexport recover-deleted approved-update
+
 # run an index
 flock ~/.local/feed-lock my_feed index "$PICKLE" || exit $?
 

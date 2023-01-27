@@ -326,10 +326,5 @@ def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
             subtitle=subtitle,
             creator=creator,
             when=dt,
-            data={
-                "start_time": media.start_time,
-                "pause_duration": media.pause_duration,
-                "media_duration": media.media_duration,
-            },
         )
     JSONData._write()
