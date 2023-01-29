@@ -253,39 +253,47 @@ except ImportError as e:
     logger.warning("Could not import feed configuration", exc_info=e)
 
 
+def _media_is_allowed(media: Media) -> bool:
+    if (
+        media.is_stream
+        or media.path.startswith("/tmp")
+        or media.path.startswith("/dev")
+    ):
+        return False
+
+    # ignore/allow based on extensions
+    _, ext = os.path.splitext(media.path)
+    if ext.lower() in IGNORE_EXTS:
+        return False
+
+    if ext.lower() not in ALLOW_EXT:
+        logger.warning(f"Ignoring, unknown extension: {media}")
+        return False
+
+    # ignore/allow based on absolute path
+
+    if any(media.path.startswith(prefix) for prefix in ALLOW_PREFIXES):
+        return True
+    elif len(IGNORE_PREFIXES) > 0 and any(
+        media.path.startswith(prefix) for prefix in IGNORE_PREFIXES
+    ):
+        logger.debug(f"Ignoring, matches ignore prefix list: {media.path}")
+        return False
+    elif len(IGNORE_PREFIXES) > 0:  # if I actually set some filter
+        logger.debug(f"Ignoring, didn't match path filters: {media.path}")
+        return False
+
+    return True
+
+
 def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
     kwargs = {}
     if from_paths is not None:
         kwargs["from_paths"] = from_paths
 
     for media in mpv_history(**kwargs):
-        if media.is_stream or media.path.startswith("/tmp"):
+        if not _media_is_allowed(media):
             continue
-
-        # ignore/allow based on extensions
-        base, ext = os.path.splitext(media.path)
-        if ext.lower() in IGNORE_EXTS:
-            continue
-
-        if ext.lower() not in ALLOW_EXT:
-            logger.warning(f"Ignoring, unknown extension: {media}")
-            continue
-
-        # ignore/allow based on absolute path
-
-        if any(media.path.startswith(prefix) for prefix in ALLOW_PREFIXES):
-            pass
-        elif len(IGNORE_PREFIXES) > 0 and any(
-            media.path.startswith(prefix) for prefix in IGNORE_PREFIXES
-        ):
-            logger.debug(f"Ignoring, matches ignore prefix list: {media.path}")
-            continue
-        elif len(IGNORE_PREFIXES) > 0:  # if I actually set some filter
-            logger.debug(f"Ignoring, didn't match path filters: {media.path}")
-            continue
-        else:
-            # if I didn't set any filters, just continue loop body as normal
-            pass
 
         # placeholder metadata
         title: Optional[str] = None
