@@ -243,6 +243,8 @@ ALLOW_EXT = {".flac", ".mp3", ".ogg", ".m4a", ".opus"}
 
 
 ALLOW_PREFIXES: set[str] = set()
+if "XDG_MUSIC_DIR" in os.environ:
+    ALLOW_PREFIXES.add(os.environ["XDG_MUSIC_DIR"])
 IGNORE_PREFIXES: set[str] = set()
 try:
     from my.config.feed import ignore_mpv_prefixes, allow_mpv_prefixes  # type: ignore[import]
@@ -272,17 +274,21 @@ def _media_is_allowed(media: Media) -> bool:
 
     # ignore/allow based on absolute path
 
-    if any(media.path.startswith(prefix) for prefix in ALLOW_PREFIXES):
-        return True
-    elif len(IGNORE_PREFIXES) > 0 and any(
-        media.path.startswith(prefix) for prefix in IGNORE_PREFIXES
-    ):
-        logger.debug(f"Ignoring, matches ignore prefix list: {media.path}")
-        return False
-    elif len(IGNORE_PREFIXES) > 0:  # if I actually set some filter
-        logger.debug(f"Ignoring, didn't match path filters: {media.path}")
-        return False
+    if ALLOW_PREFIXES:
+        if any(media.path.startswith(prefix) for prefix in ALLOW_PREFIXES):
+            return True
+    if IGNORE_PREFIXES:
+        if any(media.path.startswith(prefix) for prefix in IGNORE_PREFIXES):
+            logger.debug(f"Ignoring, matches ignore prefix list: {media.path}")
+            return False
 
+    # i.e., if we have no allow/ignore prefixes, then we allow everything
+    # so, this lets user know that their allow/ignore prefixes arent exhaustive
+    if len(ALLOW_PREFIXES) > 0 or len(IGNORE_PREFIXES) > 0:
+        logger.warning(
+            f"Ignoring, didn't match either allow/ignore filters, add a prefix to match: {media.path}"
+        )
+        return False
     return True
 
 
