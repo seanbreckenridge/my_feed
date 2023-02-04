@@ -80,7 +80,6 @@ def import_pickled_data() -> int:
 
 
 def update_data() -> int:
-
     added = 0
     try:
         added = import_pickled_data()

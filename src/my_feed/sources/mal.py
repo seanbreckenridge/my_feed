@@ -66,7 +66,6 @@ def _completed_datetime(
 
 def _anime() -> Iterator[FeedItem]:
     for an in mal.anime():
-
         if an.username != os.environ["MAL_USERNAME"]:
             continue
 
@@ -107,7 +106,6 @@ def _anime() -> Iterator[FeedItem]:
 
 def _manga() -> Iterator[FeedItem]:
     for mn in mal.manga():
-
         if mn.username != os.environ["MAL_USERNAME"]:
             continue
 

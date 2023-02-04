@@ -25,7 +25,6 @@ from .common import click, FeedBackgroundError
 
 
 def _path_keys(p: Path | str) -> Iterator[Tuple[str, ...]]:
-
     pp = Path(p)
 
     *_rest, artist, album, song_full = pp.parts
@@ -56,7 +55,6 @@ def _music_dir_matches() -> Dict[Tuple[str, ...], Path]:
     results: dict[Tuple[str, ...], Path] = {}
 
     for f in music_dir.rglob("*.mp3"):
-
         for pkey in _path_keys(f):
             if pkey not in results:
                 results[pkey] = f

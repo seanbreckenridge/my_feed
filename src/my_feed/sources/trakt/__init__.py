@@ -161,7 +161,6 @@ def _history_mapping(hst: List[D.HistoryEntry]) -> Dict[str, datetime]:
 
 
 def history() -> Iterator[FeedItem]:
-
     # emitted: set[Tuple[str, str, datetime]] = set()
 
     hst = list(trakt_history())

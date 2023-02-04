@@ -23,7 +23,6 @@ def _album_id(album: Album) -> str:
 def history() -> Iterator[FeedItem]:
     hashes: set[str] = set()
     for al in album_history():
-
         # make sure no duplicate hashes
         album_hash = _album_id(al)
         if album_hash in hashes:
