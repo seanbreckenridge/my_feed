@@ -148,9 +148,6 @@ def osrs() -> Iterator[FeedItem]:
     from my.time.tz.via_location import localize
 
     for sc in screenshots():
-        # ignore clue scrolls/other stuff
-        if sc.screenshot_type not in {"Quest", "Level"}:
-            continue
         id_: str
         desc: str
         data = {"path": sc.path}
@@ -164,14 +161,13 @@ def osrs() -> Iterator[FeedItem]:
             data.update(sc.description._asdict())
             desc = f"{sc.description.skill} Level {sc.description.level}"
         else:
-            assert sc.screenshot_type == "Quest"
-            id_ = f"osrs_quest_{int(dt.timestamp())}"
+            id_ = f"osrs_{_slugify(sc.description)}_{int(dt.timestamp())}"
             assert isinstance(sc.description, str)
             desc = sc.description
         yield FeedItem(
             id=id_,
-            ftype="game_achievement",
-            title=desc,
+            ftype="osrs_achievement",
+            title=f"OSRS - {desc}",
             data=data,
             image_url=img,
             subtitle=sc.screenshot_type,

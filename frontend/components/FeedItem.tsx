@@ -169,13 +169,18 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
       </div>
     )
   } else if (item.ftype === "game_achievement") {
-    let gameTitle = item.title
-    if (item.model_id.startsWith("osrs_")) {
-      gameTitle = `OSRS - ${gameTitle}`
-    }
     return (
       <div className={styles.cardFlexBody}>
-        <CardHeader title={gameTitle} icon={faGamepad} link={item.url} />
+        <CardHeader title={item.title} icon={faGamepad} link={item.url} />
+        <CardImage src={item.image_url} alt={item.title} />
+        <p className={styles.subtitle}>{item.subtitle}</p>
+        <CardFooter dt={item.when} />
+      </div>
+    )
+  } else if (item.ftype === "osrs_achievement") {
+    return (
+      <div className={styles.cardFlexBody}>
+        <CardHeader title={item.title} icon={faGamepad} link={item.url} />
         <CardImage src={item.image_url} alt={item.title} />
         <p className={styles.subtitle}>{item.subtitle}</p>
         <CardFooter dt={item.when} />
