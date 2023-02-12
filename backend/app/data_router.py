@@ -50,6 +50,9 @@ INDIVIDUAL_FEED_TYPES = [
     "listen",
     "trakt_history_episode",
     "trakt_history_movie",
+    "chess",
+    "osrs_achievement",
+    "game_achievement",
 ]
 
 
