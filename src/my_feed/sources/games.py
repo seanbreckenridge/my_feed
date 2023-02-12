@@ -147,7 +147,13 @@ def osrs() -> Iterator[FeedItem]:
     from my.runelite.screenshots import screenshots, Level
     from my.time.tz.via_location import localize
 
+    IGNORED_SCREENSHOTS = {
+        "Kingdom Rewards",
+    }
+
     for sc in screenshots():
+        if sc.screenshot_type in IGNORED_SCREENSHOTS:
+            continue
         id_: str
         desc: str
         data = {"path": sc.path}
