@@ -149,6 +149,7 @@ def osrs() -> Iterator[FeedItem]:
 
     IGNORED_SCREENSHOTS = {
         "Kingdom Rewards",
+        "Collection Log",
     }
 
     for sc in screenshots():
