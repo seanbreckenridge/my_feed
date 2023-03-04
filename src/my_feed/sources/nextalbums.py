@@ -8,7 +8,7 @@ from datetime import datetime, time
 from typing import Iterator, Dict, Any
 
 from my.nextalbums import history as album_history, Album
-from nextalbums.discogs_update import slugify
+from nextalbums.discogs_update import slugify_data
 from my.time.tz.via_location import localize
 
 from .model import FeedItem
@@ -16,8 +16,9 @@ from .model import FeedItem
 
 def _album_id(album: Album) -> str:
     """Create a unique hash for this album"""
-    album_id_raw = f"{album.album_name} {album.cover_artists} {album.year}"
-    return slugify(album_id_raw)
+    return slugify_data(
+        album.album_name, album.cover_artists, str(album.year), album.discogs_url or ""
+    )
 
 
 def history() -> Iterator[FeedItem]:
