@@ -5,7 +5,7 @@ import shlex
 import itertools
 from functools import cache
 from pathlib import Path
-from typing import List, Any, Dict, Iterator, Callable
+from typing import List, Any, Dict, Iterator
 from urllib.parse import urljoin
 from datetime import date
 
@@ -170,36 +170,13 @@ def check_trakt(**kwargs: str) -> str | None:
         return "trakt.history"
 
 
-FUNCS = [
-    check_albums,
-    check_trakt,
-    check_chess,
-    check_mpv,
-    check_listens,
-]
-
-from concurrent.futures import ProcessPoolExecutor as Pool
-
-
-def _run_check(
-    func: Callable[..., str | None], **kwargs: Any
-) -> str | Exception | None:
-    try:
-        logger.info(f"Checking '{func.__qualname__}'")
-        return func(**kwargs)
-    except Exception as e:
-        return e
-
-
 def check(**kwargs: Any) -> Iterator[str | None]:
-    with Pool() as pool:
-        futures = [pool.submit(_run_check, func, **kwargs) for func in FUNCS]
-        for f, orig_func in zip(futures, FUNCS):
-            res = f.result()
-            if isinstance(res, Exception):
-                logger.exception(f"{orig_func.__qualname__} failed...", exc_info=res)
-            elif res is not None:
-                yield res
+    for func in (check_albums, check_trakt, check_chess, check_mpv, check_listens):
+        try:
+            logger.info(f"Checking '{func.__qualname__}'")
+            yield func(**kwargs)
+        except Exception as e:
+            logger.exception(f"{func.__qualname__} failed...", exc_info=e)
 
 
 def _parse_unknown(unknown: List[str]) -> Dict[str, str]:
