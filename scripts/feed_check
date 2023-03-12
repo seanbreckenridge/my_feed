@@ -170,11 +170,21 @@ def check_trakt(**kwargs: str) -> str | None:
         return "trakt.history"
 
 
-def check(**kwargs: Any) -> Iterator[str | None]:
-    for func in (check_albums, check_trakt, check_chess, check_mpv, check_listens):
+FUNCS = [
+    check_albums,
+    check_trakt,
+    check_chess,
+    check_mpv,
+    check_listens,
+]
+
+
+def check(**kwargs: Any) -> Iterator[str]:
+    for func in FUNCS:
         try:
             logger.info(f"Checking '{func.__qualname__}'")
-            yield func(**kwargs)
+            if updated := func(**kwargs):
+                yield updated
         except Exception as e:
             logger.exception(f"{func.__qualname__} failed...", exc_info=e)
 
