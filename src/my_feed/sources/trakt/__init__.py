@@ -6,7 +6,7 @@ to get feed data for movies and TV episodes
 Use TMDB to fetch image and release date information for feed items
 """
 
-from typing import Iterator, Dict, Optional, Union, List
+from typing import Iterator, Dict, Optional, Union, List, Tuple
 from datetime import date, datetime
 
 import traktexport.dal as D
@@ -16,7 +16,7 @@ from .tmdb import fetch_tmdb_data, BASE_URL
 from ..model import FeedItem
 
 
-def _fetch_image(url: str, width: int) -> Optional[str]:
+def _fetch_image(url: str, width: int) -> Optional[Tuple[str, List[str]]]:
     """
     Request or grab TMDB data for the URL from cache, returning the poster path if it exists
     """
@@ -30,16 +30,16 @@ def _fetch_image(url: str, width: int) -> Optional[str]:
         # then the show poster
         if still_path := summary.metadata.get("still_path"):
             assert still_path.startswith("/")
-            return f"https://image.tmdb.org/t/p/w{width}{still_path}?s"
+            return f"https://image.tmdb.org/t/p/w{width}{still_path}", ["i_still"]
         if poster_path := summary.metadata.get("poster_path"):
             assert poster_path.startswith("/")
-            return f"https://image.tmdb.org/t/p/w{width}{poster_path}?p"
+            return f"https://image.tmdb.org/t/p/w{width}{poster_path}", ["i_poster"]
     return None
 
 
 def get_image(
     media_data: Union[D.Movie, D.Episode, D.Show], *, width: int = 400
-) -> Optional[str]:
+) -> Optional[Tuple[str, List[str]]]:
     """
     Get an image for particular media data
     For movies, uses the movies endpoint
@@ -160,6 +160,18 @@ def _history_mapping(hst: List[D.HistoryEntry]) -> Dict[str, datetime]:
     return hst_mapping
 
 
+def _destructure_img_result(
+    res: Optional[Tuple[str, List[str]]]
+) -> Tuple[Optional[str], List[str]]:
+    match res:
+        case None:
+            return None, []
+        case (img, flags):
+            return img, flags
+        case _:
+            return None, []
+
+
 def history() -> Iterator[FeedItem]:
     # emitted: set[Tuple[str, str, datetime]] = set()
 
@@ -188,6 +200,7 @@ def history() -> Iterator[FeedItem]:
         # add this rating to emitted, so we don't have movies right next to each other
         # key: Tuple[str, str, datetime] = (m.ids.trakt_slug, type(m).__name__, dt)
         # emitted.add(key)
+        img_url, flags = _destructure_img_result(get_image(m))
 
         yield FeedItem(
             id=f"trakt_{m.__class__.__name__.lower()}_{m.ids.trakt_slug}",
@@ -196,7 +209,8 @@ def history() -> Iterator[FeedItem]:
             # TODO: date-shift items at account creation
             when=dt,
             url=m.url,
-            image_url=get_image(m),
+            image_url=img_url,
+            flags=flags,
             score=get_rating(m, rating_map=rm),
             release_date=get_release_date(m),
             tags=get_genres(m),
@@ -236,6 +250,7 @@ def history() -> Iterator[FeedItem]:
         # if key in emitted and isinstance(m, D.Movie):
         #     continue
 
+        img_url, flags = _destructure_img_result(get_image(m))
         yield FeedItem(
             id=f"trakt_{h.history_id}",
             title=title,
@@ -247,7 +262,8 @@ def history() -> Iterator[FeedItem]:
             subpart=subpart,
             subtitle=subtitle,
             url=m.url,
-            image_url=get_image(m),
+            image_url=img_url,
+            flags=flags,
             collection=collection,
             score=get_rating(m, rating_map=rm),
             release_date=get_release_date(m),

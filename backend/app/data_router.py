@@ -18,10 +18,15 @@ router = APIRouter()
 class FeedRead(FeedBase):
     # parse from the backend to data structures
     tags: List[str] = Field(default_factory=list)
-    data: Dict[str, Any] = Field(default_factory={})
+    data: Dict[str, Any] = Field(default_factory=dict)
+    flags: List[str] = Field(default_factory=list)
 
     @validator("tags", pre=True)
     def parse_tags(cls, v: Any) -> List[str]:
+        return cast(List[str], orjson.loads(v))
+
+    @validator("flags", pre=True)
+    def parse_flags(cls, v: Any) -> List[str]:
         return cast(List[str], orjson.loads(v))
 
     @validator("data", pre=True)

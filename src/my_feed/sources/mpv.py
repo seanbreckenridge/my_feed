@@ -142,7 +142,7 @@ def _fix_media(
                 assert match.suffix == ".mp3", str(match)
                 mp3_f = MP3(str(match))
                 # media duration is within 1%
-                if isclose(m.media_duration, mp3_f.info.length, rel_tol=0.01):
+                if mp3_f.info and isclose(m.media_duration, mp3_f.info.length, rel_tol=0.01):
                     # if this has id3 data to pull from
                     try:
                         id3 = EasyID3(str(match))

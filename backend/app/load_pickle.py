@@ -65,6 +65,7 @@ def import_pickled_data() -> int:
                     subpart=f.subpart,
                     collection=f.collection,
                     tags=json.dumps(f.tags),
+                    flags=json.dumps(f.flags),
                     data=pickle.dumps(f.data) if bool(f.data) else None,
                     when=int(f.when.timestamp()),
                     release_date=f.release_date,

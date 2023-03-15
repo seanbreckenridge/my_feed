@@ -8,7 +8,7 @@ from app.settings import settings
 
 
 # base non-table sql model
-class FeedBase(SQLModel):  # type: ignore[misc]
+class FeedBase(SQLModel):
     model_id: str
     ftype: str  # feed item type
     title: str
@@ -31,12 +31,13 @@ class FeedBase(SQLModel):  # type: ignore[misc]
 
 
 # feedbase, with an ID/table
-class FeedModel(FeedBase, table=True):  # type: ignore
+class FeedModel(FeedBase, table=True):
     id: int = Field(index=True, primary_key=True)
 
     # store JSON as strings, these are only used on the frontend anyways
     tags: str = Field(default=r"[]")  # List[str]
     data: Optional[bytes] = Field(default=None)  # Dict[str, Any]
+    flags: str = Field(default=r"[]")  # List[str]
 
 
 feed_engine = create_engine(

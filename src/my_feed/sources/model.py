@@ -1,5 +1,7 @@
-from typing import Optional, List, Dict, Any
+from __future__ import annotations
+from typing import Optional, List, Dict, Any, Set
 from datetime import datetime, date
+from urllib.parse import urlparse
 
 from dataclasses import dataclass, field
 
@@ -27,6 +29,7 @@ class FeedItem:
     subtitle: Optional[str] = None  # show name, or album name (for scrobble)
     url: Optional[str] = None
     image_url: Optional[str] = None
+    flags: List[str] = field(default_factory=list)  # e.g. 'blur', for passing flags for displaying client side
     score: Optional[float] = None  # normalized to out of 10
 
     def check(self) -> None:
@@ -41,3 +44,12 @@ class FeedItem:
             raise ValueError(f"Score for {self} is not within 0-10")
         if isinstance(self.when, datetime):
             assert self.when.tzinfo is not None, str(self)
+
+    def should_be_blurred(self, blurred_images: Set[str]) -> bool:
+        if self.image_url is None:
+            return False
+        return self.image_url in blurred_images
+
+    def blur(self) -> None:
+        if self.image_url is not None:
+            self.flags.append("i_blur")

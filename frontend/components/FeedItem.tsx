@@ -11,7 +11,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import dayjs, { unix } from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
-import React from "react"
+import React, { useState } from "react"
 
 import PrefsConsumer, { Prefs } from "../lib/prefs"
 import styles from "../styles/Index.module.css"
@@ -34,6 +34,7 @@ export type FeedItemStruct = {
   url: string | null
   tags: string[]
   data: any
+  flags: string[]
 }
 interface FeedGridProps {
   data: FeedItemStruct[]
@@ -85,21 +86,33 @@ type CardImageProps = {
   alt: string
   minWidth?: string
   minHeight?: string
+  flags: string[]
 }
 
-const CardImage: React.FC<CardImageProps> = ({ src, alt, minWidth, minHeight }: CardImageProps) => {
+const CardImage: React.FC<CardImageProps> = ({
+  src,
+  alt,
+  flags,
+  minWidth,
+  minHeight,
+}: CardImageProps) => {
+  const [isBlurred, setIsBlurred] = useState(true)
   if (!src) {
     return <></>
   }
   let uMinWidth = minWidth ?? "15"
   let uMinHeight = minHeight ?? "12"
-  // hacky poster/still query params set in trakt
-  if (src.endsWith("?p")) {
-    uMinHeight = "24"
-    src = src.slice(0, src.length - 2)
-  } else if (src.endsWith("?s")) {
-    uMinWidth = "20"
-    src = src.slice(0, src.length - 2)
+  let shouldBeBlurred = false
+
+  for (const flag of flags) {
+    console.log(flag)
+    if (flag === "i_poster") {
+      uMinHeight = "24"
+    } else if (flag === "i_still") {
+      uMinWidth = "20"
+    } else if (flag === "i_blur") {
+      shouldBeBlurred = true
+    }
   }
 
   return (
@@ -112,7 +125,11 @@ const CardImage: React.FC<CardImageProps> = ({ src, alt, minWidth, minHeight }: 
         width: "100%",
         height: "100%",
         position: "relative",
+        filter: shouldBeBlurred && isBlurred ? "blur(30px)" : undefined,
+        cursor: shouldBeBlurred ? "pointer" : undefined,
       }}
+      title={shouldBeBlurred ? (isBlurred ? "Unblur" : "Blur") : undefined}
+      onClick={() => setIsBlurred((prev) => !prev)}
     >
       <Image src={src} alt={alt} layout="fill" objectFit="contain" unoptimized />
     </div>
@@ -172,7 +189,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
     return (
       <div className={styles.cardFlexBody}>
         <CardHeader title={item.title} icon={faGamepad} link={item.url} />
-        <CardImage src={item.image_url} alt={item.title} />
+        <CardImage src={item.image_url} alt={item.title} flags={item.flags} />
         <p className={styles.subtitle}>{item.subtitle}</p>
         <CardFooter dt={item.when} />
       </div>
@@ -181,7 +198,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
     return (
       <div className={styles.cardFlexBody}>
         <CardHeader title={item.title} icon={faGamepad} link={item.url} />
-        <CardImage src={item.image_url} alt={item.title} />
+        <CardImage src={item.image_url} alt={item.title} flags={item.flags} />
         <p className={styles.subtitle}>{item.subtitle}</p>
         <CardFooter dt={item.when} />
       </div>
@@ -190,7 +207,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
     return (
       <div className={styles.cardFlexBody}>
         <CardHeader title={item.title} icon={faGamepad} link={item.url} />
-        <CardImage src={item.image_url} alt={item.title} />
+        <CardImage src={item.image_url} alt={item.title} flags={item.flags} />
         <p className={styles.subtitle}>{item.subtitle}</p>
         <CardFooter dt={item.when} score={item.score} />
       </div>
@@ -220,7 +237,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
     return (
       <div className={styles.cardFlexBody}>
         <CardHeader title={item.title} icon={faFilm} link={item.url} />
-        <CardImage src={item.image_url} alt={item.title} />
+        <CardImage src={item.image_url} alt={item.title} flags={item.flags} />
         <p className={styles.subtitle}>{item.subtitle}</p>
         {seasonData.length ? <p className={styles.subtitle}>{seasonData}</p> : null}
         <CardFooter dt={item.when} score={sc} />
@@ -234,7 +251,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
     return (
       <div className={styles.cardFlexBody}>
         <CardHeader title={`${item.title}${release_year}`} icon={faRecordVinyl} link={item.url} />
-        <CardImage src={item.image_url} alt={item.title} minHeight="15" />
+        <CardImage src={item.image_url} alt={item.title} minHeight="15" flags={item.flags} />
         <p className={styles.subtitle}>{item.subtitle}</p>
         <CardFooter dt={item.when} score={item.score} />
       </div>
@@ -250,7 +267,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
     return (
       <div className={styles.cardFlexBody}>
         <CardHeader title={item.title} icon={icon} link={item.url} />
-        <CardImage src={item.image_url} alt={item.title} minHeight="25" />
+        <CardImage src={item.image_url} alt={item.title} minHeight="25" flags={item.flags} />
         {item.subtitle && <p className={styles.subtitle}>{item.subtitle}</p>}
         <CardFooter dt={item.when} score={sc} />
       </div>
