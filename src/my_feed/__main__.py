@@ -7,6 +7,7 @@ import click
 
 from .log import logger
 from .sources.model import FeedItem
+from .blur import Blurred
 
 
 @click.group()
@@ -40,7 +41,9 @@ def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
             yield src
 
 
-def data(*, filter_sources: List[str], blur_images: Set[str], echo: bool = False) -> Iterator[FeedItem]:
+def data(
+    *, filter_sources: List[str], blurred: Blurred, echo: bool = False
+) -> Iterator[FeedItem]:
     for producer in _sources():
         func = f"{producer.__module__}.{producer.__qualname__}"
         if len(filter_sources) > 0:
@@ -59,7 +62,7 @@ def data(*, filter_sources: List[str], blur_images: Set[str], echo: bool = False
             emitted.add(item.id)
             if echo:
                 print(item)
-            if item.should_be_blurred(blur_images):
+            if blurred and blurred.should_be_blurred(feed_item=item):
                 item.blur()
                 click.echo(f"Blurred image: {item.id=} {item.title=} {item.image_url=}")
             yield item
@@ -73,10 +76,10 @@ def data(*, filter_sources: List[str], blur_images: Set[str], echo: bool = False
 # TODO: this could allow either passing the ID or the URL
 def _parse_blur_file(
     ctx: click.Context, param: click.Parameter, value: Optional[Path]
-) -> Set[str]:
+) -> Optional[Blurred]:
     if value is not None:
-        return set(value.read_text().splitlines())
-    return set()
+        return Blurred.parse_file(value)
+    return None
 
 
 @main.command(name="index", short_help="recompute feed data")
@@ -95,7 +98,7 @@ def _parse_blur_file(
 @click.option(
     "-B",
     "--blur-images-file",
-    "blur_images_set",
+    "blurred",
     default=None,
     help="A file containing a list of image URLs to blur, one per line",
     type=click.Path(exists=True, path_type=Path),
@@ -108,12 +111,13 @@ def index(
     echo: bool,
     filter_sources: Optional[str],
     output: Optional[Path],
-    blur_images_set: Set[str],
+    blurred: Blurred,
 ) -> None:
     filter_lst: List[str] = []
     if filter_sources:
         filter_lst = [p.strip() for p in filter_sources.strip().split(",")]
-    items = list(data(filter_sources=filter_lst, blur_images=blur_images_set, echo=echo))
+    click.echo(blurred)
+    items = list(data(filter_sources=filter_lst, blurred=blurred, echo=echo))
     click.echo(f"Total: {click.style(len(items), BLUE)} items")
     if output is not None:
         click.echo(f"Writing to '{output}'")

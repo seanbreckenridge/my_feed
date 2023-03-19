@@ -45,11 +45,6 @@ class FeedItem:
         if isinstance(self.when, datetime):
             assert self.when.tzinfo is not None, str(self)
 
-    def should_be_blurred(self, blurred_images: Set[str]) -> bool:
-        if self.image_url is None:
-            return False
-        return self.image_url in blurred_images
-
     def blur(self) -> None:
         if self.image_url is not None:
             self.flags.append("i_blur")

@@ -1,8 +1,10 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 # wrapper script which:
 # - runs the python checker to remove evry tags if data has expired
 # - runs jobs to update local cache files
 # - runs a update to update the remote database
+
+set -u
 
 main() {
 	source "$HPIDATA/personal_aliases" 2>/dev/null

@@ -40,7 +40,13 @@ flock ~/.local/tz-lock hpi doctor -S my.time.tz.via_location
 python3 -m malexport recover-deleted approved-update
 
 # run an index
-flock ~/.local/feed-lock my_feed index "$PICKLE" || exit $?
+INDEX_ARGS=()
+BLURRED_IMAGES="${HPIDATA}/feed_blurred_images.txt"
+if [[ -f "$BLURRED_IMAGES" ]]; then
+	# if we have a list of blurred images, pass it to the indexer
+	INDEX_ARGS+=("-B" "$BLURRED_IMAGES")
+fi
+flock ~/.local/feed-lock my_feed index "$PICKLE" "${INDEX_ARGS[@]}" || exit $?
 
 # https://github.com/seanbreckenridge/core
 fd -d 1 --full-path '.*fixes.json' "$HPIDATA" -X json-compress
