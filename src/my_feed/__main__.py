@@ -1,7 +1,7 @@
 import time
 import pickle
 from pathlib import Path
-from typing import Iterator, Callable, Optional, List, TypeGuard, Any, Set
+from typing import Iterator, Callable, Optional, List, TypeGuard, Any
 
 import click
 
@@ -42,7 +42,7 @@ def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
 
 
 def data(
-    *, filter_sources: List[str], blurred: Blurred, echo: bool = False
+    *, filter_sources: List[str], blurred: Blurred | None, echo: bool = False
 ) -> Iterator[FeedItem]:
     for producer in _sources():
         func = f"{producer.__module__}.{producer.__qualname__}"
@@ -111,7 +111,7 @@ def index(
     echo: bool,
     filter_sources: Optional[str],
     output: Optional[Path],
-    blurred: Blurred,
+    blurred: Blurred | None,
 ) -> None:
     filter_lst: List[str] = []
     if filter_sources:
