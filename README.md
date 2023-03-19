@@ -135,4 +135,4 @@ title_regex:.*up_2009_.*
 image_url_regex:.*up_2009_.*
 ```
 
-If I make a breaking change, I run a `re-index` instead, like `FEED_REINDEX=1 my_feed index` which just `ssh`s into the server and deletes the database before hitting the `/check` endpoint to force a rebuild of the whole database
+If I make a breaking change, I run a `re-index` instead, like `FEED_REINDEX=1 ./index` which just `ssh`s into the server and deletes the database before hitting the `/check` endpoint to force a rebuild of the whole database
