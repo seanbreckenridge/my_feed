@@ -41,6 +41,7 @@ python3 -m malexport recover-deleted approved-update
 
 # run an index
 INDEX_ARGS=()
+# if we have a list of blurred images, pass it to the indexer
 BLURRED_IMAGES="${HPIDATA}/feed_blurred_images.txt"
 if [[ -f "$BLURRED_IMAGES" ]]; then
 	# if we have a list of blurred images, pass it to the indexer
@@ -49,9 +50,11 @@ fi
 flock ~/.local/feed-lock my_feed index "$PICKLE" "${INDEX_ARGS[@]}" || exit $?
 
 # https://github.com/seanbreckenridge/core
+# compress json files in the data dir
 fd -d 1 --full-path '.*fixes.json' "$HPIDATA" -X json-compress
 
 # https://github.com/seanbreckenridge/wait-for-internet
+# wait for internet, if we don't have it, don't bother uploading
 wait-for-internet -q --timeout "${WFI_TIMEOUT:-10}" || exit 0
 
 # delete remote pickle's if we want to reset

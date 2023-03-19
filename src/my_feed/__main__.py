@@ -116,7 +116,9 @@ def index(
     filter_lst: List[str] = []
     if filter_sources:
         filter_lst = [p.strip() for p in filter_sources.strip().split(",")]
-    click.echo(blurred)
+    if blurred:
+        click.echo("Blurred matchers:")
+        click.echo("\n".join(map(str, blurred.items)))
     items = list(data(filter_sources=filter_lst, blurred=blurred, echo=echo))
     click.echo(f"Total: {click.style(len(items), BLUE)} items")
     if output is not None:
