@@ -5,6 +5,7 @@ from app.settings import settings
 from app.data_router import router
 from app.token import bearer_auth
 
+
 def create_app() -> FastAPI:
     current_app = FastAPI(title="my_feed")
 

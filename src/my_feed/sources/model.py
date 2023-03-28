@@ -29,7 +29,8 @@ class FeedItem:
     subtitle: Optional[str] = None  # show name, or album name (for scrobble)
     url: Optional[str] = None
     image_url: Optional[str] = None
-    flags: List[str] = field(default_factory=list)  # e.g. 'blur', for passing flags for displaying client side
+    # e.g. 'blur', for passing flags for displaying client side
+    flags: List[str] = field(default_factory=list)
     score: Optional[float] = None  # normalized to out of 10
 
     def check(self) -> None:
