@@ -50,7 +50,7 @@ fi
 if [[ -z "$FEED_REINDEX" ]]; then
 	# if were not re-indexing, fetch the list of IDs we've already indexed from the server
 	# and pass it to the indexer, so it can skip uploading those
-	curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/data/ids' >"${TMPDIR}/ids.json"
+	curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/data/ids' >"${TMPDIR}/ids.json" || exit $?
 	INDEX_ARGS+=("-E" "${TMPDIR}/ids.json")
 fi
 flock ~/.local/feed-lock my_feed index "${INDEX_ARGS[@]}" "$PICKLE" || exit $?
