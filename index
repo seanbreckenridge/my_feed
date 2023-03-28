@@ -55,6 +55,16 @@ if [[ -z "$FEED_REINDEX" ]]; then
 fi
 flock ~/.local/feed-lock my_feed index "${INDEX_ARGS[@]}" "$PICKLE" || exit $?
 
+# if ids.json file exists, delete it
+[[ -f "${TMPDIR}/ids.json" ]] && command rm -fv "${TMPDIR}/ids.json"
+
+# if the pickle is empty, don't bother uploading
+COUNT="$(python3 -c "import sys, pickle; print(len(pickle.loads(open(sys.argv[1], 'rb').read())))" "$PICKLE")"
+if [[ "$COUNT" -eq 0 ]]; then
+	echo 'No new data, exiting' >&2
+	exit 0
+fi
+
 # https://github.com/seanbreckenridge/core
 # compress json files in the data dir
 fd -d 1 --full-path '.*fixes.json' "$HPIDATA" -X json-compress
