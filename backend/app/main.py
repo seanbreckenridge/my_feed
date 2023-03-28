@@ -1,21 +1,9 @@
-from fastapi import FastAPI, Header, HTTPException, Depends
+from fastapi import FastAPI, Depends
 from starlette.middleware.cors import CORSMiddleware
-from fastapi_utils.tasks import repeat_every  # type: ignore[import]
 
 from app.settings import settings
 from app.data_router import router
-
-from my_feed.log import logger
-
-
-def bearer_auth(token: str = Header(default="")) -> None:
-    if settings.BEARER_SECRET.strip() == "":
-        return
-    assert len(settings.BEARER_SECRET) > 0
-    if token == settings.BEARER_SECRET:
-        return
-    raise HTTPException(status_code=401, detail="Need to pass bearer secret to update")
-
+from app.token import bearer_auth
 
 def create_app() -> FastAPI:
     current_app = FastAPI(title="my_feed")
@@ -41,14 +29,9 @@ def create_app() -> FastAPI:
     @current_app.on_event("startup")
     async def _startup() -> None:
         from app.db import init_db
-
-        init_db()
-        await _tasks()
-
-    @repeat_every(seconds=60 * 60 * 6, logger=logger)
-    async def _tasks() -> None:
         from app.load_pickle import update_data
 
+        init_db()
         update_data()
 
     return current_app

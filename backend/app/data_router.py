@@ -9,7 +9,7 @@ from pydantic import validator
 from sqlmodel import Session, Field, select  # type: ignore[import]
 from sqlalchemy import distinct  # type: ignore[import]
 
-
+from app.token import bearer_auth
 from app.db import get_db, FeedModel, FeedBase
 
 router = APIRouter()
@@ -113,4 +113,15 @@ async def data(
     stmt = stmt.limit(limit).offset(offset)
     with session:
         items: List[FeedModel] = list(session.exec(stmt))
+    return items
+
+
+@router.get("/ids")
+def data_ids(
+    session: Session = Depends(get_db),
+    token: str = Depends(bearer_auth),
+) -> List[str]:
+    stmt = select(FeedModel.model_id)
+    with session:
+        items: List[str] = list(session.exec(stmt))
     return items

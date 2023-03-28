@@ -10,7 +10,6 @@ python-dotenv = "*"
 my-media-feed = {editable = true, path = "./.."}
 sqlmodel = "*"
 logzero = "*"
-fastapi-utils = "*"
 orjson = "*"
 pytz = "*"
 

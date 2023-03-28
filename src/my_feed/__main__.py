@@ -1,7 +1,8 @@
+import json
 import time
 import pickle
 from pathlib import Path
-from typing import Iterator, Callable, Optional, List, TypeGuard, Any
+from typing import Iterator, Callable, Optional, List, TypeGuard, Any, Set
 
 import click
 
@@ -96,6 +97,13 @@ def _parse_blur_file(
     help="A comma delimited list of substrings of sources. e.g. 'mpv,trakt,listens'",
 )
 @click.option(
+    "-E",
+    "--exclude-id-file",
+    default=None,
+    help="A json file containing a list of IDs to exclude, from the /data/ids endpoint. reduces amount of data to process",
+    type=click.Path(exists=True, path_type=Path),
+)
+@click.option(
     "-B",
     "--blur-images-file",
     "blurred",
@@ -111,7 +119,8 @@ def index(
     echo: bool,
     filter_sources: Optional[str],
     output: Optional[Path],
-    blurred: Blurred | None,
+    blurred: Optional[Blurred],
+    exclude_id_file: Optional[Path],
 ) -> None:
     filter_lst: List[str] = []
     if filter_sources:
@@ -119,7 +128,15 @@ def index(
     if blurred:
         click.echo("Blurred matchers:")
         click.echo("\n".join(map(str, blurred.items)))
-    items = list(data(filter_sources=filter_lst, blurred=blurred, echo=echo))
+
+    exclude_ids: Set[str] = set()
+    if exclude_id_file:
+        exclude_ids = set(json.loads(exclude_id_file.read_text()))
+    all_items = list(data(filter_sources=filter_lst, blurred=blurred, echo=echo))
+    items = [i for i in all_items if i.id not in exclude_ids]
+
+    if exclude_ids:
+        click.echo(f"Excluded {click.style(len(all_items) - len(items), BLUE)} items")
     click.echo(f"Total: {click.style(len(items), BLUE)} items")
     if output is not None:
         click.echo(f"Writing to '{output}'")

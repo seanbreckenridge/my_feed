@@ -1,6 +1,7 @@
 tags*
 *.pdf
 *.pickle
+ids.json
 
 *.sqlite
 *.sqlite-journal
