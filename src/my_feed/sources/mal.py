@@ -70,7 +70,7 @@ def _anime() -> Iterator[FeedItem]:
             continue
 
         if an.APIList is None:
-            logger.warning(f"No API info for {an}")
+            logger.warning(f"No API info for anime {an.XMLData.id}")
             continue
 
         url = f"https://myanimelist.net/anime/{an.id}"
@@ -110,7 +110,7 @@ def _manga() -> Iterator[FeedItem]:
             continue
 
         if mn.APIList is None:
-            logger.warning(f"No API info for {mn}")
+            logger.warning(f"No API info for manga {mn.XMLData.id}")
             continue
 
         url = f"https://myanimelist.net/manga/{mn.id}"
