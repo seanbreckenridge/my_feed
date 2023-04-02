@@ -72,7 +72,8 @@ class TMDBCache(URLCache):
 def tmdb_urlcache() -> TMDBCache:
     default_local = os.path.expanduser("~/.local/share")
     cache_dir = os.path.join(default_local, "feed_tmdb")
-    return TMDBCache(cache_dir=cache_dir)
+    tmdb_cache_dir = os.environ.get("TMDB_CACHE_DIR", cache_dir)
+    return TMDBCache(cache_dir=tmdb_cache_dir)
 
 
 def fetch_tmdb_data(url: str) -> Optional[Summary]:
