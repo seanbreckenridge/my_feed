@@ -2,8 +2,14 @@
 # if FEED_REINDEX=1 ./index , this deletes
 # the remote database and re-builds it
 
-# shellcheck disable=SC1091
-source "${HOME}/.local/scripts/generic/with-secrets" || true
+with_secrets_script="${HOME}/.local/scripts/generic/with-secrets"
+if [[ -f "$with_secrets_script" ]]; then
+	echo 'Sourcing secrets file...' >&2
+	source "$with_secrets_script" || true
+else
+	echo 'Missing with-secrets script' >&2
+	exit 1
+fi
 
 set -e
 
