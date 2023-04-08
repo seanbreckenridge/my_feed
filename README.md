@@ -12,7 +12,7 @@ To install:
 
 ```bash
 git clone https://github.com/seanbreckenridge/my_feed
-pip install -e ./my_feed
+pip install -e .
 ```
 
 - [`listens`](https://github.com/seanbreckenridge/HPI-personal/blob/master/scripts/listens)

@@ -9,6 +9,7 @@ to improve the metadata here
 
 import os
 import json
+from datetime import datetime, timedelta
 from pathlib import Path
 from functools import cache
 from math import isclose
@@ -124,9 +125,9 @@ def _fix_media(
 ) -> Metadata:
     """Fix broken metadata on scrobbles, and save my responses to a cache file"""
 
-    # if we can find the file locally still, use that to extract data from fixed (I've
-    # since ran https://github.com/seanbreckenridge/plaintext_playlist_py/blob/master/bin/id3stuff on all my music, so it has correct tags)
-    # mp3 file
+    # if we can find the file locally still, use that to extract data from fixed mp3 file
+    # (I've since run https://github.com/seanbreckenridge/plaintext_playlist_py/blob/master/bin/id3stuff on all my music, so it has correct tags)
+    # this is here to fix legacy data from years ago
 
     # if we've fixed this in the past
     if m.path in JSONData.data:
@@ -293,6 +294,8 @@ def _media_is_allowed(media: Media) -> bool:
 
 
 def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
+    allow_before = (datetime.now() - timedelta(minutes=10)).timestamp()
+
     kwargs = {}
     if from_paths is not None:
         kwargs["from_paths"] = from_paths
@@ -303,12 +306,11 @@ def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
 
         # placeholder metadata
         title: Optional[str] = None
-        subtitle: Optional[str] = None
-        creator: Optional[str] = None
-
-        # TODO: have a dict for artist/album names that were broken at one point, to improve them?
+        subtitle: Optional[str] = None  # album
+        creator: Optional[str] = None  # artist
 
         try:
+            # this has all neccsarry id3 data saved in the 'metadata' blob
             if metadata := _has_metadata(media):
                 title, subtitle, creator = metadata
                 title, subtitle, creator = _fix_media(
@@ -321,6 +323,7 @@ def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
                     is_broken=False,
                 )
             else:
+                # this is missing some data, so we'll prompt the user
                 title, subtitle, creator = _fix_media(
                     media, daemon_data={}, is_broken=True
                 )
@@ -331,6 +334,12 @@ def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
             continue
 
         dt = media.end_time
+
+        # only yield if this listen is over 10 minutes old, otherwise I might still be listening to this
+        # and the end time might change
+        if dt.timestamp() > allow_before:
+            logger.debug(f"Skipping, too recent: {media}")
+            continue
 
         # TODO: attach to album somehow (parent_id/collection)?
         yield FeedItem(
