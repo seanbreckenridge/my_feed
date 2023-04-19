@@ -142,7 +142,7 @@ def check_chess(**kwargs: str) -> str | None:
     latest_end_time = int(games[-1]["end_time"])
 
     if latest_end_time not in remote_end_times:
-        evry_clear("backup_chess_daily")
+        evry_clear("backup_chess")
         return "chess"
 
 
