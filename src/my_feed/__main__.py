@@ -43,13 +43,14 @@ def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
 
 
 def data(
-    *, filter_sources: List[str], blurred: Blurred | None, echo: bool = False
+    *, allow: List[str], deny: List[str], blurred: Blurred | None, echo: bool = False
 ) -> Iterator[FeedItem]:
     for producer in _sources():
         func = f"{producer.__module__}.{producer.__qualname__}"
-        if len(filter_sources) > 0:
-            if not any([substr in func for substr in filter_sources]):
-                continue
+        if len(allow) > 0 and not any(substr in func for substr in allow):
+            continue
+        if len(deny) > 0 and any(substr in func for substr in deny):
+            continue
         emitted: set[str] = set()
         start_time = time.time()
         func = f"{producer.__module__}.{producer.__qualname__}"
@@ -83,6 +84,14 @@ def _parse_blur_file(
     return None
 
 
+def _parse_sources(
+    ctx: click.Context, param: click.Parameter, value: Optional[str]
+) -> List[str]:
+    if value is not None:
+        return [p.strip() for p in value.strip().split(",")]
+    return []
+
+
 @main.command(name="index", short_help="recompute feed data")
 @click.option(
     "--echo/--no-echo",
@@ -91,10 +100,20 @@ def _parse_blur_file(
     help="Print feed items as they're computed",
 )
 @click.option(
-    "-f",
-    "--filter-sources",
+    "-i",
+    "--include-sources",
     default=None,
-    help="A comma delimited list of substrings of sources. e.g. 'mpv,trakt,listens'",
+    help="A comma delimited list of substrings of sources to include. e.g. 'mpv,trakt,listens'",
+    callback=_parse_sources,
+    envvar="MY_FEED_INCLUDE_SOURCES",
+)
+@click.option(
+    "-e",
+    "--exclude-sources",
+    default=None,
+    envvar="MY_FEED_EXCLUDE_SOURCES",
+    help="A comma delimited list of substrings of sources to exclude. e.g. 'mpv,trakt,listens'",
+    callback=_parse_sources,
 )
 @click.option(
     "-E",
@@ -117,14 +136,12 @@ def _parse_blur_file(
 )
 def index(
     echo: bool,
-    filter_sources: Optional[str],
+    include_sources: List[str],
+    exclude_sources: List[str],
     output: Optional[Path],
     blurred: Optional[Blurred],
     exclude_id_file: Optional[Path],
 ) -> None:
-    filter_lst: List[str] = []
-    if filter_sources:
-        filter_lst = [p.strip() for p in filter_sources.strip().split(",")]
     if blurred:
         click.echo("Blurred matchers:")
         click.echo("\n".join(map(str, blurred.items)))
@@ -132,7 +149,9 @@ def index(
     exclude_ids: Set[str] = set()
     if exclude_id_file:
         exclude_ids = set(json.loads(exclude_id_file.read_text()))
-    all_items = list(data(filter_sources=filter_lst, blurred=blurred, echo=echo))
+    all_items = list(
+        data(allow=include_sources, deny=exclude_sources, blurred=blurred, echo=echo)
+    )
     items = [i for i in all_items if i.id not in exclude_ids]
 
     if exclude_ids:
