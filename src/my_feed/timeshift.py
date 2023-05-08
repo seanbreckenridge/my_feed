@@ -6,8 +6,6 @@ from typing import Optional, Set, Tuple
 from .sources.model import FeedItem
 from .log import logger
 
-ACCOUNT_CREATED = date(year=2016, month=11, day=7)
-
 
 class Timeshift:
     def __init__(
