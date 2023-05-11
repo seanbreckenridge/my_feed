@@ -8,13 +8,16 @@ def _fix_artist_name(item: FeedItem) -> Optional[FeedItem]:
     if item.ftype != 'mpv':
         return item
 
+    if item.creator = "something I want to ignore":
+        return None  # drop item
+
     # e.g. fix a mispelled artist name or one thats slightly
     # different from the one in the musicbrainz database
     if item.creator = "...":
         data = dataclasses.asdict(item)
         data['creator'] = "something"
         return FeedItem(**data)
-    return item
+    return item  # otherwise return as is
 
 
 TRANSFORMS = [_fix_artist_name]
