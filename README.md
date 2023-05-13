@@ -122,7 +122,14 @@ def sources() -> Iterator[Callable[[], Iterator["FeedItem"]]]:
     yield facebook_spotify_listens.history
 ```
 
-The [`index`](./index) script in this repo first warms the `my.time.tz.via_location` cache, so that timezones can be estimated for some of the data sources here, does an `rsync` for some images hosted here, and then runs an `my_feed index` to save pickled objects to a local file. Thats then synced up to my server with `scp`, and then the server is pinged (at `/check`), which makes the server process the pickle files, updating the local sqlite database
+The [`index`](./index) script in this repo:
+
+- warms the `my.time.tz.via_location` cache, so that timezones can be estimated for some of the data sources here
+- does an `rsync` for some images hosted here
+- requests the `/data/ids` endpoint on the server, which returns a list of known IDs (those are used to filter out duplicates before syncing)
+- runs an `my_feed index` to save pickled objects to a local file
+- Syncs the pickle up to my server with `scp`
+- Server is pinged (at `/check`), which makes the server process the pickle files, updating the local sqlite database
 
 To blur images, `my_feed index` accepts a `-B` flag, which lets you match against the `id`, `title`, or `image_url` with an [`fnmatch`](https://docs.python.org/3/library/fnmatch.html#module-fnmatch) or a `regex`. Those are placed in a file, one per line, for example:
 

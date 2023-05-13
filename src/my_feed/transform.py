@@ -25,7 +25,7 @@ TRANSFORMS = [_fix_artist_name]
 def sources() -> Iterator[Callable[[], Iterator["FeedItem"]]]:
     from my_feed.transform import transform
 
-    yield transform(mpv.history())
+    yield transform(mpv.history)
 """
 
 import functools

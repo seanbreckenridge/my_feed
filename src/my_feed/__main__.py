@@ -119,7 +119,7 @@ def _parse_sources(
     "-E",
     "--exclude-id-file",
     default=None,
-    help="A json file containing a list of IDs to exclude, from the /data/ids endpoint. reduces amount of data to process",
+    help="A json file containing a list of IDs to exclude, from the /data/ids endpoint. reduces amount of data to sync to the server",
     type=click.Path(exists=True, path_type=Path),
 )
 @click.option(
