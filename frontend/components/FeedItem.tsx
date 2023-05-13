@@ -105,7 +105,6 @@ const CardImage: React.FC<CardImageProps> = ({
   let shouldBeBlurred = false
 
   for (const flag of flags) {
-    console.log(flag)
     if (flag === "i_poster") {
       uMinHeight = "24"
     } else if (flag === "i_still") {
