@@ -123,6 +123,13 @@ def _parse_sources(
     type=click.Path(exists=True, path_type=Path),
 )
 @click.option(
+    "-C",
+    "--write-count-to",
+    type=click.Path(writable=True, path_type=Path),
+    default=None,
+    help="Write the number of items to this file",
+)
+@click.option(
     "-B",
     "--blur-images-file",
     "blurred",
@@ -138,6 +145,7 @@ def index(
     echo: bool,
     include_sources: List[str],
     exclude_sources: List[str],
+    write_count_to: Optional[Path],
     output: Optional[Path],
     blurred: Optional[Blurred],
     exclude_id_file: Optional[Path],
@@ -162,6 +170,8 @@ def index(
         dumped_items = pickle.dumps(items)
         with output.open("wb") as f:
             f.write(dumped_items)
+        if write_count_to:
+            write_count_to.write_text(str(len(items)))
 
 
 if __name__ == "__main__":

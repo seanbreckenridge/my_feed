@@ -62,15 +62,22 @@ if [[ -z "$FEED_REINDEX" ]]; then
 	# can be pushed just when doing a re-index
 	export MY_FEED_EXCLUDE_SOURCES='mal.deleted,games.steam,games.grouvee,games.game_center,facebook_spotify_listens'
 fi
+
+# write count to file
+INDEX_ARGS+=("-C" "${TMPDIR}/count.txt")
 flock ~/.local/feed-lock my_feed index "${INDEX_ARGS[@]}" "$PICKLE" || exit $?
 
-# if ids.json file exists, delete it
+COUNT="$(cat "${TMPDIR}/count.txt")"
+
+# if ids.json/count.txt file exists, delete it
 [[ -f "${TMPDIR}/ids.json" ]] && command rm -fv "${TMPDIR}/ids.json"
+[[ -f "${TMPDIR}/count.txt" ]] && command rm -fv "${TMPDIR}/count.txt"
 
 # if the pickle is empty, don't bother uploading
-COUNT="$(python3 -c "import sys, pickle; print(len(pickle.loads(open(sys.argv[1], 'rb').read())))" "$PICKLE")"
 if [[ "$COUNT" -eq 0 ]]; then
 	echo 'No new data, exiting' >&2
+	# delete temp file
+	command rm -f "${PICKLE}"
 	exit 0
 fi
 
