@@ -27,12 +27,6 @@ cd "$(realpath "$(dirname "${BASH_SOURCE[0]}")")" || exit $?
 
 [[ -n "$MY_FEED_SECRET" ]] && CURL_AUTH_OPTS=("-H" "token:$MY_FEED_SECRET")
 
-# set prefix for indexer
-export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
-
-# sync osrs images
-REMSYNC_PUBLIC=1 "${REPOS}/vps/remsync" "$(python3 -m my.utils.backup_to runelite_screenshots)" >/dev/null || exit $?
-
 # temporary dir for new data
 TMPDIR="$(mktemp -d)"
 # https://github.com/seanbreckenridge/core/blob/main/shellscripts/epoch
@@ -40,10 +34,6 @@ PICKLE="${TMPDIR}/$(epoch).pickle" || exit $?
 
 # warm tz cache incase its expired, use flock incase something else is already running doctor
 flock ~/.local/tz-lock hpi doctor -S my.time.tz.via_location
-
-# update approved IDs for computing deleted anime entry data
-# https://github.com/seanbreckenridge/malexport/#recover_deleted
-python3 -m malexport recover-deleted approved-update
 
 # run an index
 INDEX_ARGS=()
@@ -60,7 +50,17 @@ if [[ -z "$FEED_REINDEX" ]]; then
 	INDEX_ARGS+=("-E" "${TMPDIR}/ids.json")
 	# stuff to ignore here which takes a long time and/or doesnt commonly change
 	# can be pushed just when doing a re-index
-	export MY_FEED_EXCLUDE_SOURCES='mal.deleted,games.steam,games.grouvee,games.game_center,facebook_spotify_listens'
+	export MY_FEED_EXCLUDE_SOURCES='mal.deleted,games.steam,games.grouvee,games.game_center,facebook_spotify_listens,games.osrs'
+else
+	# running a re-index, so update the approved IDs
+	#
+	# update approved IDs for computing deleted anime entry data
+	# https://github.com/seanbreckenridge/malexport/#recover_deleted
+	python3 -m malexport recover-deleted approved-update
+	# set prefix for indexer
+	export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
+	echo 'Syncing OSRS images...' >&2
+	REMSYNC_PUBLIC=1 "${REPOS}/vps/remsync" "$(python3 -m my.utils.backup_to runelite_screenshots)" >/dev/null || exit $?
 fi
 
 # write count to file
