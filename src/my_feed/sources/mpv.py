@@ -228,6 +228,7 @@ IGNORE_EXTS = {
     ".jpg",
     ".avi",
     ".png",
+    ".txt",
     ".gif",
     ".jpeg",
     ".mov",
