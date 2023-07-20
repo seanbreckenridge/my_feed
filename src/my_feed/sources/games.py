@@ -1,7 +1,7 @@
 import os
 import string
 import warnings
-from typing import Iterator, Optional, Dict, Any, cast
+from typing import Iterator, Optional, Dict, Any, cast, Literal
 from datetime import datetime, date
 from functools import cache
 
@@ -182,8 +182,8 @@ def osrs() -> Iterator[FeedItem]:
         )
 
 
-# TODO: make configurable
-CHESS_USERNAME = "seanbreckenridge"
+# TODO: make configurable through config file?
+CHESS_USERNAME = os.environ.get("CHESS_USERNAME", "seanbreckenridge")
 
 
 def chess() -> Iterator[FeedItem]:
@@ -201,25 +201,19 @@ def chess() -> Iterator[FeedItem]:
             logger.debug(f"Ignoring chess game with no PGN: {game}")
             continue
         dt: datetime
-        won: bool = False
+        result: Optional[Literal["won", "loss", "draw"]] = None
         url: Optional[str] = None
         pgn_str: str
         data: Dict[str, Any] = {}
         if isinstance(game, ChessDotComGame):
             dt = game.end_time
-            if game.white.username == CHESS_USERNAME and game.white.result == "win":
-                won = True
-            elif game.black.username == CHESS_USERNAME and game.black.result == "win":
-                won = True
-            data["time_control"] = str(game.time_control)
+            if has_result := game.result(CHESS_USERNAME):
+                result = has_result.value
             url = game.url
         elif isinstance(game, LichessGame):
             dt = game.end_time
-            if game.white.username == CHESS_USERNAME and game.winner == "white":
-                won = True
-            elif game.black.username == CHESS_USERNAME and game.winner == "black":
-                won = True
-            data["variant"] = str(game.variant)
+            if has_result := game.result(CHESS_USERNAME):
+                result = has_result.value
             # 9999 skips to the last move of the match
             url = f"https://lichess.org/{game.game_id}#9999"
         else:
@@ -237,7 +231,8 @@ def chess() -> Iterator[FeedItem]:
         for move in pgn.mainline_moves():
             board.push(move)
         data["svg"] = str(chess.svg.board(board))
-        data["won"] = won
+        data["result"] = (result or "Unknown").capitalize()
+        assert data["result"] in {"Won", "Loss", "Draw", "Unknown"}
         yield FeedItem(
             id=f"chess_{int(dt.timestamp())}",
             title=f"Chess ({me})",
