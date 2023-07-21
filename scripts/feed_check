@@ -62,7 +62,8 @@ def check_albums(**kwargs: str) -> str | None:
 
     # remove 'album_' prefix from albums
     remote_ids = {
-        ll["model_id"].split("_", maxsplit=1)[1] for ll in request_data("album")
+        ll["model_id"].split("_", maxsplit=1)[1]
+        for ll in request_data("album", limit=25)
     }
 
     for r in map(_album_id, itertools.islice(recent_albums, 50)):

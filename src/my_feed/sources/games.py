@@ -200,44 +200,36 @@ def chess() -> Iterator[FeedItem]:
         if game.pgn is None:
             logger.debug(f"Ignoring chess game with no PGN: {game}")
             continue
-        dt: datetime
-        result: Optional[Literal["won", "loss", "draw"]] = None
-        url: Optional[str] = None
-        pgn_str: str
-        data: Dict[str, Any] = {}
+        if not isinstance(game, (ChessDotComGame, LichessGame)):
+            logger.warning(f"Unexpected game type: {type(game)} {game}")
+            continue
+        result: Literal["won", "loss", "draw", "unknown"] = "unknown"
+        if has_result := game.result(CHESS_USERNAME):
+            result = has_result.value
+
+        url: str
         if isinstance(game, ChessDotComGame):
-            dt = game.end_time
-            if has_result := game.result(CHESS_USERNAME):
-                result = has_result.value
             url = game.url
-        elif isinstance(game, LichessGame):
-            dt = game.end_time
-            if has_result := game.result(CHESS_USERNAME):
-                result = has_result.value
+        else:
             # 9999 skips to the last move of the match
             url = f"https://lichess.org/{game.game_id}#9999"
-        else:
-            raise RuntimeError(f"Unexpected game {type(game)} {game}")
-        if game.white.username == CHESS_USERNAME:
-            me = "white"
-        else:
-            me = "black"
-        pgn_str = game.pgn
-        assert me.strip()
-        pgn = chess.pgn.read_game(StringIO(pgn_str))
-        assert pgn is not None
-        # iterate through mainline moves
+
+        me = "white" if game.white.username == CHESS_USERNAME else "black"
+        pgn = chess.pgn.read_game(StringIO(game.pgn))
+        if pgn is None:
+            logger.warning(f"Could not parse PGN: {game.pgn}")
+            continue
+        # iterate through mainline moves to create svg
         board = pgn.board()
         for move in pgn.mainline_moves():
             board.push(move)
+        data: Dict[str, Any] = {}
         data["svg"] = str(chess.svg.board(board))
-        data["result"] = (result or "Unknown").capitalize()
-        assert data["result"] in {"Won", "Loss", "Draw", "Unknown"}
         yield FeedItem(
-            id=f"chess_{int(dt.timestamp())}",
-            title=f"Chess ({me})",
+            id=f"chess_{int(game.end_time.timestamp())}",
+            title=f"Chess ({me}) - {result.capitalize()}",
             ftype="chess",
-            when=dt,
+            when=game.end_time,
             data=data,
             url=url,
         )

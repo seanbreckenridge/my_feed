@@ -212,15 +212,10 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
       </div>
     )
   } else if (item.ftype === "chess") {
-    const svg = item.data.svg
     return (
       <div className={styles.cardFlexBody}>
-        <CardHeader
-          title={`${item.title} - ${item.data.result}`}
-          icon={faChessKnight}
-          link={item.url}
-        />
-        <div className={styles.chessSvg} dangerouslySetInnerHTML={{ __html: svg }}></div>
+        <CardHeader title={item.title} icon={faChessKnight} link={item.url} />
+        <div className={styles.chessSvg} dangerouslySetInnerHTML={{ __html: item.data.svg }}></div>
         <p className={styles.subtitle}>{item.subtitle}</p>
         <CardFooter dt={item.when} />
       </div>
