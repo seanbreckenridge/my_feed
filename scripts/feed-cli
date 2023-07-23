@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+
+import json
+from functools import partial
+from typing import Sequence, Iterator, Literal
+from datetime import datetime, timezone
+from pathlib import Path
+
+import requests
+import arrow
+import click
+from seanb.jsonfast import dumps
+from my_feed.sources.model import FeedItem
+
+
+def feed_type_to_emoji(feed_type: str) -> str:
+    match feed_type:
+        case "game_achievement":
+            return "🎲"
+        case "osrs_achievement":
+            return "⚔️"
+        case "game":
+            return "🎮"
+        case "chess":
+            return "♟️"
+        case "trakt_movie" | "trakt_history_movie":
+            return "🎥"
+        case "listen":
+            return "🎵"
+        case "album":
+            return "💿"
+        case "anime" | "anime_episode" | "trakt_show" | "trakt_history_episode":
+            return "📺"
+        case "manga" | "manga_chapter":
+            return "📕"
+        case _:
+            return "📰"
+
+
+def get_feed(
+    *,
+    limit: int,
+    page: int,
+    reverse: bool,
+    feed_types: Sequence[str],
+    base_url: str,
+    debug: bool,
+) -> Iterator[FeedItem]:
+    url = f"{base_url}?limit={limit}"
+    if page != 1:
+        assert page > 1
+        offset = (page - 1) * limit
+        url += f"&offset={offset}"
+    if feed_types:
+        url += f"&ftype={','.join(feed_types)}"
+    if debug:
+        click.echo(f"{url}", err=True)
+    resp = requests.get(url)
+    resp.raise_for_status()
+    data = resp.json()
+    assert isinstance(data, list)
+    if reverse:
+        data.reverse()
+    for item in data:
+        assert isinstance(item, dict)
+        model_id = item.pop("model_id")
+        dt = datetime.fromtimestamp(item.pop("when"), tz=timezone.utc)
+        yield FeedItem(**item, id=model_id, when=dt)
+
+
+def display(item: FeedItem, output: Literal["print", "json", "markdown"]) -> None:
+    match output:
+        case "print":
+            click.echo(item)
+        case "json":
+            click.echo(dumps(item))
+        case "markdown":
+            click.echo(f"# {item.title}")
+            human_readable = arrow.get(item.when).humanize()
+            emoji = feed_type_to_emoji(item.ftype)
+            if item.subtitle:
+                click.echo(f"{emoji} {item.subtitle} - {human_readable}")
+            else:
+                click.echo(f"{emoji} {human_readable}")
+            if item.url:
+                click.echo(f"<{item.url}>")
+
+
+root_dir = Path(__file__).parent.parent
+feed_types_file = root_dir / "frontend" / "data" / "feed_types.json"
+assert feed_types_file.exists()
+feed_types = json.loads(feed_types_file.read_text())
+assert isinstance(feed_types, list)
+
+
+@click.command()
+@click.option("--debug", is_flag=True, default=False, help="print feed urls")
+@click.option(
+    "--base-url",
+    default="https://sean.fish/feed_api/data/",
+    help="data url to request against",
+)
+@click.option(
+    "-o",
+    "--output",
+    type=click.Choice(["print", "json", "markdown"]),
+    default="markdown",
+)
+@click.option(
+    "-F",
+    "--feed-types",
+    type=click.Choice(feed_types),
+    multiple=True,
+    default=(),
+    help="Filter by feed type",
+)
+@click.option(
+    "--reverse/--no-reverse",
+    default=True,
+    is_flag=True,
+    help="Reverse item order in each page",
+)
+@click.option(
+    "-l",
+    "--limit",
+    type=int,
+    default=25,
+    help="Number of items per page",
+)
+@click.argument("pages", nargs=-1, type=int)
+def main(
+    feed_types: Sequence[str],
+    reverse: bool,
+    output: Literal["print", "json", "markdown"],
+    pages: Sequence[int],
+    limit: int,
+    debug: bool,
+    base_url: str,
+) -> None:
+    pages = list(pages) if pages else [1]
+    if reverse:
+        pages.reverse()
+
+    for p in pages:
+        for item in get_feed(
+            page=p,
+            reverse=reverse,
+            feed_types=feed_types,
+            limit=limit,
+            base_url=base_url,
+            debug=debug,
+        ):
+            display(item, output)
+
+
+if __name__ == "__main__":
+    main(prog_name="feed-cli")

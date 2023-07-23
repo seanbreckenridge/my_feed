@@ -27,3 +27,7 @@ feed_recent_albums() {
 		jq --arg AFTER "${after_epoch}" '.[] | select(.when >= ($AFTER | tonumber))' |
 		jq -s
 }
+
+feed() {
+	feed-cli "$@" | glow -
+}

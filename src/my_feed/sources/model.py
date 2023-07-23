@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 from dataclasses import dataclass, field
 
 Tags = List[str]
-# datetime, date, or year
 
 
 @dataclass
