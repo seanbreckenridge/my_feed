@@ -99,12 +99,15 @@ assert isinstance(feed_types, list)
     "--base-url",
     default="https://sean.fish/feed_api/data/",
     help="data url to request against",
+    show_default=True,
 )
 @click.option(
     "-o",
     "--output",
     type=click.Choice(["print", "json", "markdown"]),
     default="markdown",
+    help="Output format",
+    show_default=True,
 )
 @click.option(
     "-F",
@@ -119,6 +122,7 @@ assert isinstance(feed_types, list)
     default=True,
     is_flag=True,
     help="Reverse item order in each page",
+    show_default=True,
 )
 @click.option(
     "-l",
@@ -126,6 +130,7 @@ assert isinstance(feed_types, list)
     type=int,
     default=25,
     help="Number of items per page",
+    show_default=True,
 )
 @click.argument("pages", nargs=-1, type=int)
 def main(
