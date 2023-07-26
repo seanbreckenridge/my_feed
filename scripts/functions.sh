@@ -31,3 +31,8 @@ feed_recent_albums() {
 feed() {
 	feed-cli "$@" | glow -
 }
+
+listens-feed() {
+	feed -F 'listen' "$@"
+}
+alias feed-listens=listens-feed
