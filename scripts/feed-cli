@@ -75,13 +75,17 @@ def display(item: FeedItem, output: Literal["print", "json", "markdown"]) -> Non
         case "json":
             click.echo(dumps(item))
         case "markdown":
+            emoji = feed_type_to_emoji(item.ftype)
             click.echo(f"# {item.title}")
             human_readable = arrow.get(item.when).humanize()
-            emoji = feed_type_to_emoji(item.ftype)
+            parts = []
+            if item.creator:
+                parts.append(item.creator)
             if item.subtitle:
-                click.echo(f"{emoji} {item.subtitle} - {human_readable}")
-            else:
-                click.echo(f"{emoji} {human_readable}")
+                parts.append(item.subtitle)
+            parts.append(human_readable)
+            parts[0] = f"{emoji} {parts[0]}"
+            click.echo("\n".join(parts))
             if item.url:
                 click.echo(f"<{item.url}>")
 
