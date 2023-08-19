@@ -12,6 +12,7 @@ sqlmodel = "*"
 logzero = "*"
 orjson = "*"
 pytz = "*"
+click = "*"
 
 [dev-packages]
 ipdb = "*"
@@ -24,3 +25,4 @@ python_version = "3.10"
 [scripts]
 dev = 'uvicorn app.main:app --port 5100 --reload --reload-exclude data'
 prod = 'uvicorn app.main:app --port 5100'
+cli = 'python3 main.py'

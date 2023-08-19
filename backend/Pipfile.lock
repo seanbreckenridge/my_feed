@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "187f1b04879097daa923c3047ccab0dc047b291130c6742779ce60af50fafb3f"
+            "sha256": "291699db3a3d38b4d62b5d6449b38c97ca7fc353a7dcb4884bf1662cd03d0378"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -165,7 +165,7 @@
                 "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28",
                 "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de"
             ],
-            "markers": "python_version >= '3.7'",
+            "index": "pypi",
             "version": "==8.1.7"
         },
         "cssselect": {
@@ -1064,7 +1064,7 @@
                 "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28",
                 "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de"
             ],
-            "markers": "python_version >= '3.7'",
+            "index": "pypi",
             "version": "==8.1.7"
         },
         "decorator": {
