@@ -15,6 +15,8 @@ git clone https://github.com/seanbreckenridge/my_feed
 pip install -e .
 ```
 
+To run the servers, check the [frontend/README.md](./frontend/README.md) and [backend/README.md](./backend/README.md) files
+
 - [`listens`](https://github.com/seanbreckenridge/HPI-personal/blob/master/scripts/listens)
 
 ### Data Sources:

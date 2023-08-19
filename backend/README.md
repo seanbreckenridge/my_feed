@@ -1,3 +1,5 @@
+## python
+
 To use the python backend server:
 
 ```
@@ -26,3 +28,14 @@ location /feed_api/ {
   proxy_pass http://127.0.0.1:5100/;
 }
 ```
+
+## golang
+
+You could of course use the python server all the time, but the golang server uses much less memory and is faster.
+
+All the golang server does is serve the information from the database the exact same way the python server does. It does not create or update the database at all. To accomplish that it runs a python subprocess using the `main.py` file here, by running:
+
+- `pipenv run cli update-db` to update the database whenever pinged to do so
+- `pipenv run cli update-db --delete-db` to delete the database and create a new one (the equivalent of FEED_REINDEX=1 from the [`index`](../index) script)
+
+TODO: actually write the golang server
