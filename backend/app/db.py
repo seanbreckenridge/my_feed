@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Optional, Iterator, Dict, List, Any
 
-from sqlmodel import SQLModel, Field, Column, create_engine, Session, JSON # type: ignore[import]
+from sqlmodel import SQLModel, Field, Column, create_engine, Session, JSON  # type: ignore[import]
 
 from my_feed.log import logger
 from app.settings import settings

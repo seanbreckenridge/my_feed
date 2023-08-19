@@ -190,7 +190,9 @@ def chess() -> Iterator[FeedItem]:
         if game.pgn is None:
             logger.debug(f"Ignoring chess game with no PGN: {game}")
             continue
-        assert isinstance(game, (ChessDotComGame, LichessGame)), f"Unexpected game type {type(game)}"
+        assert isinstance(
+            game, (ChessDotComGame, LichessGame)
+        ), f"Unexpected game type {type(game)}"
         result: Literal["won", "loss", "draw", "unknown"] = "unknown"
         if has_result := game.result(CHESS_USERNAME):
             result = has_result.value
