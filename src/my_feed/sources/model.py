@@ -5,8 +5,6 @@ from urllib.parse import urlparse
 
 from dataclasses import dataclass, field
 
-Tags = List[str]
-
 
 @dataclass
 class FeedItem:
@@ -16,7 +14,6 @@ class FeedItem:
     ftype: str  # scrobble, episode, movie, book
     when: datetime  # when I finished this
     creator: Optional[str] = None  # artist, or person who created this
-    tags: Tags = field(default_factory=list)  # extra information/tags for this item
     # any additional data to attach to this
     data: Dict[str, Any] = field(default_factory=dict)
     release_date: Optional[date] = None  # when this entry was released
@@ -48,3 +45,12 @@ class FeedItem:
     def blur(self) -> None:
         if self.image_url is not None:
             self.flags.append("i_blur")
+
+    @classmethod
+    def from_json(cls, data: Dict[str, Any]) -> "FeedItem":
+        """
+        Create a FeedItem from a dict of data
+        """
+        data = data.copy()
+        data["when"] = datetime.fromisoformat(data["when"])
+        return cls(**data)

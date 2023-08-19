@@ -23,9 +23,6 @@ def game_center() -> Iterator[FeedItem]:
                 title=e.title,
                 subtitle=e.game_name,
                 when=e.dt,
-                data={
-                    "percentage": e.percentage,
-                },
             )
 
 
@@ -50,7 +47,6 @@ def steam() -> Iterator[FeedItem]:
             when=ac.achieved_on,
             title=ac.title,
             subtitle=ac.game_name,
-            data={"description": ac.description},
             image_url=ac.icon,
         )
 
@@ -137,9 +133,6 @@ def grouvee() -> Iterator[FeedItem]:
             image_url=_grouvee_img(res),
             when=dt,
             score=score,
-            tags=list(g.genres.keys())
-            + list(g.developers.keys())
-            + list(g.publishers.keys()),
         )
 
 
@@ -157,7 +150,6 @@ def osrs() -> Iterator[FeedItem]:
             continue
         id_: str
         desc: str
-        data = {"path": sc.path}
         img: Optional[str] = None
         dt = localize(sc.dt)
         if "HPIDATA" in os.environ:
@@ -165,7 +157,6 @@ def osrs() -> Iterator[FeedItem]:
                 img = os.path.join(prefix, str(sc.path).lstrip(os.environ["HPIDATA"]))
         if isinstance(sc.description, Level):
             id_ = f"osrs_level_{sc.description.skill.casefold()}_{sc.description.level}_{int(dt.timestamp())}"
-            data.update(sc.description._asdict())
             desc = f"{sc.description.skill} Level {sc.description.level}"
         else:
             id_ = f"osrs_{_slugify(sc.description)}_{int(dt.timestamp())}"
@@ -175,7 +166,6 @@ def osrs() -> Iterator[FeedItem]:
             id=id_,
             ftype="osrs_achievement",
             title=f"OSRS - {desc}",
-            data=data,
             image_url=img,
             subtitle=sc.screenshot_type,
             when=dt,
@@ -200,9 +190,7 @@ def chess() -> Iterator[FeedItem]:
         if game.pgn is None:
             logger.debug(f"Ignoring chess game with no PGN: {game}")
             continue
-        if not isinstance(game, (ChessDotComGame, LichessGame)):
-            logger.warning(f"Unexpected game type: {type(game)} {game}")
-            continue
+        assert isinstance(game, (ChessDotComGame, LichessGame)), f"Unexpected game type {type(game)}"
         result: Literal["won", "loss", "draw", "unknown"] = "unknown"
         if has_result := game.result(CHESS_USERNAME):
             result = has_result.value

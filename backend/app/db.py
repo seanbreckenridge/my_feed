@@ -1,7 +1,7 @@
 from datetime import date
-from typing import Optional, Iterator
+from typing import Optional, Iterator, Dict, List, Any
 
-from sqlmodel import SQLModel, Field, create_engine, Session  # type: ignore[import]
+from sqlmodel import SQLModel, Field, Column, create_engine, Session, JSON # type: ignore[import]
 
 from my_feed.log import logger
 from app.settings import settings
@@ -34,10 +34,8 @@ class FeedBase(SQLModel):
 class FeedModel(FeedBase, table=True):
     id: int = Field(index=True, primary_key=True)
 
-    # store JSON as strings, these are only used on the frontend anyways
-    tags: str = Field(default=r"[]")  # List[str]
-    data: Optional[bytes] = Field(default=None)  # Dict[str, Any]
-    flags: str = Field(default=r"[]")  # List[str]
+    data: str = Field(default=None)
+    flags: str = Field(default=None)
 
 
 feed_engine = create_engine(

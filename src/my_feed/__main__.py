@@ -1,6 +1,5 @@
-import json
 import time
-import pickle
+import orjson
 from pathlib import Path
 from typing import Iterator, Callable, Optional, List, TypeGuard, Any, Set
 
@@ -156,7 +155,7 @@ def index(
 
     exclude_ids: Set[str] = set()
     if exclude_id_file:
-        exclude_ids = set(json.loads(exclude_id_file.read_text()))
+        exclude_ids = set(orjson.loads(exclude_id_file.read_text()))
     all_items = list(
         data(allow=include_sources, deny=exclude_sources, blurred=blurred, echo=echo)
     )
@@ -167,9 +166,10 @@ def index(
     click.echo(f"Total: {click.style(len(items), BLUE)} items")
     if output is not None:
         click.echo(f"Writing to '{output}'")
-        dumped_items = pickle.dumps(items)
         with output.open("wb") as f:
-            f.write(dumped_items)
+            for item in items:
+                f.write(orjson.dumps(item))
+                f.write(b"\n")
         if write_count_to:
             write_count_to.write_text(str(len(items)))
 

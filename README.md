@@ -59,7 +59,7 @@ Extracting my_feed.sources.nextalbums.history: 1938 items (took 2.36 seconds)
 Extracting my_feed.sources.mal.history...
 Extracting my_feed.sources.mal.history: 20865 items (took 3.58 seconds)
 Total: 59599 items
-Writing to 'backend/data/1644267551.pickle'
+Writing to 'backend/data/1644267551.json'
 ```
 
 ... which then gets synced up and combined into the `sqlite` database on the [`backend`](./backend/); all handled by [`index`](./index)
@@ -127,9 +127,9 @@ The [`index`](./index) script in this repo:
 - warms the `my.time.tz.via_location` cache, so that timezones can be estimated for some of the data sources here
 - does an `rsync` for some images hosted here
 - requests the `/data/ids` endpoint on the server, which returns a list of known IDs (those are used to filter out duplicates before syncing)
-- runs an `my_feed index` to save pickled objects to a local file
-- Syncs the pickle up to my server with `scp`
-- Server is pinged (at `/check`), which makes the server process the pickle files, updating the local sqlite database
+- runs an `my_feed index` to save json objects to a local file
+- Syncs the json up to my server with `scp`
+- Server is pinged (at `/check`), which makes the server process the json files, updating the local sqlite database
 
 To blur images, `my_feed index` accepts a `-B` flag, which lets you match against the `id`, `title`, or `image_url` with an [`fnmatch`](https://docs.python.org/3/library/fnmatch.html#module-fnmatch) or a `regex`. Those are placed in a file, one per line, for example:
 

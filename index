@@ -30,7 +30,7 @@ cd "$(realpath "$(dirname "${BASH_SOURCE[0]}")")" || exit $?
 # temporary dir for new data
 TMPDIR="$(mktemp -d)"
 # https://github.com/seanbreckenridge/core/blob/main/shellscripts/epoch
-PICKLE="${TMPDIR}/$(epoch).pickle" || exit $?
+JSON="${TMPDIR}/$(epoch).json" || exit $?
 
 # warm tz cache incase its expired, use flock incase something else is already running doctor
 flock ~/.local/tz-lock hpi doctor -S my.time.tz.via_location
@@ -65,7 +65,7 @@ fi
 
 # write count to file
 INDEX_ARGS+=("-C" "${TMPDIR}/count.txt")
-flock ~/.local/feed-lock my_feed index "${INDEX_ARGS[@]}" "$PICKLE" || exit $?
+flock ~/.local/feed-lock my_feed index "${INDEX_ARGS[@]}" "$JSON" || exit $?
 
 COUNT="$(cat "${TMPDIR}/count.txt")"
 
@@ -73,11 +73,11 @@ COUNT="$(cat "${TMPDIR}/count.txt")"
 [[ -f "${TMPDIR}/ids.json" ]] && command rm -fv "${TMPDIR}/ids.json"
 [[ -f "${TMPDIR}/count.txt" ]] && command rm -fv "${TMPDIR}/count.txt"
 
-# if the pickle is empty, don't bother uploading
+# if the json file is empty, don't bother uploading
 if [[ "$COUNT" -eq 0 ]]; then
 	echo 'No new data, exiting' >&2
 	# delete temp file
-	command rm -f "${PICKLE}"
+	command rm -f "${JSON}"
 	exit 0
 fi
 
@@ -89,14 +89,14 @@ fd -d 1 --full-path '.*fixes.json' "$HPIDATA" -X json-compress
 # wait for internet, if we don't have it, don't bother uploading
 wait-for-internet -q --timeout "${WFI_TIMEOUT:-10}" || exit 0
 
-# delete remote pickle's if we want to reset
-[[ -n "$FEED_REINDEX" ]] && ssh "${SSH_TARGET}" 'rm -vf ~/code/my_feed/backend/data/*.pickle'
+# delete remote json files if we want to reset
+[[ -n "$FEED_REINDEX" ]] && ssh "${SSH_TARGET}" 'rm -vf ~/code/my_feed/backend/data/*.json'
 
 # copy up to the server
-flock ~/.local/feed-sync-lock scp "${PICKLE}" "${SSH_TARGET}":~/code/my_feed/backend/data
+flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backend/data
 
 # delete temp file
-command rm -f "${PICKLE}"
+command rm -f "${JSON}"
 
 if [[ -n "$FEED_REINDEX" ]]; then
 	echo 'Deleting database...'

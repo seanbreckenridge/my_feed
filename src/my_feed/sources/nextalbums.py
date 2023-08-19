@@ -44,7 +44,6 @@ def history() -> Iterator[FeedItem]:
         dt_naive = datetime.combine(al.listened_on, time(hour=12))
         dt = localize(dt_naive)
 
-        data: Dict[str, Any] = {}
         image_url = al.album_artwork_url
         assert image_url.strip(), f"No image url: {al}"
 
@@ -54,10 +53,8 @@ def history() -> Iterator[FeedItem]:
             title=al.album_name,
             ftype="album",
             when=dt,
-            tags=al.genres + al.styles + al.reasons,
             subtitle=al.cover_artists,
             url=al.discogs_url,
             image_url=image_url,
-            data=data,
             release_date=al.release_date(),
         )

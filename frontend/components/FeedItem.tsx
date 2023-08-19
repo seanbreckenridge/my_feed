@@ -32,7 +32,6 @@ export type FeedItemStruct = {
   release_date: string
   image_url: string | null
   url: string | null
-  tags: string[]
   data: any
   flags: string[]
 }

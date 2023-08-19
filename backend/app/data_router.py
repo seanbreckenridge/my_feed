@@ -1,4 +1,3 @@
-import pickle
 from typing import Optional, Dict, Any, List, cast
 from enum import Enum
 
@@ -17,24 +16,22 @@ router = APIRouter()
 
 class FeedRead(FeedBase):
     # parse from the backend to data structures
-    tags: List[str] = Field(default_factory=list)
     data: Dict[str, Any] = Field(default_factory=dict)
     flags: List[str] = Field(default_factory=list)
 
-    @validator("tags", pre=True)
-    def parse_tags(cls, v: Any) -> List[str]:
-        return cast(List[str], orjson.loads(v))
-
     @validator("flags", pre=True)
     def parse_flags(cls, v: Any) -> List[str]:
-        return cast(List[str], orjson.loads(v))
+        if v is None:
+            return []
+        else:
+            return cast(List[str], orjson.loads(v))
 
     @validator("data", pre=True)
     def parse_data(cls, v: Any) -> Dict[str, Any]:
         if v is None:
             return {}
         else:
-            return cast(Dict[str, Any], pickle.loads(v))
+            return cast(Dict[str, Any], orjson.loads(v))
 
 
 class OrderBy(Enum):
@@ -65,7 +62,7 @@ INDIVIDUAL_FEED_TYPES = [
 async def data_types(
     session: Session = Depends(get_db),
 ) -> List[str]:
-    stmt = select(distinct(FeedModel.ftype))
+    stmt = select(distinct(FeedModel.ftype))  # type: ignore[call-overload]
     with session:
         items: List[str] = list(session.exec(stmt))
     return items
@@ -113,7 +110,8 @@ async def data(
     stmt = stmt.limit(limit).offset(offset)
     with session:
         items: List[FeedModel] = list(session.exec(stmt))
-    return items
+    # fastapi handles converting from FeedModel to FeedRead
+    return cast(List[FeedRead], items)
 
 
 @router.get("/ids")

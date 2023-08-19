@@ -22,7 +22,7 @@ def create_app() -> FastAPI:
 
     @current_app.get("/check")
     async def check(token: None = Depends(bearer_auth)) -> str:
-        from app.load_pickle import update_data
+        from app.load_json import update_data
 
         added = update_data()
         return f"OK; added {added}"
@@ -30,7 +30,7 @@ def create_app() -> FastAPI:
     @current_app.on_event("startup")
     async def _startup() -> None:
         from app.db import init_db
-        from app.load_pickle import update_data
+        from app.load_json import update_data
 
         init_db()
         update_data()

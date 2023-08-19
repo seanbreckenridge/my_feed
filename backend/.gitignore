@@ -1,3 +1,5 @@
 .env
 data
 *.sqlite
+*.pickle
+*.json

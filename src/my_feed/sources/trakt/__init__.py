@@ -99,7 +99,7 @@ def get_release_date(media_data: Union[D.Movie, D.Episode, D.Show]) -> Optional[
     return None
 
 
-def get_genres(media_data: Union[D.Movie, D.Episode, D.Show]) -> List[str]:
+def _get_genres(media_data: Union[D.Movie, D.Episode, D.Show]) -> List[str]:
     """
     Get genres for the movie/show
     """
@@ -213,7 +213,6 @@ def history() -> Iterator[FeedItem]:
             flags=flags,
             score=get_rating(m, rating_map=rm),
             release_date=get_release_date(m),
-            tags=get_genres(m),
         )
 
     # iterate through individual history/episode entries
@@ -267,5 +266,4 @@ def history() -> Iterator[FeedItem]:
             collection=collection,
             score=get_rating(m, rating_map=rm),
             release_date=get_release_date(m),
-            tags=get_genres(m),
         )
