@@ -1,7 +1,6 @@
 from __future__ import annotations
-from typing import Optional, List, Dict, Any, Set
+from typing import Optional, List, Dict, Any
 from datetime import datetime, date
-from urllib.parse import urlparse
 
 from dataclasses import dataclass, field
 

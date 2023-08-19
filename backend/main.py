@@ -1,10 +1,13 @@
 from typing import Set
 from pathlib import Path
+
 import click
+
 
 @click.group()
 def main():
     pass
+
 
 def glob_database_files(source_database: Path) -> Set[Path]:
     """
@@ -26,10 +29,17 @@ def get_database_path_from_uri(uri: str) -> Path:
     if url.drivername != "sqlite":
         raise ValueError("Only SQLite is supported")
 
+    assert url.database is not None
     return Path(url.database)
 
+
 @main.command()
-@click.option("--delete-db", is_flag=True, help="Delete the database before updating", default=False)
+@click.option(
+    "--delete-db",
+    is_flag=True,
+    help="Delete the database before updating",
+    default=False,
+)
 def update_db(delete_db: bool) -> None:
     """Update the database."""
     from app.db import init_db
@@ -38,7 +48,7 @@ def update_db(delete_db: bool) -> None:
     if delete_db:
         from app.settings import settings
 
-        db = get_database_path_from_uri(settings.SQLITE_DB_PATH)
+        db = get_database_path_from_uri(settings.SQLITE_DB_URI)
         if db.exists():
             assert db.is_file()
 

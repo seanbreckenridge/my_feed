@@ -147,7 +147,7 @@ def _fix_media(
                     m.media_duration, mp3_f.info.length, rel_tol=0.01
                 ):
                     # if this has id3 data to pull from
-                    try:
+                    try:  # type: ignore[unreachable]
                         id3 = EasyID3(str(match))
                     except MutagenError:
                         continue

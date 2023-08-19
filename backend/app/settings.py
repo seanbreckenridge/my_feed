@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     SCAN_INPUT_DIR: DirectoryPath
     BEARER_SECRET: str = ""
     BACKEND_CORS_ORIGINS: Json
-    SQLITE_DB_PATH: str
+    SQLITE_DB_URI: str
     SQL_ECHO: bool = True
 
     @validator("BACKEND_CORS_ORIGINS")

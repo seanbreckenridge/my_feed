@@ -5,7 +5,7 @@ https://sean.fish/s/albums
 
 import warnings
 from datetime import datetime, time
-from typing import Iterator, Dict, Any
+from typing import Iterator
 
 from my.nextalbums import history as album_history, Album
 from nextalbums.discogs_update import slugify_data
