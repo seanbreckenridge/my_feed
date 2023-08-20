@@ -90,7 +90,7 @@ func initDb(db *sql.DB) {
 
 	// otherwise, create table
 	cr := `CREATE TABLE feedmodel (
-	id VARCHAR NOT NULL, 
+	id VARCHAR NOT NULL,
 	ftype VARCHAR NOT NULL, 
 	title VARCHAR NOT NULL, 
 	score FLOAT, 
