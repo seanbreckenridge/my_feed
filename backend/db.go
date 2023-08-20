@@ -414,7 +414,7 @@ func queryData(
 
 	rows, err := db.Query(sql, args...)
 	if err != nil {
-		log.Printf("Error querying database: s\n", err)
+		log.Printf("Error querying database: %s\n", err)
 		return nil, errors.New("Error querying database")
 	}
 	defer rows.Close()
