@@ -330,7 +330,7 @@ func loadFeedItemsFromFile(db *sql.DB, filename string, modelIds *ModelSet) (int
 
 		_, err = tx.Exec("INSERT INTO feedmodel (model_id, ftype, title, score, subtitle, creator, part, subpart, collection, `when`, release_date, image_url, url, data, flags) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);", item.ModelId, item.FeedType, item.Title, item.Score, item.Subtitle, item.Creator, item.Part, item.Subpart, item.Collection, item.When, releaseDate, item.ImageUrl, item.Url, data, flag)
 		if err != nil {
-			tx.Rollback()
+			return 0, err
 		}
 		added += 1
 		modelIds.add(item.ModelId)
