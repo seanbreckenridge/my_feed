@@ -420,7 +420,7 @@ func main() {
 		json.NewEncoder(w).Encode(ListResponse(types))
 	})
 
-	http.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/data/", func(w http.ResponseWriter, r *http.Request) {
 		// parse query params
 		qrParams := r.URL.Query()
 		offset, err := parseIntegerQueryParam("offset", &qrParams, 0, 0, nil)
