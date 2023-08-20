@@ -103,13 +103,4 @@ if [[ -n "$FEED_REINDEX" ]]; then
 else
 	echo 'Running update...'
 fi
-RESP="$(curl "${CURL_AUTH_OPTS[@]}" -sL "$url")"
-printf 'Response: %s\n' "$RESP"
-# parse with jq
-ADDED="$(jq -r '.added' <<<"$RESP")"
-ERROR="$(jr -r '.error' <<<"$RESP")"
-if [[ "$ERROR" != 'null' ]]; then
-	echo "Error: $ERROR" >&2
-	exit 1
-fi
-printf 'Added %d new entries\n' "$ADDED"
+curl "${CURL_AUTH_OPTS[@]}" -sL "$url" | jq

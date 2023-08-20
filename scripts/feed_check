@@ -105,6 +105,9 @@ def check_listens(**kwargs: str) -> str | None:
     remote_ids = [
         ll for ll in request_data("listen") if ll["id"].startswith("listen")
     ]
+    if len(remote_ids) == 0:
+        logger.info("No remote listens found")
+        return
 
     username = kwargs.get("listenbrainz-username")
     if username is None:
@@ -164,6 +167,9 @@ def check_trakt(**kwargs: str) -> str | None:
         int(data["id"].split("_")[-1])
         for data in request_data("trakt_history_movie,trakt_history_episode", limit=10)
     }
+    if len(remote_ids) == 0:
+        logger.info("No remote trakt history found")
+        return
 
     if hist_ids[0] not in remote_ids:
         evry_clear("backup_trakt_partial")
