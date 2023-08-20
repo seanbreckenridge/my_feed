@@ -459,20 +459,20 @@ func main() {
 			return
 		}
 
-		var ftypes []string
+		var filterFtypes []string
 		ftypeRaw := qrParams.Get("ftype")
 		if ftypeRaw == "" {
-			ftypes = config.FeedTypes.All
+			filterFtypes = config.FeedTypes.All
 		} else {
 			if strings.Contains(ftypeRaw, ",") {
-				ftypes = strings.Split(ftypeRaw, ",")
+				filterFtypes = strings.Split(ftypeRaw, ",")
 			} else {
-				ftypes = []string{ftypeRaw}
+				filterFtypes = []string{ftypeRaw}
 			}
 		}
 
 		// validate to make sure all ftypes are valid
-		for _, ftype := range ftypes {
+		for _, ftype := range filterFtypes {
 			if !contains(config.FeedTypes.All, ftype) {
 				http.Error(w, fmt.Sprintf("Invalid ftype value %s", ftype), http.StatusBadRequest)
 				return
@@ -485,13 +485,15 @@ func main() {
 		}
 
 		if config.LogRequests {
-			log.Printf("Running data/ with offset '%d', limit '%d', orderBy '%s', sort '%s', ftype %+v, query '%s'\n", offset, limit, orderBy, sort, ftypes, query)
+			log.Printf("Running data/ with offset '%d', limit '%d', orderBy '%s', sort '%s', ftype filter %+v, query '%s'\n", offset, limit, orderBy, sort, filterFtypes, query)
 		}
 
 		sb := sqlbuilder.NewSelectBuilder()
 		sb.Select("model_id, ftype, title, score, subtitle, creator, part, subpart, collection, `when`, release_date, image_url, url, data, flags")
 		sb.From("feedmodel")
-		sb.Where(sb.In("ftype", stringToInterface(ftypes)...))
+		if len(filterFtypes) > 0 {
+			sb.Where(sb.In("ftype", stringToInterface(filterFtypes)...))
+		}
 
 		if query != "" {
 			queryWild := "%" + query + "%"
