@@ -1,9 +1,8 @@
 To build, this requires `go` (I set minimum version to `v1.18`, but you can change the `go.mod` file and try with something lower as well).
 
-To build `sqlite3-go`, you also need `gcc`.
+To build `sqlite3-go` requires C, so you need `gcc` on your `$PATH`
 
 ```
-cd ./go_server
 ./build
 ```
 
