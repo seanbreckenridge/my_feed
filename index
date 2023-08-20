@@ -104,6 +104,7 @@ else
 	echo 'Running update...'
 fi
 RESP="$(curl "${CURL_AUTH_OPTS[@]}" -sL "$url")"
+printf 'Response: %s\n' "$RESP"
 # parse with jq
 ADDED="$(jq -r '.added' <<<"$RESP")"
 ERROR="$(jr -r '.error' <<<"$RESP")"

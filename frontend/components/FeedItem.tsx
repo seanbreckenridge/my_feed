@@ -19,7 +19,7 @@ import Image from "./Image"
 dayjs.extend(relativeTime)
 
 export type FeedItemStruct = {
-  model_id: string
+  id: string
   ftype: string
   title: string
   score: number | null
@@ -44,7 +44,7 @@ export const FeedGrid: React.FC<FeedGridProps> = ({ data }: FeedGridProps) => {
     <div className={styles.grid}>
       {data.map((feedItem: FeedItemStruct) => {
         return (
-          <div key={feedItem.model_id}>
+          <div key={feedItem.id}>
             <div className={styles.card}>
               <FeedBody item={feedItem} />
             </div>
