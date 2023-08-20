@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # simple wrapper script to setup environment variables
 
+./build
 source <(grep BEARER_SECRET ../.env)
 if [[ -z "$BEARER_SECRET" ]]; then
 	echo "Couldn't get BEARER_SECRET from .env file"
