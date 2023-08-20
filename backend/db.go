@@ -145,7 +145,7 @@ func stringQuery(db *sql.DB, query string) []string {
 		log.Fatal(err)
 	}
 	defer rows.Close()
-	var strings []string
+	var strings []string = make([]string, 0)
 	for rows.Next() {
 		var s string
 		err := rows.Scan(&s)

@@ -155,7 +155,8 @@ def index(
         click.echo("\n".join(map(str, blurred.items)))
 
     exclude_ids: Set[str] = set()
-    if exclude_id_file:
+    if exclude_id_file is not None:
+        click.echo(f"Reading exclude IDs from '{exclude_id_file}'")
         exclude_ids = set(orjson.loads(exclude_id_file.read_text()))
     all_items = list(
         data(allow=include_sources, deny=exclude_sources, blurred=blurred, echo=echo)
