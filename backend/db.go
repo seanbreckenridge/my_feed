@@ -103,7 +103,6 @@ func initDb(db *sql.DB) {
 	release_date DATE, 
 	image_url VARCHAR, 
 	url VARCHAR, 
-	id INTEGER NOT NULL, 
 	data VARCHAR, 
 	flags VARCHAR, 
 	PRIMARY KEY (id));
