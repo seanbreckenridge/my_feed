@@ -10,7 +10,7 @@ pipenv run prod
 
 See .env.example for environment variables, save as .env
 
-Update the feedtypes.json if needed. The has_scores key describes models which have scores, those will be shown when 'Score' is selected in the frontend.
+Update the feedtypes.json if needed
 
 That hosts the backend server on port 5100. To allow the frontend to communicate to this, you need to host both publicly. With nginx I do:
 

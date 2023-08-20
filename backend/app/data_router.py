@@ -57,9 +57,6 @@ async def data_types(
 
 
 feedtypes = settings.feedtypes()
-# when sorting by scores, dont include these items
-without_scores = feedtypes.without_scores
-
 
 @router.get("/", response_model=List[FeedRead])
 async def data(
@@ -84,10 +81,7 @@ async def data(
             | (FeedModel.model_id.ilike(f"%{query}%"))  # type: ignore
         )
     if order_by == OrderBy.score:
-        stmt = stmt.filter(FeedModel.score is not None)
-        # hmm - Im not even sure how necessary this is... we're already filtering by score to remove
-        # items that dont have scores, items which dont have scores will just be null
-        stmt = stmt.filter(FeedModel.ftype.notin_(without_scores))  # type: ignore
+        stmt = stmt.filter(FeedModel.score is not None and FeedModel.score > 0)
         # ORDER BY Score [CHOSEN], When DESC to show things I completed recently higher when sorting by score
         stmt = stmt.order_by(FeedModel.score.asc() if sort == Sort.asc else FeedModel.score.desc(), FeedModel.when.desc())  # type: ignore
     elif order_by == OrderBy.when:

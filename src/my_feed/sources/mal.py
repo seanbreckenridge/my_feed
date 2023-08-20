@@ -88,7 +88,6 @@ def _anime() -> Iterator[FeedItem]:
                 part=hist.number,  # no reliable season data for anime data
                 release_date=an.APIList.start_date,
                 title=an.APIList.title,
-                score=score,
             )
         if an.XMLData.status.casefold() == "completed":
             if dt := _completed_datetime(an):
@@ -128,7 +127,6 @@ def _manga() -> Iterator[FeedItem]:
                 part=hist.number,  # no reliable volume data for manga data
                 release_date=mn.APIList.start_date,
                 title=mn.APIList.title,
-                score=score,
             )
         if mn.XMLData.status.casefold() == "completed":
             if dt := _completed_datetime(mn):
@@ -175,7 +173,6 @@ def _deleted_anime() -> Iterator[FeedItem]:
                 part=hist.number,  # no reliable season data for anime data
                 title=an.XMLData.title,
                 release_date=release_date,
-                score=score,
             )
 
         if an.XMLData.status.casefold() == "completed":
@@ -218,7 +215,6 @@ def _deleted_manga() -> Iterator[FeedItem]:
                 part=hist.number,  # no reliable volume data for manga data
                 title=mn.XMLData.title,
                 release_date=release_date,
-                score=score,
             )
 
         if mn.XMLData.status.casefold() == "completed":

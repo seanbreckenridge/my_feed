@@ -264,6 +264,6 @@ def history() -> Iterator[FeedItem]:
             image_url=img_url,
             flags=flags,
             collection=collection,
-            score=get_rating(m, rating_map=rm),
+            # score=get_rating(m, rating_map=rm),
             release_date=get_release_date(m),
         )

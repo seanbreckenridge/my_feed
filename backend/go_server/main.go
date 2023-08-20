@@ -48,17 +48,6 @@ var RootDir string
 
 type FeedTypes struct {
 	All       []string `json:"all"`
-	HasScores []string `json:"has_scores"`
-}
-
-func (ftypes *FeedTypes) WithoutScores() []string {
-	var withoutScores []string
-	for _, ftype := range ftypes.All {
-		if !contains(ftypes.HasScores, ftype) {
-			withoutScores = append(withoutScores, ftype)
-		}
-	}
-	return withoutScores
 }
 
 func ParseFeedTypes(file string) (*FeedTypes, error) {
@@ -74,9 +63,6 @@ func ParseFeedTypes(file string) (*FeedTypes, error) {
 	}
 	if len(ftypes.All) == 0 {
 		return nil, fmt.Errorf("Feedtypes file %s has no 'all' field", file)
-	}
-	if len(ftypes.HasScores) == 0 {
-		log.Printf("Warning: feedtypes file %s has no 'has_scores' field. This means sorting by score will not work.", file)
 	}
 	return &ftypes, nil
 }
@@ -111,6 +97,7 @@ type Config struct {
 	FeedTypes    *FeedTypes
 	SQLEcho      bool
 	Port         int
+	LogRequests  bool
 }
 
 func databaseUri() *Config {
@@ -129,10 +116,12 @@ func databaseUri() *Config {
 	var dburi string
 	var echo bool
 	var port int
+	var logrequests bool
 
 	flag.StringVar(&root, "root-dir", RootDir, "Root dir for backend (where Pipfile lives)")
 	flag.StringVar(&dbpath, "db-path", path.Join(RootDir, dbName), "Path to sqlite database file")
 	flag.StringVar(&dburi, "db-uri", "", "Database URI (overrides db-path)")
+	flag.BoolVar(&logrequests, "log-requests", false, "Log info from HTTP requests to stderr")
 	flag.StringVar(&ftypesFile, "ftypes-file", path.Join(RootDir, ftypesFile), "Path to feedtypes.json file")
 	flag.BoolVar(&echo, "echo", false, "Echo SQL queries")
 	flag.IntVar(&port, "port", 5100, "Port to listen on")
@@ -166,6 +155,7 @@ func databaseUri() *Config {
 		BearerSecret: secret,
 		FeedTypes:    ftypes,
 		SQLEcho:      echo,
+		LogRequests:  logrequests,
 		Port:         port,
 	}
 }
@@ -333,8 +323,6 @@ const (
 	Descending      = "desc"
 )
 
-type ListResponse []string
-
 func parseEnumQueryParam(name string, query *url.Values, defaultValue string, allowed []string) (string, error) {
 	val := query.Get(name)
 	if val == "" {
@@ -378,12 +366,8 @@ type FeedItem struct {
 	Flags       []string               `json:"flags"`
 }
 
-type FeedItemResponse []FeedItem
-
 func main() {
 	config := databaseUri()
-	// compute the feed types without scores
-	noScoreFeedTypes := config.FeedTypes.WithoutScores()
 
 	var db *sql.DB
 	var err error
@@ -403,6 +387,10 @@ func main() {
 			return
 		}
 
+		if config.LogRequests {
+			log.Println("Running check...")
+		}
+
 		added := shellPipenv(false, config.RootDir)
 		// write back to user
 		if added != nil {
@@ -416,23 +404,33 @@ func main() {
 			return
 		}
 
+		if config.LogRequests {
+			log.Println("Running recheck...")
+		}
+
 		go func() {
 			shellPipenv(true, config.RootDir)
 		}()
 		// write back to user
-		fmt.Fprintf(w, "Reindexing...")
+		fmt.Fprintf(w, "Running reindex...")
 	})
 
 	http.HandleFunc("/data/ids", func(w http.ResponseWriter, r *http.Request) {
+		if config.LogRequests {
+			log.Println("Running data/ids...")
+		}
 		ids := modelIds(db)
+		if config.LogRequests {
+			log.Printf("Found %d ids\n", len(ids))
+		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(ListResponse(ids))
+		json.NewEncoder(w).Encode(ids)
 	})
 
 	http.HandleFunc("/data/types", func(w http.ResponseWriter, r *http.Request) {
 		types := feedTypes(db)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(ListResponse(types))
+		json.NewEncoder(w).Encode(types)
 	})
 
 	http.HandleFunc("/data/", func(w http.ResponseWriter, r *http.Request) {
@@ -462,7 +460,6 @@ func main() {
 		}
 
 		var ftypes []string
-		var excludeFtypes []string
 		ftypeRaw := qrParams.Get("ftype")
 		if ftypeRaw == "" {
 			ftypes = config.FeedTypes.All
@@ -482,20 +479,19 @@ func main() {
 			}
 		}
 
-		if orderBy == string(Score) {
-			excludeFtypes = noScoreFeedTypes
-		} else {
-			excludeFtypes = []string{}
-		}
 		query := r.URL.Query().Get("query")
 		if strings.TrimSpace(query) == "" {
 			query = ""
 		}
 
+		if config.LogRequests {
+			log.Printf("Running data/ with offset '%d', limit '%d', orderBy '%s', sort '%s', ftype %+v, query '%s'\n", offset, limit, orderBy, sort, ftypes, query)
+		}
+
 		sb := sqlbuilder.NewSelectBuilder()
 		sb.Select("model_id, ftype, title, score, subtitle, creator, part, subpart, collection, `when`, release_date, image_url, url, data, flags")
 		sb.From("feedmodel")
-		sb.Where(sb.In("ftype", stringToInterface(ftypes)...), sb.NotIn("ftype", stringToInterface(excludeFtypes)...))
+		sb.Where(sb.In("ftype", stringToInterface(ftypes)...))
 
 		if query != "" {
 			queryWild := "%" + query + "%"
@@ -514,6 +510,7 @@ func main() {
 
 		if orderBy == string(Score) {
 			sb.Where(sb.IsNotNull("score"))
+			sb.Where("score > 0")
 			if sort == string(Descending) {
 				sb.OrderBy("score").Desc()
 			} else {
@@ -607,7 +604,7 @@ func main() {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(FeedItemResponse(models))
+		json.NewEncoder(w).Encode(models)
 	})
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), nil))
