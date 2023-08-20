@@ -6,9 +6,11 @@ To use the python backend server:
 cd backend
 pipenv install
 pipenv run prod
+```
 
 See .env.example for environment variables, save as .env
-```
+
+Update the feedtypes.json if needed. The has_scores key describes models which have scores, those will be shown when 'Score' is selected in the frontend.
 
 That hosts the backend server on port 5100. To allow the frontend to communicate to this, you need to host both publicly. With nginx I do:
 
@@ -33,9 +35,32 @@ location /feed_api/ {
 
 You could of course use the python server all the time, but the golang server uses much less memory and is faster.
 
-All the golang server does is serve the information from the database the exact same way the python server does. It does not create or update the database at all. To accomplish that it runs a python subprocess using the `main.py` file here, by running:
+The golang server serves the information from the database the same way the python server does. It does not create or update the database at all. To accomplish that it runs a python subprocess using the `main.py` file here, by running:
 
-- `pipenv run cli update-db` to update the database whenever pinged to do so
-- `pipenv run cli update-db --delete-db` to delete the database and create a new one (the equivalent of FEED_REINDEX=1 from the [`index`](../index) script)
+- `pipenv run cli update-db` to update the database whenever pinged to do so (hit `/check` with the `Authorization` header set
+- `pipenv run cli update-db --delete-db` to delete the database and create a new one (the equivalent of FEED_REINDEX=1 from the [`index`](../index) script) (hit `/recheck` with the `Authorization` header set)
 
-TODO: actually write the golang server
+To build, this requires `go`. To build sqlite3-go, you also need gcc.
+
+```
+cd ./go_server
+./build
+```
+
+This will create a `./go_server/main` executable, which has the `backend` folder embedded in it for configuration. Hence, additional flags to configure should not be needed, but you can always customize if needed:
+
+```
+Usage of ./main:
+  -db-path string
+    	Path to database file (default "/home/sean/Repos/my_feed/backend/feeddata.sqlite")
+  -db-uri string
+    	Database URI (overrides db-path)
+  -echo
+    	Echo SQL queries
+  -ftypes-file string
+    	Path to feedtypes.json file (default "/home/sean/Repos/my_feed/backend/feedtypes.json")
+  -port int
+    	Port to listen on (default 5100)
+  -root-dir string
+    	Root dir for backend (where Pipfile lives) (default "/home/sean/Repos/my_feed/backend")
+```

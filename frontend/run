@@ -6,11 +6,5 @@ set -o pipefail
 THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 cd "${THIS_DIR}" || return $?
 
-if [[ -n "$FEED_GEN_TYPES" ]]; then
-	# create file that lists feed types
-	mkdir -p "${THIS_DIR}/data"
-	curl localhost:5100/data/types | jq >"${THIS_DIR}/data/feed_types.json"
-fi
-
 # exec yarn
 exec yarn "$@"

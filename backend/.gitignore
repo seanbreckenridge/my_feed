@@ -3,3 +3,4 @@ data
 *.sqlite
 *.pickle
 *.json
+!/feedtypes.json

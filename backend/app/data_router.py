@@ -10,6 +10,7 @@ from sqlalchemy import distinct  # type: ignore[import]
 
 from app.token import bearer_auth
 from app.db import get_db, FeedModel, FeedBase
+from app.settings import settings
 
 router = APIRouter()
 
@@ -44,20 +45,6 @@ class Sort(Enum):
     desc = "desc"
 
 
-# items which shouldn't be shown when sorted by 'score'
-# since it'd make the feed too busy
-INDIVIDUAL_FEED_TYPES = [
-    "anime_episode",
-    "manga_chapter",
-    "listen",
-    "trakt_history_episode",
-    "trakt_history_movie",
-    "chess",
-    "osrs_achievement",
-    "game_achievement",
-]
-
-
 @router.get("/types", response_model=List[str])
 async def data_types(
     session: Session = Depends(get_db),
@@ -68,6 +55,11 @@ async def data_types(
     return items
 
 
+feedtypes = settings.feedtypes()
+# when sorting by scores, dont include these items
+without_scores = feedtypes.without_scores
+
+
 @router.get("/", response_model=List[FeedRead])
 async def data(
     offset: int = 0,
@@ -76,9 +68,6 @@ async def data(
     sort: Sort = Query(default=Sort.desc),
     ftype: Optional[str] = Query(default=None, min_length=2),
     query: Optional[str] = Query(default=None, min_length=2),
-    title: Optional[str] = Query(default=None, min_length=2),
-    creator: Optional[str] = Query(default=None, min_length=2),
-    subtitle: Optional[str] = Query(default=None, min_length=2),
     session: Session = Depends(get_db),
 ) -> List[FeedRead]:
     stmt = select(FeedModel)
@@ -86,14 +75,7 @@ async def data(
         if parts := ftype.strip().split(","):
             stmt = stmt.filter(FeedModel.ftype.in_(parts))  # type: ignore
 
-    if query is None:
-        if title:
-            stmt = stmt.filter(FeedModel.title.ilike(f"%{title}%"))  # type: ignore
-        if creator:
-            stmt = stmt.filter(FeedModel.creator.ilike(f"%{creator}%"))  # type: ignore
-        if subtitle:
-            stmt = stmt.filter(FeedModel.subtitle.ilike(f"%{subtitle}%"))  # type: ignore
-    else:
+    if query is not None and query.strip():
         stmt = stmt.filter(
             (FeedModel.title.ilike(f"%{query}%"))  # type: ignore
             | (FeedModel.creator.ilike(f"%{query}%"))  # type: ignore
@@ -102,7 +84,7 @@ async def data(
         )
     if order_by == OrderBy.score:
         stmt = stmt.filter(FeedModel.score is not None)
-        stmt = stmt.filter(FeedModel.ftype.notin_(INDIVIDUAL_FEED_TYPES))  # type: ignore
+        stmt = stmt.filter(FeedModel.ftype.notin_(without_scores))  # type: ignore
         # ORDER BY Score [CHOSEN], When DESC to show things I completed recently higher when sorting by score
         stmt = stmt.order_by(FeedModel.score.asc() if sort == Sort.asc else FeedModel.score.desc(), FeedModel.when.desc())  # type: ignore
     else:

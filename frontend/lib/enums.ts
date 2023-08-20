@@ -24,7 +24,9 @@ function createOptions(ids: string[]): LabelOption[] {
   return opts
 }
 
-export const FeedItemTypes: Set<string> = new Set<string>(require("../data/feed_types.json"))
+export const FeedItemTypes: Set<string> = new Set<string>(
+  require("../../backend/feedtypes.json")["all"]
+)
 
 export const FeedItemOptions: LabelOption[] = createOptions(
   Array.from(FeedItemTypes).sort((a, b) => (a < b ? -1 : 1))

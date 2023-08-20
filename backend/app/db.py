@@ -12,7 +12,7 @@ class FeedBase(SQLModel):
     model_id: str
     ftype: str  # feed item type
     title: str
-    score: Optional[float] = Field(default=None)
+    score: Optional[float] = Field(default=None, index=True)
 
     # more metadata
     subtitle: Optional[str] = Field(default=None)
@@ -22,7 +22,7 @@ class FeedBase(SQLModel):
     collection: Optional[str] = Field(default=None)
 
     # dates
-    when: int
+    when: int = Field(index=True)
     release_date: Optional[date] = Field(default=None)
 
     # urls

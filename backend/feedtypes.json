@@ -1,0 +1,19 @@
+{
+  "all": [
+    "game_achievement",
+    "osrs_achievement",
+    "game",
+    "chess",
+    "trakt_movie",
+    "trakt_show",
+    "trakt_history_movie",
+    "trakt_history_episode",
+    "listen",
+    "album",
+    "anime_episode",
+    "anime",
+    "manga_chapter",
+    "manga"
+  ],
+  "has_scores": ["game", "trakt_movie", "trakt_show", "album", "anime", "manga"]
+}
