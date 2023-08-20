@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/huandu/go-sqlbuilder"
+	sqlbuilder "github.com/huandu/go-sqlbuilder"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"

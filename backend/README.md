@@ -40,7 +40,9 @@ The golang server serves the information from the database the same way the pyth
 - `pipenv run cli update-db` to update the database whenever pinged to do so (hit `/check` with the `Authorization` header set
 - `pipenv run cli update-db --delete-db` to delete the database and create a new one (the equivalent of FEED_REINDEX=1 from the [`index`](../index) script) (hit `/recheck` with the `Authorization` header set)
 
-To build, this requires `go`. To build sqlite3-go, you also need gcc.
+To build, this requires `go` (I set minimum version to `v1.18`, but you can change the `go.mod` file and try with something lower as well).
+
+To build `sqlite3-go`, you also need `gcc`.
 
 ```
 cd ./go_server

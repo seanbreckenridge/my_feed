@@ -1,6 +1,7 @@
 module github.com/seanbreckenridge/my_feed/backend/go_server
 
-go 1.21.0
+// minimum required version
+go 1.18
 
 require (
 	github.com/huandu/go-sqlbuilder v1.22.0 // indirect
