@@ -274,9 +274,9 @@ func shellPipenv(deleteDatabase bool, rootDir string) {
 }
 
 func auth(w *http.ResponseWriter, r *http.Request, bearerSecret string) bool {
-	bearer := r.Header.Get("Authorization")
+	bearer := r.Header.Get("token")
 	if bearer == "" {
-		http.Error(*w, "Authorization header missing", http.StatusUnauthorized)
+		http.Error(*w, "token header missing", http.StatusUnauthorized)
 		return false
 	}
 	if bearer != bearerSecret {
