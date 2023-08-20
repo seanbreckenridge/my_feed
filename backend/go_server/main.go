@@ -321,8 +321,9 @@ func stringToInterface(s []string) []interface{} {
 type OrderBy string
 
 const (
-	When  OrderBy = "when"
-	Score         = "score"
+	When    OrderBy = "when"
+	Score           = "score"
+	Release         = "release"
 )
 
 type Sort string
@@ -448,7 +449,7 @@ func main() {
 			return
 		}
 
-		orderBy, err := parseEnumQueryParam("order_by", &qrParams, string(When), []string{string(When), string(Score)})
+		orderBy, err := parseEnumQueryParam("order_by", &qrParams, string(When), []string{string(When), string(Score), string(Release)})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -521,11 +522,18 @@ func main() {
 			// querybuilder only supports one sort sort order
 			// so we have to do this manually incase order_by=score&sort=asc
 			sb.SQL(", `when` DESC")
-		} else {
+		} else if orderBy == string(When) {
 			if sort == string(Descending) {
 				sb.OrderBy("`when`").Desc()
 			} else {
 				sb.OrderBy("`when`").Asc()
+			}
+		} else {
+			sb.Where(sb.IsNotNull("release_date"))
+			if sort == string(Descending) {
+				sb.OrderBy("release_date").Desc()
+			} else {
+				sb.OrderBy("release_date").Asc()
 			}
 		}
 

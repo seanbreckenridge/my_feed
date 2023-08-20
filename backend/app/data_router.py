@@ -38,6 +38,7 @@ class FeedRead(FeedBase):
 class OrderBy(Enum):
     score = "score"
     when = "when"
+    release = "release"
 
 
 class Sort(Enum):
@@ -84,11 +85,16 @@ async def data(
         )
     if order_by == OrderBy.score:
         stmt = stmt.filter(FeedModel.score is not None)
+        # hmm - Im not even sure how necessary this is... we're already filtering by score to remove
+        # items that dont have scores, items which dont have scores will just be null
         stmt = stmt.filter(FeedModel.ftype.notin_(without_scores))  # type: ignore
         # ORDER BY Score [CHOSEN], When DESC to show things I completed recently higher when sorting by score
         stmt = stmt.order_by(FeedModel.score.asc() if sort == Sort.asc else FeedModel.score.desc(), FeedModel.when.desc())  # type: ignore
-    else:
+    elif order_by == OrderBy.when:
         stmt = stmt.order_by(FeedModel.when.asc() if sort == Sort.asc else FeedModel.when.desc())  # type: ignore
+    elif order_by == OrderBy.release:
+        stmt = stmt.filter(FeedModel.release_date is not None)
+        stmt = stmt.order_by(FeedModel.release_date.asc() if sort == Sort.asc else FeedModel.release_date.desc())
     stmt = stmt.limit(limit).offset(offset)
     with session:
         items: List[FeedModel] = list(session.exec(stmt))

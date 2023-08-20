@@ -1,4 +1,5 @@
 import {
+  faCalendar,
   faClock,
   faCopy,
   faHeart,
@@ -322,6 +323,15 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                     onChange={(e) => {
                       if (e) {
                         setSelectedOrderLabel(e)
+                        // if we're switching to 'release', show the release date
+                        if (e.value == "release") {
+                          prefs.setPrefs((oldPrefs: Prefs): Prefs => {
+                            return {
+                              ...oldPrefs,
+                              showReleaseDate: true,
+                            }
+                          })
+                        }
                       }
                     }}
                   />
@@ -358,6 +368,21 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
                     onClick={copyLink}
                   >
                     <FontAwesomeIcon icon={faCopy} />
+                  </div>
+                  <div
+                    role="button"
+                    className={styles.filterIcon}
+                    title="Show Release Dates"
+                    onClick={() => {
+                      prefs.setPrefs((oldPrefs: Prefs): Prefs => {
+                        return {
+                          ...oldPrefs,
+                          showReleaseDate: !oldPrefs.showReleaseDate,
+                        }
+                      })
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faCalendar} />
                   </div>
                   <div
                     role="button"

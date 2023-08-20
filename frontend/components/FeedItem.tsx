@@ -58,9 +58,10 @@ export const FeedGrid: React.FC<FeedGridProps> = ({ data }: FeedGridProps) => {
 interface CardFooterProps {
   dt: number
   score?: number | null
+  releaseDate?: string | null
 }
 
-const CardFooter: React.FC<CardFooterProps> = ({ dt, score }: CardFooterProps) => {
+const CardFooter: React.FC<CardFooterProps> = ({ dt, score, releaseDate }: CardFooterProps) => {
   const sc = score ?? null
   return (
     <PrefsConsumer>
@@ -68,10 +69,13 @@ const CardFooter: React.FC<CardFooterProps> = ({ dt, score }: CardFooterProps) =
         const d = unix(dt)
         const ds = prefs.dateAbsolute ? d.format("YYYY-MM-DD hh:mm A") : d.fromNow()
         return (
-          <div className={styles.cardFooter}>
-            <div>{ds}</div>
-            {score && <div className={styles.footerScore}>{`${sc}/10`}</div>}
-          </div>
+          <>
+            {prefs.showReleaseDate && releaseDate && <div>Release Date: {releaseDate}</div>}
+            <div className={styles.cardFooter}>
+              <div>{ds}</div>
+              {score && <div className={styles.footerScore}>{`${sc}/10`}</div>}
+            </div>
+          </>
         )
       }}
     </PrefsConsumer>
@@ -180,7 +184,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
         <CardHeader title={item.title} icon={faMusic} link={item.url} />
         <p className={styles.subtitle}>{item.creator}</p>
         <p className={styles.subtitle}>{item.subtitle}</p>
-        <CardFooter dt={item.when} />
+        <CardFooter dt={item.when} releaseDate={item.release_date} />
       </div>
     )
   } else if (item.ftype === "game_achievement") {
@@ -189,7 +193,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
         <CardHeader title={item.title} icon={faGamepad} link={item.url} />
         <CardImage src={item.image_url} alt={item.title} flags={item.flags} />
         <p className={styles.subtitle}>{item.subtitle}</p>
-        <CardFooter dt={item.when} />
+        <CardFooter dt={item.when} releaseDate={item.release_date} />
       </div>
     )
   } else if (item.ftype === "osrs_achievement") {
@@ -207,7 +211,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
         <CardHeader title={item.title} icon={faGamepad} link={item.url} />
         <CardImage src={item.image_url} alt={item.title} flags={item.flags} />
         <p className={styles.subtitle}>{item.subtitle}</p>
-        <CardFooter dt={item.when} score={item.score} />
+        <CardFooter dt={item.when} score={item.score} releaseDate={item.release_date} />
       </div>
     )
   } else if (item.ftype === "chess") {
@@ -236,7 +240,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
         <CardImage src={item.image_url} alt={item.title} flags={item.flags} />
         <p className={styles.subtitle}>{item.subtitle}</p>
         {seasonData.length ? <p className={styles.subtitle}>{seasonData}</p> : null}
-        <CardFooter dt={item.when} score={sc} />
+        <CardFooter dt={item.when} score={sc} releaseDate={item.release_date} />
       </div>
     )
   } else if (item.ftype === "album") {
@@ -249,7 +253,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
         <CardHeader title={`${item.title}${release_year}`} icon={faRecordVinyl} link={item.url} />
         <CardImage src={item.image_url} alt={item.title} minHeight="15" flags={item.flags} />
         <p className={styles.subtitle}>{item.subtitle}</p>
-        <CardFooter dt={item.when} score={item.score} />
+        <CardFooter dt={item.when} score={item.score} releaseDate={item.release_date} />
       </div>
     )
   } else if (
@@ -265,7 +269,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
         <CardHeader title={item.title} icon={icon} link={item.url} />
         <CardImage src={item.image_url} alt={item.title} minHeight="25" flags={item.flags} />
         {item.subtitle && <p className={styles.subtitle}>{item.subtitle}</p>}
-        <CardFooter dt={item.when} score={sc} />
+        <CardFooter dt={item.when} score={sc} releaseDate={item.release_date} />
       </div>
     )
   } else {

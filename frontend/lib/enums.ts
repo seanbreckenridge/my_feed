@@ -41,4 +41,8 @@ export const OrderByOptions: LabelOption[] = [
     value: "score",
     label: "Score",
   },
+  {
+    value: "release",
+    label: "Release Date",
+  },
 ]
