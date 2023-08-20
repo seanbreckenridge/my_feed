@@ -375,7 +375,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// Get the feed data
 	count := rowCount(db)
