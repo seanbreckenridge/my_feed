@@ -444,6 +444,10 @@ func main() {
 		if !auth(&w, r, config.BearerSecret) {
 			return
 		}
+		if isUpdating {
+			log.Fatalf("Already updating, ignoring request")
+			return
+		}
 
 		isUpdating = true
 
