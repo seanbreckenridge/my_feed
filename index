@@ -13,6 +13,7 @@ else
 fi
 
 set -e
+set -o pipefail
 
 declare -a CURL_AUTH_OPTS=()
 declare SSH_TARGET
@@ -103,4 +104,4 @@ if [[ -n "$FEED_REINDEX" ]]; then
 else
 	echo 'Running update...'
 fi
-curl "${CURL_AUTH_OPTS[@]}" -sL "$url" | jq
+curl "${CURL_AUTH_OPTS[@]}" -sL "$url" | jq 'to_entries[] | select(.value != null) | "\(.key): \(.value)"' -r
