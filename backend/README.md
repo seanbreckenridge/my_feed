@@ -33,7 +33,7 @@ location /feed_api/ {
 
 ## golang
 
-You could of course use the python server all the time, but the golang server uses much less memory and is faster.
+You could of course use the python server all the time, but the golang server uses much less memory (20 times less), is faster, and has the benefit of being able to run concurrently while the database is being indexed/re-indexed.
 
 The golang server serves the information from the database the same way the python server does. It does not create or update the database at all. To accomplish that it runs a python subprocess using the `main.py` file here, by running:
 
@@ -54,13 +54,15 @@ This will create a `./go_server/main` executable, which has the `backend` folder
 ```
 Usage of ./main:
   -db-path string
-    	Path to database file (default "/home/sean/Repos/my_feed/backend/feeddata.sqlite")
+    	Path to sqlite database file (default "/home/sean/Repos/my_feed/backend/feeddata.sqlite")
   -db-uri string
     	Database URI (overrides db-path)
   -echo
     	Echo SQL queries
   -ftypes-file string
     	Path to feedtypes.json file (default "/home/sean/Repos/my_feed/backend/feedtypes.json")
+  -log-requests
+    	Log info from HTTP requests to stderr
   -port int
     	Port to listen on (default 5100)
   -root-dir string
