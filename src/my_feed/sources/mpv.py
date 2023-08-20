@@ -295,7 +295,7 @@ def _media_is_allowed(media: Media) -> bool:
 
 
 def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
-    allow_before = (datetime.now() - timedelta(minutes=10)).timestamp()
+    allow_before = (datetime.now() - timedelta(minutes=5)).timestamp()
 
     kwargs = {}
     if from_paths is not None:
@@ -336,7 +336,7 @@ def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
 
         dt = media.end_time
 
-        # only yield if this listen is over 10 minutes old, otherwise I might still be listening to this
+        # only yield if this listen is over 5 minutes old, otherwise I might still be listening to this
         # and the end time might change
         if dt.timestamp() > allow_before:
             logger.debug(f"Skipping, too recent: {media}")

@@ -405,7 +405,7 @@ func main() {
 		added := shellPipenv(false, config.RootDir)
 		// write back to user
 		if added != nil {
-			fmt.Fprintf(w, "Added %d rows", *added)
+			fmt.Fprintf(w, "Added %d", *added)
 		} else {
 			fmt.Fprintf(w, "Failed to retrieve number of rows added")
 		}
