@@ -18,7 +18,7 @@ import (
 
 // serialized to json and sent to the client
 type FeedItem struct {
-	ModelId     string                 `json:"id"` // this is the model id, not the autoindexed id
+	Id          string                 `json:"id"`
 	FeedType    string                 `json:"ftype"`
 	When        int64                  `json:"when"`
 	Title       string                 `json:"title"`
@@ -36,8 +36,8 @@ type FeedItem struct {
 }
 
 func (f *FeedItem) validate() error {
-	if f.ModelId == "" {
-		return fmt.Errorf("model_id is required")
+	if f.Id == "" {
+		return fmt.Errorf("id is required")
 	}
 	if f.FeedType == "" {
 		return fmt.Errorf("ftype is required")
@@ -81,7 +81,7 @@ func modelSet(db *sql.DB) ModelSet {
 func initDb(db *sql.DB) {
 	// check if table exists
 	// if it does, return
-	if _, err := db.Exec("SELECT model_id FROM feedmodel LIMIT 1"); err == nil {
+	if _, err := db.Exec("SELECT id FROM feedmodel LIMIT 1"); err == nil {
 		log.Println("Database already initialized")
 		return
 	}
@@ -90,7 +90,7 @@ func initDb(db *sql.DB) {
 
 	// otherwise, create table
 	cr := `CREATE TABLE feedmodel (
-	model_id VARCHAR NOT NULL, 
+	id VARCHAR NOT NULL, 
 	ftype VARCHAR NOT NULL, 
 	title VARCHAR NOT NULL, 
 	score FLOAT, 
@@ -109,8 +109,8 @@ func initDb(db *sql.DB) {
 	PRIMARY KEY (id));
 	CREATE INDEX ix_feedmodel_id ON feedmodel (id);
 	CREATE INDEX ix_feedmodel_when ON feedmodel ("when");
-	CREATE INDEX ix_feedmodel_model_id ON feedmodel (model_id);
 	CREATE INDEX ix_feedmodel_ftype ON feedmodel (ftype);
+	CREATE INDEX ix_feedmodel_score ON feedmodel (score);
 	`
 
 	_, err := db.Exec(cr)
@@ -162,7 +162,7 @@ func stringQuery(db *sql.DB, query string) []string {
 }
 
 func modelIds(db *sql.DB) []string {
-	return stringQuery(db, "SELECT model_id FROM feedmodel")
+	return stringQuery(db, "SELECT id FROM feedmodel")
 }
 
 func feedTypes(db *sql.DB) []string {
@@ -302,7 +302,7 @@ func loadFeedItemsFromFile(db *sql.DB, filename string, modelSet *ModelSet) (int
 		}
 
 		// this modelId is already in the db, so skip it
-		if modelSet.has(item.ModelId) {
+		if modelSet.has(item.Id) {
 			continue
 		}
 
@@ -324,12 +324,12 @@ func loadFeedItemsFromFile(db *sql.DB, filename string, modelSet *ModelSet) (int
 			releaseDate = &rd
 		}
 
-		_, err = tx.Exec("INSERT INTO feedmodel (model_id, ftype, title, score, subtitle, creator, part, subpart, collection, `when`, release_date, image_url, url, data, flags) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);", item.ModelId, item.FeedType, item.Title, item.Score, item.Subtitle, item.Creator, item.Part, item.Subpart, item.Collection, item.When, releaseDate, item.ImageUrl, item.Url, data, flag)
+		_, err = tx.Exec("INSERT INTO feedmodel (id, ftype, title, score, subtitle, creator, part, subpart, collection, `when`, release_date, image_url, url, data, flags) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);", item.Id, item.FeedType, item.Title, item.Score, item.Subtitle, item.Creator, item.Part, item.Subpart, item.Collection, item.When, releaseDate, item.ImageUrl, item.Url, data, flag)
 		if err != nil {
 			return 0, err
 		}
 		added += 1
-		modelSet.add(item.ModelId)
+		modelSet.add(item.Id)
 	}
 	err = tx.Commit()
 	if err != nil {
@@ -350,7 +350,7 @@ func queryData(
 	offset int,
 ) ([]FeedItem, error) {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("model_id, ftype, title, score, subtitle, creator, part, subpart, collection, `when`, release_date, image_url, url, data, flags")
+	sb.Select("id, ftype, title, score, subtitle, creator, part, subpart, collection, `when`, release_date, image_url, url, data, flags")
 	sb.From("feedmodel")
 	if len(filterFtypes) > 0 {
 		sb.Where(sb.In("ftype", stringToInterface(filterFtypes)...))
@@ -365,7 +365,7 @@ func queryData(
 			sb.Like("subtitle", queryWild),
 			sb.Like("creator", queryWild),
 			sb.Like("collection", queryWild),
-			sb.Like("model_id", queryWild),
+			sb.Like("id", queryWild),
 		))
 	}
 
@@ -422,8 +422,8 @@ func queryData(
 		var rawFlags *[]byte
 		var rawData *[]byte
 		var releaseDate *string
-		// model_id, ftype, title, score, subtitle, creator, part, subpart, collection, when, release_date, image_url, url, data, flags
-		err := rows.Scan(&model.ModelId, &model.FeedType, &model.Title, &model.Score, &model.Subtitle, &model.Creator, &model.Part, &model.Subpart, &model.Collection, &model.When, &releaseDate, &model.ImageUrl, &model.Url, &rawData, &rawFlags)
+		// id, ftype, title, score, subtitle, creator, part, subpart, collection, when, release_date, image_url, url, data, flags
+		err := rows.Scan(&model.Id, &model.FeedType, &model.Title, &model.Score, &model.Subtitle, &model.Creator, &model.Part, &model.Subpart, &model.Collection, &model.When, &releaseDate, &model.ImageUrl, &model.Url, &rawData, &rawFlags)
 		if err != nil {
 			log.Printf("Error scanning row: %s\n", err)
 			return nil, errors.New("Error scanning row")

@@ -61,6 +61,7 @@ def data(
             item.check()
             if item.id in emitted:
                 logger.warning(f"Duplicate id: {item.id} {item}")
+                continue
             emitted.add(item.id)
             if echo:
                 print(item)

@@ -62,9 +62,9 @@ def get_feed(
         data.reverse()
     for item in data:
         assert isinstance(item, dict)
-        model_id = item.pop("model_id")
+        mid = item.pop("id")
         dt = datetime.fromtimestamp(item.pop("when"), tz=timezone.utc)
-        yield FeedItem(**item, id=model_id, when=dt)
+        yield FeedItem(**item, id=id, when=dt)
 
 
 def display(item: FeedItem, output: Literal["print", "json", "markdown"]) -> None:
