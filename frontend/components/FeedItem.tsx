@@ -29,7 +29,7 @@ export type FeedItemStruct = {
   subpart: number | null
   collection: string | null
   when: number
-  release_date: string
+  release_date: string | null
   image_url: string | null
   url: string | null
   data: any

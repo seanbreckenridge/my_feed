@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 from typing import Optional, List, Dict, Any
 from datetime import datetime, date
 
@@ -45,11 +46,35 @@ class FeedItem:
         if self.image_url is not None:
             self.flags.append("i_blur")
 
+    def to_json(self) -> str:
+        return json.dumps(
+            {
+                "id": self.id,
+                "title": self.title,
+                "ftype": self.ftype,
+                "when": int(self.when.timestamp()),
+                "creator": self.creator,
+                "data": self.data if self.data else {},
+                "release_date": str(self.release_date)
+                if self.release_date is not None
+                else None,
+                "part": self.part,
+                "subpart": self.subpart,
+                "collection": self.collection,
+                "subtitle": self.subtitle,
+                "url": self.url,
+                "image_url": self.image_url,
+                "flags": self.flags if self.flags else [],
+                "score": float(self.score) if self.score else None,
+            },
+            separators=(",", ":"),
+        )
+
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> "FeedItem":
         """
         Create a FeedItem from a dict of data
         """
         data = data.copy()
-        data["when"] = datetime.fromisoformat(data["when"])
+        data["when"] = datetime.fromtimestamp(data["when"], tz=datetime.tc)
         return cls(**data)

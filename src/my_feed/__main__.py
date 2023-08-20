@@ -1,4 +1,5 @@
 import time
+import json
 import orjson
 from pathlib import Path
 from typing import Iterator, Callable, Optional, List, TypeGuard, Any, Set
@@ -166,10 +167,10 @@ def index(
     click.echo(f"Total: {click.style(len(items), BLUE)} items")
     if output is not None:
         click.echo(f"Writing to '{output}'")
-        with output.open("wb") as f:
+        with output.open("w") as f:
             for item in items:
-                f.write(orjson.dumps(item))
-                f.write(b"\n")
+                f.write(item.to_json())
+                f.write("\n")
         if write_count_to:
             write_count_to.write_text(str(len(items)))
 
