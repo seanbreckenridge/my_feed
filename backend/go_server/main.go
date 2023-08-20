@@ -222,7 +222,7 @@ func feedTypes(db *sql.DB) []string {
 
 // - `pipenv run cli update-db` to update the database whenever pinged to do so
 // - `pipenv run cli update-db --delete-db` to delete the database and create a new one (the equivalent of FEED_REINDEX=1 from the [`index`](../index) script)
-func shellPipenv(deleteDatabase bool, rootDir string) {
+func shellPipenv(deleteDatabase bool, rootDir string) *int {
 	// change to the root directory
 	currentDir, err := os.Getwd()
 	if err != nil {
@@ -235,6 +235,10 @@ func shellPipenv(deleteDatabase bool, rootDir string) {
 	if deleteDatabase {
 		cmd.Args = append(cmd.Args, "--delete-db")
 	}
+
+	// number of rows added to the database
+	var added int
+	var last string
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -252,7 +256,9 @@ func shellPipenv(deleteDatabase bool, rootDir string) {
 		for {
 			outScanner := bufio.NewScanner(stdout)
 			for outScanner.Scan() {
-				log.Println(outScanner.Text())
+				line := outScanner.Text()
+				log.Println(line)
+				last = line
 			}
 		}
 	}()
@@ -271,6 +277,12 @@ func shellPipenv(deleteDatabase bool, rootDir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if last != "" {
+		// last line of output is the number of rows added
+		added, _ = strconv.Atoi(last)
+	}
+	return &added
 }
 
 func auth(w *http.ResponseWriter, r *http.Request, bearerSecret string) bool {
@@ -390,11 +402,13 @@ func main() {
 			return
 		}
 
-		go func() {
-			shellPipenv(false, config.RootDir)
-		}()
+		added := shellPipenv(false, config.RootDir)
 		// write back to user
-		fmt.Fprintf(w, "Indexing...")
+		if added != nil {
+			fmt.Fprintf(w, "Added %d rows", *added)
+		} else {
+			fmt.Fprintf(w, "Failed to retrieve number of rows added")
+		}
 	})
 	http.HandleFunc("/recheck", func(w http.ResponseWriter, r *http.Request) {
 		if !auth(&w, r, config.BearerSecret) {

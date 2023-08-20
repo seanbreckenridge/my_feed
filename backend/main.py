@@ -60,7 +60,8 @@ def update_db(delete_db: bool) -> None:
     init_db()
     count = update_data()
 
-    click.echo(f"Updated {count} records", err=True)
+    # last line on stdout is the count
+    click.echo(count)
 
 
 if __name__ == "__main__":

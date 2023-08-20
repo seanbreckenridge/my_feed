@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+# this is the old script which communicated with the python backend
 # if FEED_REINDEX=1 ./index , this deletes
 # the remote database and re-builds it
 
@@ -13,8 +14,8 @@ fi
 
 set -e
 
-declare -a CURL_AUTH_OPTS=()
 declare SSH_TARGET
+declare -a CURL_AUTH_OPTS=()
 # setup Host in your ~/.ssh/config file
 SSH_TARGET="${SSH_TARGET:-vultr}"
 
@@ -99,9 +100,9 @@ flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backe
 command rm -f "${JSON}"
 
 if [[ -n "$FEED_REINDEX" ]]; then
-	echo 'Rebuilding database...'
-	printf '%s\n' "$(curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/recheck')"
-	echo 'remote is rebuilding database, should be done in a couple seconds'
+	echo 'Deleting database...'
+	ssh "${SSH_TARGET}" 'rm -vf ~/code/my_feed/backend/feeddata.sqlite && ~/vps/super --ctl restart feed-backend'
+	echo '(remote is rebuilding database, should be done in a couple seconds)'
 else
 	# otherwise this is just new data, just ping the server to check for new files
 	echo 'Running update...'
