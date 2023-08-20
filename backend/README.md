@@ -38,7 +38,7 @@ You could of course use the python server all the time, but the golang server us
 The golang server serves the information from the database the same way the python server does. It does not create or update the database at all. To accomplish that it runs a python subprocess using the `main.py` file here, by running:
 
 - `pipenv run cli update-db` to update the database whenever pinged to do so (hit `/check` with the `token` header set
-- `pipenv run cli update-db --delete-db` to delete the database and create a new one (the equivalent of FEED_REINDEX=1 from the [`index`](../index) script) (hit `/recheck` with the `Authorization` header set)
+- `pipenv run cli update-db --clear-db` to clear the database and re-index items into it (the equivalent of FEED_REINDEX=1 from the [`index`](../index) script) (hit `/recheck` with the `Authorization` header set)
 
 To build, this requires `go` (I set minimum version to `v1.18`, but you can change the `go.mod` file and try with something lower as well).
 

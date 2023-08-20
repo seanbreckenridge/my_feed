@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# if FEED_REINDEX=1 ./index , this deletes
+# if FEED_REINDEX=1 ./index , this removes all the data from the remote database and re-builds it
 # the remote database and re-builds it
 
 with_secrets_script="${HOME}/.local/scripts/generic/with-secrets"
@@ -101,9 +101,10 @@ command rm -f "${JSON}"
 if [[ -n "$FEED_REINDEX" ]]; then
 	echo 'Rebuilding database...'
 	printf '%s\n' "$(curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/recheck')"
-	echo 'remote is rebuilding database, should be done in a couple seconds'
 else
 	# otherwise this is just new data, just ping the server to check for new files
 	echo 'Running update...'
 	printf '%s\n' "$(curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/check')"
 fi
+# hack for now, just restart the backend, will migrate to a fully golang backend soon
+# ssh "$SSH_TARGET" '~/vps/super --ctl restart feed-backend'

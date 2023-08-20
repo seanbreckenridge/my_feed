@@ -213,8 +213,8 @@ func feedTypes(db *sql.DB) []string {
 }
 
 // - `pipenv run cli update-db` to update the database whenever pinged to do so
-// - `pipenv run cli update-db --delete-db` to delete the database and create a new one (the equivalent of FEED_REINDEX=1 from the [`index`](../index) script)
-func shellPipenv(deleteDatabase bool, rootDir string) string {
+// - `pipenv run cli update-db --clear-db` to clear the database
+func shellPipenv(clearDb bool, rootDir string) string {
 	// change to the root directory
 	currentDir, err := os.Getwd()
 	if err != nil {
@@ -229,8 +229,8 @@ func shellPipenv(deleteDatabase bool, rootDir string) string {
 	}
 
 	cmd := exec.Command("pipenv", "run", "cli", "update-db", "-C", tempfile.Name())
-	if deleteDatabase {
-		cmd.Args = append(cmd.Args, "--delete-db")
+	if clearDb {
+		cmd.Args = append(cmd.Args, "--clear-db")
 	}
 
 	stderr, err := cmd.StderrPipe()
