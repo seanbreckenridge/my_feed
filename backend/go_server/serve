@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # simple wrapper script to setup environment variables
 
+set -e
+
 ./build
 source <(grep BEARER_SECRET ../.env)
 if [[ -z "$BEARER_SECRET" ]]; then
