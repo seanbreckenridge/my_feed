@@ -90,9 +90,9 @@ def display(item: FeedItem, output: Literal["print", "json", "markdown"]) -> Non
 
 
 root_dir = Path(__file__).parent.parent
-feed_types_file = root_dir / "frontend" / "data" / "feed_types.json"
+feed_types_file = root_dir / "backend" / "feedtypes.json"
 assert feed_types_file.exists()
-feed_types = json.loads(feed_types_file.read_text())
+feed_types = json.loads(feed_types_file.read_text())["all"]
 assert isinstance(feed_types, list)
 
 
