@@ -70,9 +70,9 @@ func (s ModelSet) missing(modelId string) bool {
 	return !s.has(modelId)
 }
 
-func modelSetFromSlice(modelIds []string) ModelSet {
+func modelSet(db *sql.DB) ModelSet {
 	s := make(ModelSet)
-	for _, modelId := range modelIds {
+	for _, modelId := range modelIds(db) {
 		s.add(modelId)
 	}
 	return s
@@ -218,8 +218,7 @@ func updateDatabaseFromJsonFiles(db *sql.DB, config *Config) (int, error) {
 	// load all json files
 	jsonFiles := listJsonFiles(config)
 
-	modelIds := modelIds(db)
-	modelSet := modelSetFromSlice(modelIds)
+	modelSet := modelSet(db)
 	var funcErr error
 
 	totalAdded := 0
@@ -269,10 +268,7 @@ func serializeData(data map[string]interface{}) (*string, error) {
 	return &s, nil
 }
 
-func loadFeedItemsFromFile(db *sql.DB, filename string, modelIds *ModelSet) (int, error) {
-	// this is JSONL; each line is a JSON object
-	// we want to load each line into a FeedItem struct and then insert it into the db
-
+func loadFeedItemsFromFile(db *sql.DB, filename string, modelSet *ModelSet) (int, error) {
 	added := 0
 
 	// open file
@@ -291,9 +287,9 @@ func loadFeedItemsFromFile(db *sql.DB, filename string, modelIds *ModelSet) (int
 
 	dc := json.NewDecoder(file)
 	for {
+		var item FeedItem
 		// decodes a single JSON value (object, array, string, number, etc)
 		// so stops at the end of the line when the object ends
-		var item FeedItem
 		if err := dc.Decode(&item); err == io.EOF {
 			break
 		} else if err != nil {
@@ -306,7 +302,7 @@ func loadFeedItemsFromFile(db *sql.DB, filename string, modelIds *ModelSet) (int
 		}
 
 		// this modelId is already in the db, so skip it
-		if modelIds.has(item.ModelId) {
+		if modelSet.has(item.ModelId) {
 			continue
 		}
 
@@ -333,7 +329,7 @@ func loadFeedItemsFromFile(db *sql.DB, filename string, modelIds *ModelSet) (int
 			return 0, err
 		}
 		added += 1
-		modelIds.add(item.ModelId)
+		modelSet.add(item.ModelId)
 	}
 	err = tx.Commit()
 	if err != nil {
