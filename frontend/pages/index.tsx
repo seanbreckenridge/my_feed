@@ -127,9 +127,11 @@ const dataBase = `${baseUrl}/data/`
 const paginationLimit = 100
 const defaultSelectedOrder = OrderByOptions[0]
 
-interface IndexProps {}
+interface IndexProps {
+  prefs: Prefs
+}
 
-const Index: NextPage<IndexProps> = ({}: IndexProps) => {
+const Page: NextPage<IndexProps> = ({ prefs }: IndexProps) => {
   const scrollRef = useRef(null)
   const isVisible = useOnScreen(scrollRef)
   const { query } = useRouter()
@@ -230,6 +232,17 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
     setAtEnd(false)
   }, [queryText, selectedOrderLabel, selectedTypeLabels, sort])
 
+  useEffect(() => {
+    if (selectedOrderLabel.value == "release") {
+      prefs.setPrefs((oldPrefs: Prefs): Prefs => {
+        return {
+          ...oldPrefs,
+          showReleaseDate: true,
+        }
+      })
+    }
+  }, [selectedOrderLabel, prefs])
+
   const clear = () => {
     setQueryText("")
     setSelectedOrderLabel(defaultSelectedOrder)
@@ -262,178 +275,164 @@ const Index: NextPage<IndexProps> = ({}: IndexProps) => {
   }
 
   return (
+    <>
+      <Head>
+        <title>feed</title>
+        {/* https://github.com/seanbreckenridge/back-arrow-script/*/}
+        <meta property="ba:title" content="back home" />
+        <meta property="ba:url" content="https://sean.fish" />
+        <meta property="ba:color" content="#45a29e" />
+        <meta name="description" content="my personal media feed" />
+        <link rel="icon" href="https://sean.fish/favicon.ico" />
+      </Head>
+      <main className={styles.main}>
+        <nav className={styles.nav}>
+          <div className={styles.mainTitle}>- FEED -</div>
+          <div className={styles.aboutLink}>
+            <a href="#" onClick={() => setShowAttribution((toggle) => !toggle)}>
+              About/Attribution
+            </a>
+          </div>
+        </nav>
+        {showAttribution && <About />}
+        <div className={styles.filterBar}>
+          <DebounceInput
+            className={styles.queryInput}
+            value={queryText}
+            minLength={2}
+            aria-label="Search"
+            debounceTimeout={300}
+            onChange={(e) => setQueryText(e.target.value)}
+            placeholder="Search..."
+          />
+          <label>
+            <Select
+              value={selectedTypeLabels}
+              isMulti
+              instanceId="type_select"
+              inputId="type_select"
+              options={FeedItemOptions}
+              placeholder="Filter Type..."
+              aria-label="Filter Types"
+              className={styles.typeSelect}
+              onChange={(e) => {
+                if (e) {
+                  setSelectedTypeLabels(e as LabelOption[])
+                }
+              }}
+            />
+          </label>
+          <label>
+            <Select
+              value={selectedOrderLabel}
+              instanceId="order_select"
+              inputId="order_select"
+              aria-label="Select Order"
+              options={OrderByOptions}
+              className={styles.sortSelect}
+              onChange={(e) => {
+                if (e) {
+                  setSelectedOrderLabel(e)
+                }
+              }}
+            />
+          </label>
+          <div className={styles.filterButtons}>
+            <div
+              className={styles.filterIcon}
+              title="Toggle Date Format"
+              role="button"
+              onClick={() => {
+                // toggle on click
+                prefs.setPrefs((oldPrefs: Prefs): Prefs => {
+                  return {
+                    ...oldPrefs,
+                    dateAbsolute: !oldPrefs.dateAbsolute,
+                  }
+                })
+              }}
+            >
+              <FontAwesomeIcon icon={prefs.dateAbsolute ? faClock : faHistory} />
+            </div>
+            <div
+              role="button"
+              className={styles.filterIcon}
+              title="Swap Sort Order"
+              onClick={swapSort}
+            >
+              <FontAwesomeIcon icon={faSyncAlt} />
+            </div>
+            <div
+              role="button"
+              className={styles.filterIcon}
+              title="Copy Link To Clipboard"
+              onClick={copyLink}
+            >
+              <FontAwesomeIcon icon={faCopy} />
+            </div>
+            <div
+              role="button"
+              className={styles.filterIcon}
+              title="Show Release Dates"
+              onClick={() => {
+                prefs.setPrefs((oldPrefs: Prefs): Prefs => {
+                  return {
+                    ...oldPrefs,
+                    showReleaseDate: !oldPrefs.showReleaseDate,
+                  }
+                })
+              }}
+            >
+              <FontAwesomeIcon icon={faCalendar} />
+            </div>
+            <div
+              role="button"
+              className={styles.filterIcon}
+              style={{
+                color: "#f73e3e",
+              }}
+              title="Show Favorites"
+              onClick={() => {
+                setQueryText("")
+                setSelectedTypeLabels([])
+                setSize(0)
+                setSort("desc")
+                setSelectedOrderLabel(OrderByOptions[1])
+              }}
+            >
+              <FontAwesomeIcon icon={faHeart} />
+            </div>
+            <div role="button" className={styles.filterIcon} title="Reset Filters" onClick={clear}>
+              <FontAwesomeIcon icon={faTimes} />
+            </div>
+          </div>
+        </div>
+        <FeedGrid data={feedItems as FeedItemStruct[]} />
+        <div ref={scrollRef} style={{ marginTop: "20vh" }}>
+          {atEnd ? (
+            <div>
+              {"no more items" + (selectedOrderLabel.value === "score" ? " with scores, " : ", ")}
+              <a className={styles.aboutLink} href="#" onClick={clear}>
+                {"reset?"}
+              </a>
+            </div>
+          ) : !isEmpty && isLoadingMore ? (
+            "loading..."
+          ) : (
+            ""
+          )}
+        </div>
+      </main>
+      <Script src="https://sean.fish/p/back-arrow-bundle.js" strategy="beforeInteractive"></Script>
+    </>
+  )
+}
+
+const Index = () => {
+  return (
     <PrefsConsumer>
       {(prefs: Prefs) => {
-        return (
-          <>
-            <Head>
-              <title>feed</title>
-              {/* https://github.com/seanbreckenridge/back-arrow-script/*/}
-              <meta property="ba:title" content="back home" />
-              <meta property="ba:url" content="https://sean.fish" />
-              <meta property="ba:color" content="#45a29e" />
-              <meta name="description" content="my personal media feed" />
-              <link rel="icon" href="https://sean.fish/favicon.ico" />
-            </Head>
-            <main className={styles.main}>
-              <nav className={styles.nav}>
-                <div className={styles.mainTitle}>- FEED -</div>
-                <div className={styles.aboutLink}>
-                  <a href="#" onClick={() => setShowAttribution((toggle) => !toggle)}>
-                    About/Attribution
-                  </a>
-                </div>
-              </nav>
-              {showAttribution && <About />}
-              <div className={styles.filterBar}>
-                <DebounceInput
-                  className={styles.queryInput}
-                  value={queryText}
-                  minLength={2}
-                  aria-label="Search"
-                  debounceTimeout={300}
-                  onChange={(e) => setQueryText(e.target.value)}
-                  placeholder="Search..."
-                />
-                <label>
-                  <Select
-                    value={selectedTypeLabels}
-                    isMulti
-                    instanceId="type_select"
-                    inputId="type_select"
-                    options={FeedItemOptions}
-                    placeholder="Filter Type..."
-                    aria-label="Filter Types"
-                    className={styles.typeSelect}
-                    onChange={(e) => {
-                      if (e) {
-                        setSelectedTypeLabels(e as LabelOption[])
-                      }
-                    }}
-                  />
-                </label>
-                <label>
-                  <Select
-                    value={selectedOrderLabel}
-                    instanceId="order_select"
-                    inputId="order_select"
-                    aria-label="Select Order"
-                    options={OrderByOptions}
-                    className={styles.sortSelect}
-                    onChange={(e) => {
-                      if (e) {
-                        setSelectedOrderLabel(e)
-                        // if we're switching to 'release', show the release date
-                        if (e.value == "release") {
-                          prefs.setPrefs((oldPrefs: Prefs): Prefs => {
-                            return {
-                              ...oldPrefs,
-                              showReleaseDate: true,
-                            }
-                          })
-                        }
-                      }
-                    }}
-                  />
-                </label>
-                <div className={styles.filterButtons}>
-                  <div
-                    className={styles.filterIcon}
-                    title="Toggle Date Format"
-                    role="button"
-                    onClick={() => {
-                      // toggle on click
-                      prefs.setPrefs((oldPrefs: Prefs): Prefs => {
-                        return {
-                          ...oldPrefs,
-                          dateAbsolute: !oldPrefs.dateAbsolute,
-                        }
-                      })
-                    }}
-                  >
-                    <FontAwesomeIcon icon={prefs.dateAbsolute ? faClock : faHistory} />
-                  </div>
-                  <div
-                    role="button"
-                    className={styles.filterIcon}
-                    title="Swap Sort Order"
-                    onClick={swapSort}
-                  >
-                    <FontAwesomeIcon icon={faSyncAlt} />
-                  </div>
-                  <div
-                    role="button"
-                    className={styles.filterIcon}
-                    title="Copy Link To Clipboard"
-                    onClick={copyLink}
-                  >
-                    <FontAwesomeIcon icon={faCopy} />
-                  </div>
-                  <div
-                    role="button"
-                    className={styles.filterIcon}
-                    title="Show Release Dates"
-                    onClick={() => {
-                      prefs.setPrefs((oldPrefs: Prefs): Prefs => {
-                        return {
-                          ...oldPrefs,
-                          showReleaseDate: !oldPrefs.showReleaseDate,
-                        }
-                      })
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faCalendar} />
-                  </div>
-                  <div
-                    role="button"
-                    className={styles.filterIcon}
-                    style={{
-                      color: "#f73e3e",
-                    }}
-                    title="Show Favorites"
-                    onClick={() => {
-                      setQueryText("")
-                      setSelectedTypeLabels([])
-                      setSize(0)
-                      setSort("desc")
-                      setSelectedOrderLabel(OrderByOptions[1])
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faHeart} />
-                  </div>
-                  <div
-                    role="button"
-                    className={styles.filterIcon}
-                    title="Reset Filters"
-                    onClick={clear}
-                  >
-                    <FontAwesomeIcon icon={faTimes} />
-                  </div>
-                </div>
-              </div>
-              <FeedGrid data={feedItems as FeedItemStruct[]} />
-              <div ref={scrollRef} style={{ marginTop: "20vh" }}>
-                {atEnd ? (
-                  <div>
-                    {"no more items" +
-                      (selectedOrderLabel.value === "score" ? " with scores, " : ", ")}
-                    <a className={styles.aboutLink} href="#" onClick={clear}>
-                      {"reset?"}
-                    </a>
-                  </div>
-                ) : !isEmpty && isLoadingMore ? (
-                  "loading..."
-                ) : (
-                  ""
-                )}
-              </div>
-            </main>
-            <Script
-              src="https://sean.fish/p/back-arrow-bundle.js"
-              strategy="beforeInteractive"
-            ></Script>
-          </>
-        )
+        return <Page prefs={prefs} />
       }}
     </PrefsConsumer>
   )
