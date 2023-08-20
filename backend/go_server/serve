@@ -3,7 +3,7 @@
 
 source <(grep BEARER_SECRET ../.env)
 if [[ -z "$BEARER_SECRET" ]]; then
-  echo "Couldn't get BEARER_SECRET from .env file"
+	echo "Couldn't get BEARER_SECRET from .env file"
 fi
 export BEARER_SECRET
 exec ./main "$@"

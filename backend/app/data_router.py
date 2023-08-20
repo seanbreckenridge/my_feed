@@ -94,7 +94,11 @@ async def data(
         stmt = stmt.order_by(FeedModel.when.asc() if sort == Sort.asc else FeedModel.when.desc())  # type: ignore
     elif order_by == OrderBy.release:
         stmt = stmt.filter(FeedModel.release_date is not None)
-        stmt = stmt.order_by(FeedModel.release_date.asc() if sort == Sort.asc else FeedModel.release_date.desc())
+        stmt = stmt.order_by(
+            FeedModel.release_date.asc()
+            if sort == Sort.asc
+            else FeedModel.release_date.desc()
+        )
     stmt = stmt.limit(limit).offset(offset)
     with session:
         items: List[FeedModel] = list(session.exec(stmt))
