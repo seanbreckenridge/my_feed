@@ -61,9 +61,7 @@ def check_albums(**kwargs: str) -> str | None:
     )
 
     # remove 'album_' prefix from albums
-    remote_ids = {
-        ll["id"].split("_", maxsplit=1)[1] for ll in request_data("album")
-    }
+    remote_ids = {ll["id"].split("_", maxsplit=1)[1] for ll in request_data("album")}
 
     for r in map(_album_id, itertools.islice(recent_albums, 50)):
         if r not in remote_ids:
@@ -88,9 +86,7 @@ def check_mpv(**kwargs: str) -> str | None:
         return
 
     remote_ids = {
-        ll["id"]
-        for ll in request_data("listen")
-        if ll["id"].startswith("mpv_")
+        ll["id"] for ll in request_data("listen") if ll["id"].startswith("mpv_")
     }
     if len(remote_ids) == 0:
         return
@@ -102,9 +98,7 @@ def check_mpv(**kwargs: str) -> str | None:
 def check_listens(**kwargs: str) -> str | None:
     from listenbrainz_export.export import request_listens
 
-    remote_ids = [
-        ll for ll in request_data("listen") if ll["id"].startswith("listen")
-    ]
+    remote_ids = [ll for ll in request_data("listen") if ll["id"].startswith("listen")]
     if len(remote_ids) == 0:
         logger.info("No remote listens found")
         return
