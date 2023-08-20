@@ -408,19 +408,19 @@ func main() {
 		fmt.Fprintf(w, "Reindexing...")
 	})
 
-	http.HandleFunc("/ids", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/data/ids", func(w http.ResponseWriter, r *http.Request) {
 		ids := modelIds(db)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(ListResponse(ids))
 	})
 
-	http.HandleFunc("/types", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/data/types", func(w http.ResponseWriter, r *http.Request) {
 		types := feedTypes(db)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(ListResponse(types))
 	})
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/data", func(w http.ResponseWriter, r *http.Request) {
 		// parse query params
 		qrParams := r.URL.Query()
 		offset, err := parseIntegerQueryParam("offset", &qrParams, 0, 0, nil)
