@@ -33,7 +33,7 @@ location /feed_api/ {
 
 ## golang
 
-You could of course use the python server all the time, but the golang server uses much less memory (20 times less), is faster, and has the benefit of being able to run concurrently while the database is being indexed/re-indexed.
+You could of course use the python server all the time, but the golang server uses much less memory (20 times less), and is faster.
 
 The golang server serves the information from the database the same way the python server does. It does not create or update the database at all. To accomplish that it runs a python subprocess using the `main.py` file here, by running:
 

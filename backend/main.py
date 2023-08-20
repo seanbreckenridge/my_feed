@@ -40,7 +40,13 @@ def get_database_path_from_uri(uri: str) -> Path:
     help="Delete the database before updating",
     default=False,
 )
-def update_db(delete_db: bool) -> None:
+@click.option(
+    "-C",
+    "--write-count-to",
+    type=click.Path(exists=False, dir_okay=False, writable=True),
+    help="Write how many items were added to this file",
+)
+def update_db(delete_db: bool, write_count_to: str) -> None:
     """Update the database."""
     from app.db import init_db
     from app.load_json import update_data
@@ -52,7 +58,6 @@ def update_db(delete_db: bool) -> None:
         if db.exists():
             assert db.is_file()
 
-        click.echo(f"Deleting database {db}", err=True)
         for file in glob_database_files(db):
             click.echo(f"Deleting {file}", err=True)
             file.unlink(missing_ok=True)
@@ -60,8 +65,9 @@ def update_db(delete_db: bool) -> None:
     init_db()
     count = update_data()
 
-    # last line on stdout is the count
-    click.echo(count)
+    if write_count_to is not None:
+        with open(write_count_to, "w") as f:
+            f.write(str(count))
 
 
 if __name__ == "__main__":

@@ -12,11 +12,13 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"io"
 	"os"
 	"os/exec"
 	"path"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // This is the table structure for the feeddata.sqlite database
@@ -132,7 +134,7 @@ func databaseUri() *Config {
 	}
 
 	if dburi == "" {
-		dburi = "file:" + dbpath + "?cache=shared&mode=rwc"
+		dburi = "file:" + dbpath + "?cache=shared&mode=ro"
 	}
 
 	if _, err := os.Stat(ftypesFile); os.IsNotExist(err) {
@@ -212,7 +214,7 @@ func feedTypes(db *sql.DB) []string {
 
 // - `pipenv run cli update-db` to update the database whenever pinged to do so
 // - `pipenv run cli update-db --delete-db` to delete the database and create a new one (the equivalent of FEED_REINDEX=1 from the [`index`](../index) script)
-func shellPipenv(deleteDatabase bool, rootDir string) *int {
+func shellPipenv(deleteDatabase bool, rootDir string) string {
 	// change to the root directory
 	currentDir, err := os.Getwd()
 	if err != nil {
@@ -221,18 +223,14 @@ func shellPipenv(deleteDatabase bool, rootDir string) *int {
 	os.Chdir(rootDir)
 	defer os.Chdir(currentDir)
 
-	cmd := exec.Command("pipenv", "run", "cli", "update-db")
-	if deleteDatabase {
-		cmd.Args = append(cmd.Args, "--delete-db")
-	}
-
-	// number of rows added to the database
-	var added int
-	var last string
-
-	stdout, err := cmd.StdoutPipe()
+	tempfile, err := os.CreateTemp("", "feed-count-")
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	cmd := exec.Command("pipenv", "run", "cli", "update-db", "-C", tempfile.Name())
+	if deleteDatabase {
+		cmd.Args = append(cmd.Args, "--delete-db")
 	}
 
 	stderr, err := cmd.StderrPipe()
@@ -241,18 +239,6 @@ func shellPipenv(deleteDatabase bool, rootDir string) *int {
 	}
 
 	err = cmd.Start()
-
-	go func() {
-		for {
-			outScanner := bufio.NewScanner(stdout)
-			for outScanner.Scan() {
-				line := outScanner.Text()
-				log.Println(line)
-				last = line
-			}
-		}
-	}()
-
 	go func() {
 		for {
 			errScanner := bufio.NewScanner(stderr)
@@ -262,17 +248,28 @@ func shellPipenv(deleteDatabase bool, rootDir string) *int {
 		}
 	}()
 
+	log.Println("Waiting for database update to finish...")
 	err = cmd.Wait()
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if last != "" {
-		// last line of output is the number of rows added
-		added, _ = strconv.Atoi(last)
+	log.Println("Finished updating database")
+	// read number of rows from the tempfile
+	tf, err := os.Open(tempfile.Name())
+	if err != nil {
+		log.Fatal(err)
 	}
-	return &added
+	tempfileReader := bufio.NewReader(tf)
+	// read entire file
+	b, err := io.ReadAll(tempfileReader)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// convert to string
+	s := string(b)
+	return strings.TrimSpace(s)
 }
 
 func auth(w *http.ResponseWriter, r *http.Request, bearerSecret string) bool {
@@ -369,8 +366,11 @@ type FeedItem struct {
 func main() {
 	config := databaseUri()
 
+	isUpdating := false
+
 	var db *sql.DB
 	var err error
+
 	db, err = sql.Open("sqlite3", config.DatabaseUri)
 	if err != nil {
 		log.Fatal(err)
@@ -382,6 +382,40 @@ func main() {
 		}
 	}()
 
+	reconnectToDb := func() {
+		log.Println("Reconnecting to database...")
+		if db != nil {
+			log.Println("Closing existing connection...")
+			err := db.Close()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		db, err = sql.Open("sqlite3", config.DatabaseUri)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("Reconnected to database")
+	}
+
+	waitTillDbIsReady := func() {
+		for {
+			if isUpdating {
+				log.Println("Waiting for update to finish...")
+				time.Sleep(1 * time.Second)
+				continue
+			}
+
+			err := db.Ping()
+			if err != nil {
+				log.Println("Waiting for database to be ready...")
+				time.Sleep(1 * time.Second)
+			} else {
+				break
+			}
+		}
+	}
+
 	// Get the feed data
 	count := rowCount(db)
 	log.Printf("feedmodel table contains %d rows\n", count)
@@ -391,36 +425,42 @@ func main() {
 		if !auth(&w, r, config.BearerSecret) {
 			return
 		}
+		if isUpdating {
+			log.Fatalf("Already updating, ignoring request")
+			return
+		}
+		isUpdating = true
 
 		if config.LogRequests {
 			log.Println("Running check...")
 		}
 
 		added := shellPipenv(false, config.RootDir)
-		// write back to user
-		if added != nil {
-			fmt.Fprintf(w, "Added %d", *added)
-		} else {
-			fmt.Fprintf(w, "Failed to retrieve number of rows added")
-		}
+		fmt.Fprintf(w, "Added %s\n", added)
+		isUpdating = false
+		reconnectToDb()
 	})
 	http.HandleFunc("/recheck", func(w http.ResponseWriter, r *http.Request) {
 		if !auth(&w, r, config.BearerSecret) {
 			return
 		}
 
+		isUpdating = true
+
 		if config.LogRequests {
 			log.Println("Running recheck...")
 		}
 
-		go func() {
-			shellPipenv(true, config.RootDir)
-		}()
-		// write back to user
-		fmt.Fprintf(w, "Running reindex...")
+		added := shellPipenv(true, config.RootDir)
+		fmt.Fprintf(w, "Added %s\n", added)
+
+		fmt.Fprintf(w, "Recreated database...\n")
+		isUpdating = false
+		reconnectToDb()
 	})
 
 	http.HandleFunc("/data/ids", func(w http.ResponseWriter, r *http.Request) {
+		waitTillDbIsReady()
 		if config.LogRequests {
 			log.Println("Running data/ids...")
 		}
@@ -433,12 +473,15 @@ func main() {
 	})
 
 	http.HandleFunc("/data/types", func(w http.ResponseWriter, r *http.Request) {
+		waitTillDbIsReady()
 		types := feedTypes(db)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(types)
 	})
 
 	http.HandleFunc("/data/", func(w http.ResponseWriter, r *http.Request) {
+		waitTillDbIsReady()
+
 		// parse query params
 		qrParams := r.URL.Query()
 		offset, err := parseIntegerQueryParam("offset", &qrParams, 0, 0, nil)
@@ -466,9 +509,7 @@ func main() {
 
 		var filterFtypes []string
 		ftypeRaw := qrParams.Get("ftype")
-		if ftypeRaw == "" {
-			filterFtypes = config.FeedTypes.All
-		} else {
+		if ftypeRaw != "" {
 			if strings.Contains(ftypeRaw, ",") {
 				filterFtypes = strings.Split(ftypeRaw, ",")
 			} else {
