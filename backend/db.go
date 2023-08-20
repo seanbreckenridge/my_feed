@@ -290,10 +290,10 @@ func loadFeedItemsFromFile(db *sql.DB, filename string, modelIds *ModelSet) (int
 	defer tx.Rollback() // The rollback will be ignored if the tx has been committed later in the function.
 
 	dc := json.NewDecoder(file)
-	var item FeedItem
 	for {
 		// decodes a single JSON value (object, array, string, number, etc)
 		// so stops at the end of the line when the object ends
+		var item FeedItem
 		if err := dc.Decode(&item); err == io.EOF {
 			break
 		} else if err != nil {
