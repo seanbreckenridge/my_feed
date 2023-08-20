@@ -11,7 +11,7 @@ import (
 	"log"
 	"os"
 	"path"
-	"slices"
+	"sort"
 	"strings"
 	"time"
 )
@@ -241,7 +241,7 @@ func updateDatabaseFromJsonFiles(db *sql.DB, config *Config) (int, error) {
 	// remove all files but the newest one
 
 	jsonFiles = listJsonFiles(config)
-	slices.Sort(jsonFiles)
+	sort.Sort(sort.StringSlice(jsonFiles))
 	if len(jsonFiles) > 1 {
 		for _, jsonFile := range jsonFiles[:len(jsonFiles)-1] {
 			log.Printf("Pruning old file %s\n", jsonFile)
