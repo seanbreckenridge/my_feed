@@ -1,4 +1,4 @@
-module github.com/seanbreckenridge/my_feed/backend/go_server
+module github.com/seanbreckenridge/my_feed/backend
 
 // minimum required version
 go 1.18

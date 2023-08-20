@@ -90,7 +90,7 @@ fd -d 1 --full-path '.*fixes.json' "$HPIDATA" -X json-compress
 wait-for-internet -q --timeout "${WFI_TIMEOUT:-10}" || exit 0
 
 # delete remote json files if we want to reset
-[[ -n "$FEED_REINDEX" ]] && ssh "${SSH_TARGET}" 'rm -vf ~/code/my_feed/backend/data/*.json'
+[[ -n "$FEED_REINDEX" ]] && curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/clear-data-dir'
 
 # copy up to the server
 flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backend/data
@@ -99,14 +99,9 @@ flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backe
 command rm -f "${JSON}"
 
 if [[ -n "$FEED_REINDEX" ]]; then
-	echo 'Rebuilding database...'
+	echo 'Running recheck...'
 	printf '%s\n' "$(curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/recheck')"
 else
-	# otherwise this is just new data, just ping the server to check for new files
 	echo 'Running update...'
 	printf '%s\n' "$(curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/check')"
 fi
-# hmm.. for some reason shelling out to pipenv/python causes CPU to spike and it never seems to go down
-# unsure if it has to do with database connections or something else
-# hack for now, just restart the backend, will migrate to a fully golang backend soon
-ssh "$SSH_TARGET" '~/vps/super --ctl restart feed-backend'

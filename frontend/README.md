@@ -6,4 +6,4 @@ yarn build
 yarn start
 ```
 
-to run the server
+If you're not using a base path of `/feed`, check `next.config.js` and set the `BASE_PATH` environment variable or basePath to what you're using.

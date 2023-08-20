@@ -69,12 +69,3 @@ class FeedItem:
             },
             separators=(",", ":"),
         )
-
-    @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "FeedItem":
-        """
-        Create a FeedItem from a dict of data
-        """
-        data = data.copy()
-        data["when"] = datetime.fromtimestamp(data["when"], tz=datetime.tc)
-        return cls(**data)
