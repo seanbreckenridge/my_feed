@@ -9,10 +9,10 @@ import (
 	"fmt"
 	sqlbuilder "github.com/huandu/go-sqlbuilder"
 	_ "github.com/mattn/go-sqlite3"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
-	"io"
 	"os"
 	"os/exec"
 	"path"
@@ -49,7 +49,7 @@ import (
 var RootDir string
 
 type FeedTypes struct {
-	All       []string `json:"all"`
+	All []string `json:"all"`
 }
 
 func ParseFeedTypes(file string) (*FeedTypes, error) {

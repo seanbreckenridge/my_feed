@@ -58,6 +58,7 @@ async def data_types(
 
 feedtypes = settings.feedtypes()
 
+
 @router.get("/", response_model=List[FeedRead])
 async def data(
     offset: int = 0,
