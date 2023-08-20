@@ -2,6 +2,7 @@
 # if FEED_REINDEX=1 ./index , this removes all the data from the remote database and re-builds it
 # the remote database and re-builds it
 
+cd "$(realpath "$(dirname "${BASH_SOURCE[0]}")")" || exit $?
 with_secrets_script="${HOME}/.local/scripts/generic/with-secrets"
 if [[ -f "$with_secrets_script" ]]; then
 	echo 'Sourcing secrets file...' >&2
@@ -18,12 +19,15 @@ declare SSH_TARGET
 # setup Host in your ~/.ssh/config file
 SSH_TARGET="${SSH_TARGET:-vultr}"
 
+auth_curl() {
+	curl "${CURL_AUTH_OPTS[@]}" "$@"
+}
+
 [[ -n "$FEED_REINDEX" ]] && printf 'Re'
 echo "Indexing..."
 
+# https://github.com/seanbreckenridge/wait-for-internet
 wait-for-internet -q --timeout 30 || exit 0
-
-cd "$(realpath "$(dirname "${BASH_SOURCE[0]}")")" || exit $?
 
 [[ -n "$MY_FEED_SECRET" ]] && CURL_AUTH_OPTS=("-H" "token:$MY_FEED_SECRET")
 
@@ -81,16 +85,10 @@ if [[ "$COUNT" -eq 0 ]]; then
 	exit 0
 fi
 
-# https://github.com/seanbreckenridge/core
-# compress json files in the data dir
-fd -d 1 --full-path '.*fixes.json' "$HPIDATA" -X json-compress
-
-# https://github.com/seanbreckenridge/wait-for-internet
-# wait for internet, if we don't have it, don't bother uploading
 wait-for-internet -q --timeout "${WFI_TIMEOUT:-10}" || exit 0
 
 # delete remote json files if we want to reset
-[[ -n "$FEED_REINDEX" ]] && curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/clear-data-dir'
+[[ -n "$FEED_REINDEX" ]] && auth_curl -sL 'https://sean.fish/feed_api/clear-data-dir'
 
 # copy up to the server
 flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backend/data
@@ -98,10 +96,19 @@ flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backe
 # delete temp file
 command rm -f "${JSON}"
 
+url="https://sean.fish/feed_api/check"
+[[ -n "$FEED_REINDEX" ]] && url="https://sean.fish/feed_api/recheck"
 if [[ -n "$FEED_REINDEX" ]]; then
-	echo 'Running recheck...'
-	printf '%s\n' "$(curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/recheck')"
+	echo 'Running reindex...'
 else
 	echo 'Running update...'
-	printf '%s\n' "$(curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/check')"
 fi
+RESP="$(curl "${CURL_AUTH_OPTS[@]}" -sL "$url")"
+# parse with jq
+ADDED="$(jq -r '.added' <<<"$RESP")"
+ERROR="$(jr -r '.error' <<<"$RESP")"
+if [[ "$ERROR" != 'null' ]]; then
+	echo "Error: $ERROR" >&2
+	exit 1
+fi
+printf 'Added %d new entries\n' "$ADDED"
