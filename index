@@ -106,5 +106,7 @@ else
 	echo 'Running update...'
 	printf '%s\n' "$(curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/check')"
 fi
+# hmm.. for some reason shelling out to pipenv/python causes CPU to spike and it never seems to go down
+# unsure if it has to do with database connections or something else
 # hack for now, just restart the backend, will migrate to a fully golang backend soon
-# ssh "$SSH_TARGET" '~/vps/super --ctl restart feed-backend'
+ssh "$SSH_TARGET" '~/vps/super --ctl restart feed-backend'

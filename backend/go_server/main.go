@@ -401,14 +401,14 @@ func main() {
 	waitTillDbIsReady := func() {
 		for {
 			if isUpdating {
-				log.Println("Waiting for update to finish...")
+				// log.Println("Waiting for update to finish...")
 				time.Sleep(1 * time.Second)
 				continue
 			}
 
 			err := db.Ping()
 			if err != nil {
-				log.Println("Waiting for database to be ready...")
+				// log.Println("Waiting for database to be ready...")
 				time.Sleep(1 * time.Second)
 			} else {
 				break
