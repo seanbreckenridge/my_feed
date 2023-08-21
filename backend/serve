@@ -7,9 +7,4 @@ cd "${THIS_DIR}" || exit $?
 set -e
 
 ./build
-source <(grep BEARER_SECRET .env)
-if [[ -z "$BEARER_SECRET" ]]; then
-	echo "Couldn't get BEARER_SECRET from .env file"
-fi
-export BEARER_SECRET
 exec ./main "$@"
