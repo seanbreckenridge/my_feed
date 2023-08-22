@@ -220,6 +220,7 @@ IGNORE_EXTS = {
     ".mkv",
     ".m4v",
     ".jpg",
+    ".mpeg",
     ".avi",
     ".png",
     ".txt",
@@ -272,6 +273,7 @@ def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
 
     for media in mpv_history(**kwargs):
         if not matcher.is_allowed(media):
+            logger.debug(f"Skipping, not allowed: {media}")
             continue
 
         # placeholder metadata
