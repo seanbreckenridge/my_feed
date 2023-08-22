@@ -18,6 +18,7 @@ from typing import Iterator, Tuple, Optional, Dict, TypeGuard
 from mutagen.mp3 import MP3, MutagenError  # type: ignore[import]
 from mutagen.easyid3 import EasyID3  # type: ignore[import]
 from my.mpv.history_daemon import history as mpv_history, Media
+from mpv_history_daemon.utils import music_parse_metadata_from_blob, MediaAllowed
 from my.utils.input_source import InputSource
 
 from .model import FeedItem
@@ -208,16 +209,9 @@ def _is_some(x: Optional[str]) -> TypeGuard[str]:
 
 
 def _has_metadata(m: Media) -> Optional[Metadata]:
-    if data := m.metadata:
-        title = data.get("title")
-        album = data.get("album")
-        artist = data.get("artist")
-        if _is_some(title) and _is_some(album) and _is_some(artist):
-            return (
-                title.strip(),
-                album.strip(),
-                artist.strip(),
-            )
+    nt = music_parse_metadata_from_blob(m.metadata, strip_whitespace=True)
+    if nt:
+        return nt.title, nt.album, nt.artist
     return None
 
 
@@ -257,41 +251,16 @@ except ImportError as e:
     logger.warning("Could not import feed configuration", exc_info=e)
 
 
-def _media_is_allowed(media: Media) -> bool:
-    if (
-        media.is_stream
-        or media.path.startswith("/tmp")
-        or media.path.startswith("/dev")
-    ):
-        return False
-
-    # ignore/allow based on extensions
-    _, ext = os.path.splitext(media.path)
-    if ext.lower() in IGNORE_EXTS:
-        return False
-
-    if ext.lower() not in ALLOW_EXT:
-        logger.warning(f"Ignoring, unknown extension: {media}")
-        return False
-
-    # ignore/allow based on absolute path
-
-    if ALLOW_PREFIXES:
-        if any(media.path.startswith(prefix) for prefix in ALLOW_PREFIXES):
-            return True
-    if IGNORE_PREFIXES:
-        if any(media.path.startswith(prefix) for prefix in IGNORE_PREFIXES):
-            logger.debug(f"Ignoring, matches ignore prefix list: {media.path}")
-            return False
-
-    # i.e., if we have no allow/ignore prefixes, then we allow everything
-    # so, this lets user know that their allow/ignore prefixes arent exhaustive
-    if len(ALLOW_PREFIXES) > 0 or len(IGNORE_PREFIXES) > 0:
-        logger.warning(
-            f"Ignoring, didn't match either allow/ignore filters, add a prefix to match: {media.path}"
-        )
-        return False
-    return True
+# helper class to match media files based on path/ext/ etc.
+matcher = MediaAllowed(
+    allow_prefixes=list(ALLOW_PREFIXES),
+    ignore_prefixes=list(IGNORE_PREFIXES),
+    allow_extensions=list(ALLOW_EXT),
+    ignore_extensions=list(IGNORE_EXTS),
+    strict=True,
+    logger=logger,
+    allow_stream=False,
+)
 
 
 def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
@@ -302,7 +271,7 @@ def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
         kwargs["from_paths"] = from_paths
 
     for media in mpv_history(**kwargs):
-        if not _media_is_allowed(media):
+        if not matcher.is_allowed(media):
             continue
 
         # placeholder metadata
@@ -313,6 +282,7 @@ def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
         try:
             # this has all neccsarry id3 data saved in the 'metadata' blob
             if metadata := _has_metadata(media):
+                # title, album, artist
                 title, subtitle, creator = metadata
                 title, subtitle, creator = _fix_media(
                     media,
