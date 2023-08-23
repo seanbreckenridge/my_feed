@@ -57,15 +57,11 @@ if [[ -z "$FEED_REINDEX" ]]; then
 	# can be pushed just when doing a re-index
 	export MY_FEED_EXCLUDE_SOURCES='mal.deleted,games.steam,games.grouvee,games.game_center,facebook_spotify_listens,games.osrs'
 else
-	# running a re-index, so update the approved IDs
-	#
-	# update approved IDs for computing deleted anime entry data
+	# running a re-index, so update the approved IDs for computing deleted anime entry data
 	# https://github.com/seanbreckenridge/malexport/#recover_deleted
 	python3 -m malexport recover-deleted approved-update
-	# set prefix for indexer
-	export RUNELITE_PHOTOS_PREFIX='https://sean.fish/p/'
-	echo 'Syncing OSRS images...' >&2
-	REMSYNC_PUBLIC=1 "${REPOS}/vps/remsync" "$(python3 -m my.utils.backup_to runelite_screenshots)" >/dev/null || exit $?
+	export RUNELITE_PHOTOS_PREFIX='https://sean.fish/' # set prefix for indexer
+	vps_sync_osrs_images || exit $?
 fi
 
 # write count to file
