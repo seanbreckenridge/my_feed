@@ -123,6 +123,7 @@ def check_chess(**kwargs: str) -> str | None:
     from chess_export.chessdotcom.export import (
         safe_request_json,
         get_player_game_archives,
+        _user_agent,
     )
 
     remote_end_times = {int(ll["when"]) for ll in request_data("chess", limit=10)}
@@ -132,7 +133,7 @@ def check_chess(**kwargs: str) -> str | None:
         logger.warning("No username set, use the --chessdotcom-username flag")
         return
     chess_last_month_url = get_player_game_archives(username)[-1]
-    games = safe_request_json(chess_last_month_url)["games"]
+    games = safe_request_json(chess_last_month_url, headers=_user_agent())["games"]
     games.sort(key=lambda g: g["end_time"])
     if len(games) == 0:
         return
