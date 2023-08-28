@@ -133,7 +133,11 @@ def check_chess(**kwargs: str) -> str | None:
         logger.warning("No username set, use the --chessdotcom-username flag")
         return
     chess_last_month_url = get_player_game_archives(username)[-1]
-    games = safe_request_json(chess_last_month_url, headers=_user_agent())["games"]
+    games_json = safe_request_json(chess_last_month_url, headers=_user_agent())
+    if "games" not in games_json:
+        logger.warning(f"No games found in JSON: {games_json}")
+        return
+    games = games_json["games"]
     games.sort(key=lambda g: g["end_time"])
     if len(games) == 0:
         return
@@ -177,7 +181,7 @@ def check_mal(**kwargs: str) -> str | None:
     # https://github.com/seanbreckenridge/HPI-personal/blob/master/scripts/malexport_partial_update
     from my_feed.sources.mal import _anime
 
-    remote_ids = [data["id"] for data in request_data("anime,anime_episode", limit=10)]
+    remote_ids = [data["id"] for data in request_data("anime,anime_episode", limit=50)]
 
     if len(remote_ids) == 0:
         logger.info("No remote mal history found")

@@ -69,6 +69,8 @@ class GiantBombCache(URLCache):
 def gb_cache() -> GiantBombCache:
     default_local = os.path.expanduser("~/.local/share")
     cache_dir = os.path.join(default_local, "giantbomb_cache")
+    if "GIANTBOMB_CACHE_DIR" in os.environ:
+        cache_dir = os.environ["GIANTBOMB_CACHE_DIR"]
     return GiantBombCache(cache_dir=cache_dir, sleep_time=5)
 
 
