@@ -213,6 +213,13 @@ func clearDataDir(config *Config) error {
 	return nil
 }
 
+// https://www.sqlite.org/pragma.html#pragma_wal_checkpoint
+func truncateWal(db *sql.DB) error {
+	log.Println("Truncating WAL...")
+	_, err := db.Exec("PRAGMA wal_checkpoint(TRUNCATE)")
+	return err
+}
+
 func updateDatabaseFromJsonFiles(db *sql.DB, config *Config) (int, error) {
 	// load all json files
 	jsonFiles := listJsonFiles(config)

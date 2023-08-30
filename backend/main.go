@@ -91,7 +91,15 @@ func main() {
 
 	// initialize the database
 	initDb(db)
-	updateDatabaseFromJsonFiles(db, config)
+	_, err = updateDatabaseFromJsonFiles(db, config)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = truncateWal(db)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Get the feed data
 	count := rowCount(db)
@@ -107,6 +115,10 @@ func main() {
 		}
 
 		added, err := updateDatabaseFromJsonFiles(db, config)
+		terr := truncateWal(db)
+		if terr != nil {
+			log.Fatal(terr)
+		}
 		log.Printf("Added %d new items\n", added)
 		checkResponse := checkResponse{Count: added}
 		if err != nil {
@@ -131,6 +143,10 @@ func main() {
 		count := rowCount(db)
 		log.Printf("feedmodel table contains %d rows\n", count)
 		added, err := updateDatabaseFromJsonFiles(db, config)
+		terr := truncateWal(db)
+		if terr != nil {
+			log.Fatal(terr)
+		}
 		log.Printf("Added %d new items\n", added)
 		checkResponse := checkResponse{Count: added}
 		if err != nil {
