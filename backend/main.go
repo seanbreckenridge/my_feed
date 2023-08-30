@@ -115,15 +115,15 @@ func main() {
 		}
 
 		added, err := updateDatabaseFromJsonFiles(db, config)
-		terr := truncateWal(db)
-		if terr != nil {
-			log.Fatal(terr)
-		}
 		log.Printf("Added %d new items\n", added)
 		checkResponse := checkResponse{Count: added}
 		if err != nil {
 			errString := err.Error()
 			checkResponse.Error = &errString
+		}
+		terr := truncateWal(db)
+		if terr != nil {
+			log.Fatal(terr)
 		}
 		json.NewEncoder(w).Encode(checkResponse)
 	})
@@ -143,15 +143,15 @@ func main() {
 		count := rowCount(db)
 		log.Printf("feedmodel table contains %d rows\n", count)
 		added, err := updateDatabaseFromJsonFiles(db, config)
-		terr := truncateWal(db)
-		if terr != nil {
-			log.Fatal(terr)
-		}
 		log.Printf("Added %d new items\n", added)
 		checkResponse := checkResponse{Count: added}
 		if err != nil {
 			errString := err.Error()
 			checkResponse.Error = &errString
+		}
+		terr := truncateWal(db)
+		if terr != nil {
+			log.Fatal(terr)
 		}
 		json.NewEncoder(w).Encode(checkResponse)
 	})
