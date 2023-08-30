@@ -1,6 +1,6 @@
 .env
 data
-*.sqlite
+*.sqlite*
 *.pickle
 *.json
 !/feedtypes.json

@@ -240,5 +240,6 @@ func main() {
 		json.NewEncoder(w).Encode(models)
 	})
 
+	fmt.Printf("Starting server on port %d\n", config.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), nil))
 }

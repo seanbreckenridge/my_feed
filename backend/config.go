@@ -72,7 +72,7 @@ func ParseConfig() *Config {
 	flag.Parse()
 
 	if dburi == "" {
-		dburi = "file:" + dbpath + "?cache=shared&mode=rwc"
+		dburi = "file:" + dbpath + "?cache=shared&mode=rwc&_journal_mode=WAL"
 	}
 
 	if _, err := os.Stat(ftypesFile); os.IsNotExist(err) {

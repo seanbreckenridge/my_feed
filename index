@@ -94,8 +94,8 @@ flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backe
 command rm -f "${JSON}"
 
 url="https://sean.fish/feed_api/check"
-[[ -n "$FEED_REINDEX" ]] && url="https://sean.fish/feed_api/recheck"
 if [[ -n "$FEED_REINDEX" ]]; then
+	url="https://sean.fish/feed_api/recheck"
 	echo 'Running reindex...'
 else
 	echo 'Running update...'

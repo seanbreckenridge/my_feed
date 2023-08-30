@@ -40,6 +40,9 @@ class Blur(NamedTuple):
     attr: Attr
     pattern: str
 
+    def __str__(self) -> str:
+        return f"{self.attr}: {self.pattern}"
+
     @classmethod
     def from_str(cls, line: str) -> Blur:
         attr, _, value = line.partition(":")
