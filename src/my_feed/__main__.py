@@ -1,6 +1,5 @@
 import time
 import json
-import orjson
 from pathlib import Path
 from typing import Iterator, Callable, Optional, List, TypeGuard, Any, Set
 
@@ -158,7 +157,7 @@ def index(
     exclude_ids: Set[str] = set()
     if exclude_id_file is not None:
         click.echo(f"Reading exclude IDs from '{exclude_id_file}'")
-        exclude_ids = set(orjson.loads(exclude_id_file.read_text()))
+        exclude_ids = set(json.loads(exclude_id_file.read_text()))
     all_items = list(
         data(allow=include_sources, deny=exclude_sources, blurred=blurred, echo=echo)
     )

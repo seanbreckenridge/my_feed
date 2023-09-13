@@ -92,6 +92,7 @@ flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backe
 
 # delete temp file
 command rm -f "${JSON}"
+rmdir "${TMPDIR}"
 
 url="https://sean.fish/feed_api/check"
 if [[ -n "$FEED_REINDEX" ]]; then

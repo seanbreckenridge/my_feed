@@ -7,7 +7,8 @@ import warnings
 from datetime import datetime, time
 from typing import Iterator
 
-from my.nextalbums import history as album_history, Album
+from my.nextalbums import history as album_history
+from nextalbums.export import Album
 from nextalbums.discogs_update import slugify_data
 from my.time.tz.via_location import localize
 
