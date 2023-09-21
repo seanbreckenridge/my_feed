@@ -143,3 +143,49 @@ id_regex:.*up_2009_.*
 title_regex:.*up_2009_.*
 image_url_regex:.*up_2009_.*
 ```
+
+### feed_check
+
+`feed_check` compares some of my data which is updated more often (music (both mpv and listenbrainz), tv shows (trakt), chess, albums), by comparing the IDs of the latest items in the remote database the corresponding live APIs.
+
+This is pretty personal as it relies on `anacron`-like [bgproc](https://github.com/seanbreckenridge/bgproc) tool to handle updating data periodically.
+
+So all of these follow some pattern like (e.g. for `chess`)
+
+- get the `end_time` of the last couple items from the `my_feed` database (using the same `JSON` endpoints the frontend uses)
+- get the first page of my chess games from the `chess.com` API using [chess_export](https://github.com/seanbreckenridge/chess_export)
+- if theres new data (the last `end_time` is not in the first page of the API), then:
+  - remove the `evry tag` for the [job that updates my chess games](https://github.com/seanbreckenridge/HPI-personal/blob/master/jobs/linux/backup_chess.job)
+  - print 'chess'
+- If anything was printed by the script:
+  - I know at least one thing has expired, so I run `bgproc_on_machine` to update all the expired data
+  - Run [index](./index) to update the `my_feed` database on my server
+
+`feed_check` runs [once every 15 minutes](https://github.com/seanbreckenridge/dotfiles/blob/df69db98e0256e7d9eb5f77cd1af9a354d782eaf/.local/scripts/supervisor_jobs/linux/my_feed_index_bg.job#L21-L27), so my data is never more than 15 minutes out of date.
+
+Example output:
+
+```
+[I 230921 15:44:15 feed_check:213] Checking 'check_albums'
+[I 230921 15:44:18 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=album
+[I 230921 15:44:18 feed_check:213] Checking 'check_trakt'
+[D 230921 15:44:18 export:32] Requesting 'https://api-v2launch.trakt.tv/users/purplepinapples/history?limit=100&page=1'...
+[D 230921 15:44:20 export:46] First item: {'id': 9230963378, 'watched_at': '2023-09-21T08:03:23.000Z', 'action': 'watch', 'type': 'episode', 'episode': {'season': 1, 'number': 1, 'title': 'ROMANCE DAWN', 'ids': {'trakt': 5437335, 'tvdb': 8651297, 'imdb': 'tt11748904', 'tmdb': 2454621, 'tvrage': None}}, 'show': {'title': 'ONE PIECE', 'year': 2023, 'ids': {'trakt': 184618, 'slug': 'one-piece-2023', 'tvdb': 392276, 'imdb': 'tt11737520', 'tmdb': 111110, 'tvrage': None}}}
+[I 230921 15:44:20 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=10&ftype=trakt_history_movie,trakt_history_episode
+[I 230921 15:44:21 feed_check:213] Checking 'check_chess'
+[I 230921 15:44:21 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=10&ftype=chess
+Requesting https://api.chess.com/pub/player/seanbreckenridge/games/archives
+Requesting https://api.chess.com/pub/player/seanbreckenridge/games/2023/09
+[I 230921 15:44:22 feed_check:213] Checking 'check_mpv'
+[I 230921 15:44:23 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=listen
+[I 230921 15:44:23 feed_check:213] Checking 'check_listens'
+[I 230921 15:44:23 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=listen
+[D 230921 15:44:25 export:62] Requesting https://api.listenbrainz.org/1/user/seanbreckenridge/listens?count=100
+[D 230921 15:44:25 export:84] Have 100, now searching for listens before 2023-09-11 04:39:08...
+[I 230921 15:44:25 feed_check:213] Checking 'check_mal'
+[I 230921 15:44:25 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=50&ftype=anime,anime_episode
+Expired: mpv.history
+removed '/home/sean/.local/share/evry/data/my-feed-index-bg'
+2023-09-21T15-44-35:bg-feed-index:running my_feed index...
+Indexing...
+```
