@@ -146,9 +146,9 @@ image_url_regex:.*up_2009_.*
 
 ### feed_check
 
-`feed_check` compares some of my data which is updated more often (music (both mpv and listenbrainz), tv shows (trakt), chess, albums), by comparing the IDs of the latest items in the remote database to the corresponding live data sources.
+`feed_check` updates some of my data which is updated more often (music (both mpv and listenbrainz), tv shows (trakt), chess, albums), by comparing the IDs of the latest items in the remote database to the corresponding live data sources.
 
-This is pretty personal as it relies on `anacron`-like [bgproc](https://github.com/seanbreckenridge/bgproc) tool to handle updating data periodically.
+This is pretty personal as it relies on my `anacron`-like [bgproc](https://github.com/seanbreckenridge/bgproc) tool to handle updating data periodically.
 
 So all of these follow some pattern like (e.g. for `chess`)
 
