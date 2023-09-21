@@ -146,7 +146,7 @@ image_url_regex:.*up_2009_.*
 
 ### feed_check
 
-`feed_check` compares some of my data which is updated more often (music (both mpv and listenbrainz), tv shows (trakt), chess, albums), by comparing the IDs of the latest items in the remote database the corresponding live APIs.
+`feed_check` compares some of my data which is updated more often (music (both mpv and listenbrainz), tv shows (trakt), chess, albums), by comparing the IDs of the latest items in the remote database to the corresponding live data sources.
 
 This is pretty personal as it relies on `anacron`-like [bgproc](https://github.com/seanbreckenridge/bgproc) tool to handle updating data periodically.
 
@@ -189,3 +189,5 @@ removed '/home/sean/.local/share/evry/data/my-feed-index-bg'
 2023-09-21T15-44-35:bg-feed-index:running my_feed index...
 Indexing...
 ```
+
+This also has the upside of updating my local data whenever there are any changes to the data sources, which means any scripts using the corresponding [`HPI`](https://github.com/seanbreckenridge/HPI) modules also stay up to date.
