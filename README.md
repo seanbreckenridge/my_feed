@@ -4,20 +4,9 @@ Live at <https://sean.fish/feed/>
 
 <img src="https://github.com/seanbreckenridge/my_feed/blob/master/.github/my_feed.png" width=500/>
 
-This uses HPI as the data source, and then handles cleaning up the data some/enriching it by using local data/cached API requests
-
-`src/my_feed/` is installed into my global environment so I can use the data this generates as a sort of 'normalized' version of history.
-
-To install:
-
-```bash
-git clone https://github.com/seanbreckenridge/my_feed
-pip install -e .
-```
-
-To run the servers, check the [frontend](./frontend/) and [backend](./backend/) files
-
-- [`listens`](https://github.com/seanbreckenridge/HPI-personal/blob/master/scripts/listens)
+- `python`: to get my data using [HPI](https://github.com/seanbreckenridge/HPI), cleanup/enrich it with some local data/cached API requests. [`index`](./index) syncs a JSON file up to the server which `backend` can combine into the database
+- `golang`: basic API endpoints to let frontend paginate through the data, authenticated endpoints for updating the database
+- `typescript`: public-facing [frontend](https://sean.fish/feed/); requests to the backend, lets user filter/order/search the data
 
 ### Data Sources:
 
@@ -85,9 +74,20 @@ location /feed_api/ {
 }
 ```
 
-### Config:
+### Install/Config:
+
+For the python library:
+
+```bash
+git clone https://github.com/seanbreckenridge/my_feed
+pip install -e ./my_feed
+```
+
+... installs `my_feed` (or `python3 -m my_feed`)
 
 This uses the `HPI` config structure (which you'd probably already have setup if you're using this)
+
+To install dependencies for the servers, check the [frontend](./frontend/) and [backend](./backend/) directories.
 
 So, in `~/.config/my/my/config/feed.py`, create a top-level `sources` function, which returns each _function_:
 
@@ -142,6 +142,26 @@ image_url:*up_2009_*
 id_regex:.*up_2009_.*
 title_regex:.*up_2009_.*
 image_url_regex:.*up_2009_.*
+```
+
+`my_feed` has a couple options that have devleoped over time, to let me ignore specific IDs (if I know they're already in the database), ignore sources which take a while to process (only do those once a week or so):
+
+```
+Usage: my_feed index [OPTIONS] [OUTPUT]
+
+Options:
+  --echo / --no-echo           Print feed items as they're computed
+  -i, --include-sources TEXT   A comma delimited list of substrings of sources
+                               to include. e.g. 'mpv,trakt,listens'
+  -e, --exclude-sources TEXT   A comma delimited list of substrings of sources
+                               to exclude. e.g. 'mpv,trakt,listens'
+  -E, --exclude-id-file PATH   A json file containing a list of IDs to
+                               exclude, from the /data/ids endpoint. reduces
+                               amount of data to sync to the server
+  -C, --write-count-to PATH    Write the number of items to this file
+  -B, --blur-images-file PATH  A file containing a list of image URLs to blur,
+                               one per line
+  --help                       Show this message and exit.
 ```
 
 ### feed_check
