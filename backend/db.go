@@ -386,7 +386,7 @@ func queryData(
 			sb.OrderBy("score").Asc()
 		}
 		// querybuilder only supports one sort sort order
-		// so we have to do this manually incase order_by=score&sort=asc
+		// so we have to do this manually in case order_by=score&sort=asc
 		sb.SQL(", `when` DESC")
 	} else if orderBy == When {
 		if sort == Descending {

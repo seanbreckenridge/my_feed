@@ -41,7 +41,7 @@ def _completed_datetime(
         total_count = data.XMLData.chapters
         watched = data.XMLData.read_chapters
 
-    # if theres only one episode, find the first time I watched this
+    # if there's only one episode, find the first time I watched this
     if watched > 0 and len(data.history) > 0:
         # its sorted from newest to oldest, so iterate from the beginning
         # this is the datetime when I completed the last epsisode the first

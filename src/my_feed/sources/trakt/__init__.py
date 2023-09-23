@@ -44,7 +44,7 @@ def get_image(
     Get an image for particular media data
     For movies, uses the movies endpoint
 
-    For episodes, if there is no image for the episode, uses the season poster. If theres
+    For episodes, if there is no image for the episode, uses the season poster. If there's
     no season poster, uses the show poster
     """
     if isinstance(media_data, D.Movie):

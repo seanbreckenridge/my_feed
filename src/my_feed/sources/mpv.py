@@ -53,7 +53,7 @@ def _music_dir_matches() -> Dict[Tuple[str, ...], Path]:
         Song (last path)
     """
     music_dir = Path(os.environ["XDG_MUSIC_DIR"])
-    assert music_dir.exists(), f"{music_dir} doesnt exist"
+    assert music_dir.exists(), f"{music_dir} doesn't exist"
     results: dict[Tuple[str, ...], Path] = {}
 
     for f in music_dir.rglob("*.mp3"):
@@ -137,7 +137,7 @@ def _fix_media(
 
     album, artist, title = None, None, None
     if m.media_duration is None:
-        logger.debug(f"No media duration on {m}, cant compare to local files")
+        logger.debug(f"No media duration on {m}, can't compare to local files")
     else:
         for pkey in _path_keys(m.path):
             if match := _music_dir_matches().get(pkey):
@@ -183,7 +183,7 @@ album: '{daemon_data.get('album')}' -> '{album}'
                         )
 
     # we could've still tried to improve using the heuristics above
-    # even if the data wasnt broken
+    # even if the data wasn't broken
     #
     # if we couldn't, but this had decent data to begin with, dont prompt me
     # (else we'd be prompting all the thousands of mpv history entries)

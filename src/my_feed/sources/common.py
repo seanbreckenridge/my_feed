@@ -19,5 +19,5 @@ def click() -> Any:
     import click as click_module
 
     if "MY_FEED_BG" in os.environ:
-        raise FeedBackgroundError("Running in the background, cant prompt")
+        raise FeedBackgroundError("Running in the background, can't prompt")
     return click_module

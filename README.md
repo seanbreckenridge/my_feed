@@ -65,7 +65,7 @@ location /feed/ {
 }
 
 location /feed/_next/ {
-  # required since the above proxy pass doesnt end with '/'
+  # required since the above proxy pass doesn't end with '/'
   proxy_pass http://127.0.0.1:4500/feed/_next/;
 }
 
@@ -144,7 +144,7 @@ title_regex:.*up_2009_.*
 image_url_regex:.*up_2009_.*
 ```
 
-`my_feed` has a couple options that have devleoped over time, to let me ignore specific IDs (if I know they're already in the database), ignore sources which take a while to process (only do those once a week or so):
+`my_feed` has a couple options that have developed over time, to let me ignore specific IDs (if I know they're already in the database), ignore sources which take a while to process (only do those once a week or so):
 
 ```
 Usage: my_feed index [OPTIONS] [OUTPUT]
@@ -174,7 +174,7 @@ So all of these follow some pattern like (e.g. for `chess`)
 
 - get the `end_time` of the last couple items from the `my_feed` database (using the same `JSON` endpoints the frontend uses)
 - get the first page of my chess games from the `chess.com` API using [chess_export](https://github.com/seanbreckenridge/chess_export)
-- if theres new data (the last `end_time` is not in the first page of the API), then:
+- if there's new data (the last `end_time` is not in the first page of the API), then:
   - remove the `evry tag` for the [job that updates my chess games](https://github.com/seanbreckenridge/HPI-personal/blob/master/jobs/linux/backup_chess.job)
   - print 'chess'
 - If anything was printed by the script:

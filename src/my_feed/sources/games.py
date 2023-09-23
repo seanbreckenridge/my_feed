@@ -84,7 +84,7 @@ def fetch_giantbomb_data(giantbomb_id: int) -> Optional[Summary]:
 
 
 def _grouvee_img(res: dict[str, Any]) -> Optional[str]:
-    """traverse API resp and grab the thumbnail/medium iamge"""
+    """traverse API resp and grab the thumbnail/medium image"""
     if img := res.get("image"):
         assert isinstance(img, dict)
         for key in ("medium_url", "thumb_url"):

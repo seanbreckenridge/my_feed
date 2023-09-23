@@ -54,11 +54,11 @@ class TMDBCache(URLCache):
         """
         uurl = self.preprocess_url(url)
         if not _matches_trakt(uurl):
-            raise ValueError(f"{url} doesnt match a tmdb URL")
+            raise ValueError(f"{url} doesn't match a tmdb URL")
         logger.info(f"Requesting {uurl}")
         r = requests.get(uurl, params={"api_key": os.environ["TMDB_API_KEY"]})
         # 404 means data couldn't be found -- could periodically invalidate anything
-        # which has errors as cached information and retry incase new data has been
+        # which has errors as cached information and retry in case new data has been
         # pushed to TMDB
         if r.status_code == 404:
             logger.info(f"Failed to cache {uurl}, writing error to cache")

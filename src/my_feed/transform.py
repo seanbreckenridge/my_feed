@@ -11,7 +11,7 @@ def _fix_artist_name(item: FeedItem) -> Optional[FeedItem]:
     if item.creator = "something I want to ignore":
         return None  # drop item
 
-    # e.g. fix a misspelled artist name or one thats slightly
+    # e.g. fix a misspelled artist name or one that's slightly
     # different from the one in the musicbrainz database
     if item.creator = "...":
         data = dataclasses.asdict(item)

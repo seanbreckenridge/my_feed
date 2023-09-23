@@ -37,7 +37,7 @@ TMPDIR="$(mktemp -d)"
 # https://github.com/seanbreckenridge/core/blob/main/shellscripts/epoch
 JSON="${TMPDIR}/$(epoch).json" || exit $?
 
-# warm tz cache incase its expired, use flock incase something else is already running doctor
+# warm tz cache in case its expired, use flock in case something else is already running doctor
 flock ~/.local/tz-lock hpi doctor -S my.time.tz.via_location
 
 # run an index
@@ -53,7 +53,7 @@ if [[ -z "$FEED_REINDEX" ]]; then
 	# and pass it to the indexer, so it can skip uploading those
 	curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/data/ids' >"${TMPDIR}/ids.json" || exit $?
 	INDEX_ARGS+=("-E" "${TMPDIR}/ids.json")
-	# stuff to ignore here which takes a long time and/or doesnt commonly change
+	# stuff to ignore here which takes a long time and/or doesn't commonly change
 	# can be pushed just when doing a re-index
 	export MY_FEED_EXCLUDE_SOURCES='mal.deleted,games.grouvee,games.game_center,facebook_spotify_listens,games.osrs'
 else
