@@ -64,7 +64,7 @@ def get_feed(
         assert isinstance(item, dict)
         mid = item.pop("id")
         dt = datetime.fromtimestamp(item.pop("when"), tz=timezone.utc)
-        yield FeedItem(**item, id=id, when=dt)
+        yield FeedItem(**item, id=mid, when=dt)
 
 
 def display(item: FeedItem, output: Literal["print", "json", "markdown"]) -> None:
