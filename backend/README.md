@@ -2,14 +2,16 @@ To build, this requires `go` (I set minimum version to `v1.18`, but you can chan
 
 To build `sqlite3-go` requires C, so you need `gcc` on your `$PATH`
 
-```
-./build
+```bash
+./build  # this takes a while to build
 ```
 
-This will create a `./go_server/main` executable, which has the `backend` folder embedded in it for configuration. Hence, additional flags to configure should not be needed, but you can always customize if needed:
+This will create a `./backend/main` executable, which has the `backend` folder path embedded in it for configuration. Hence, additional flags to configure should not be needed, but you can always customize if needed:
 
 ```
 Usage of ./main:
+  -data-dir string
+    	Data directory for JSON files (default "/home/sean/Repos/my_feed/backend/data")
   -db-path string
     	Path to sqlite database file (default "/home/sean/Repos/my_feed/backend/feeddata.sqlite")
   -db-uri string
@@ -23,7 +25,7 @@ Usage of ./main:
   -port int
     	Port to listen on (default 5100)
   -root-dir string
-    	Root dir for backend (where Pipfile lives) (default "/home/sean/Repos/my_feed/backend")
+    	Root dir for backend (same dir as 'build' script) (default "/home/sean/Repos/my_feed/backend")
 ```
 
 You can check the [`index`](./index) script for how I use this, but generally:

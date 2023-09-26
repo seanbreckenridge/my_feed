@@ -99,6 +99,7 @@ if TYPE_CHECKING:
 
 
 def sources() -> Iterator[Callable[[], Iterator["FeedItem"]]]:
+    # yields functions, when which called yield FeedItem
     from my_feed.sources import games
 
     yield games.steam

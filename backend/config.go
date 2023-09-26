@@ -60,7 +60,7 @@ func ParseConfig() *Config {
 	var logrequests bool
 	var datadir string
 
-	flag.StringVar(&root, "root-dir", RootDir, "Root dir for backend (where Pipfile lives)")
+	flag.StringVar(&root, "root-dir", RootDir, "Root dir for backend (same dir as 'build' script)")
 	flag.StringVar(&datadir, "data-dir", path.Join(RootDir, "data"), "Data directory for JSON files")
 	flag.StringVar(&dbpath, "db-path", path.Join(RootDir, dbName), "Path to sqlite database file")
 	flag.StringVar(&dburi, "db-uri", "", "Database URI (overrides db-path)")

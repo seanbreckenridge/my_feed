@@ -323,7 +323,7 @@ func loadFeedItemsFromFile(db *sql.DB, filename string, modelSet *ModelSet) (int
 		// parse the release date into a time.Time (currently they are like 2023-01-01)
 		var releaseDate *time.Time
 		if item.ReleaseDate != nil {
-			rd, err := time.Parse("2006-01-02", *item.ReleaseDate)
+			rd, err := time.Parse(time.DateOnly, *item.ReleaseDate)
 			if err != nil {
 				return 0, err
 			}
