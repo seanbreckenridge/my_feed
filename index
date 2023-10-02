@@ -34,7 +34,7 @@ wait-for-internet -q --timeout 30 || exit 0
 
 # temporary dir for new data
 TMPDIR="$(mktemp -d)"
-# https://github.com/seanbreckenridge/core/blob/main/shellscripts/epoch
+# https://github.com/seanbreckenridge/seanb-utils/blob/main/shellscripts/epoch
 JSON="${TMPDIR}/$(epoch).json" || exit $?
 
 # warm tz cache in case its expired, use flock in case something else is already running doctor
