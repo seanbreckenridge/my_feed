@@ -4,8 +4,10 @@ Live at <https://sean.fish/feed/>
 
 <img src="https://github.com/seanbreckenridge/my_feed/blob/master/.github/my_feed.png" width=500/>
 
-- `python`: to get my data using [HPI](https://github.com/seanbreckenridge/HPI), cleanup/enrich it with some local data/cached API requests. [`index`](./index) syncs a JSON file up to the server which `backend` can combine into the database
-- `golang`: basic API endpoints to let frontend paginate through the data, authenticated endpoints for updating the database
+This uses:
+
+- `python`: to get my data using [HPI](https://github.com/seanbreckenridge/HPI), and to cleanup/enrich it with some local data/cached API requests. `my_feed index` is called in the [`index`](./index) script, which syncs a JSON file up to the server which `backend` can combine into the sqlite database
+- `golang`: basic REST API to let frontend paginate through the data, authenticated endpoints for updating the sqlite database
 - `typescript`: public-facing [frontend](https://sean.fish/feed/); requests to the backend, lets user filter/order/search the data
 
 ### Data Sources:
