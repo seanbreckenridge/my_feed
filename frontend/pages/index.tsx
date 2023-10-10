@@ -248,6 +248,7 @@ const Page: NextPage<IndexProps> = ({ prefs }: IndexProps) => {
     setSelectedOrderLabel(defaultSelectedOrder)
     setSelectedTypeLabels([])
     setSize(0)
+    setSort("desc")
   }
 
   const swapSort = () => {
