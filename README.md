@@ -28,7 +28,7 @@ This uses:
 
 If not mentioned its likely a module in [HPI](https://github.com/seanbreckenridge/HPI)
 
-I periodically index all my data [in the background](https://sean.fish/d/my_feed_index.job?dark):
+I periodically index all my data [in the background](https://sean.fish/d/my_feed_index_bg.job?redirect):
 
 ```
 Extracting my_feed.sources.listens.history...
