@@ -35,6 +35,7 @@ BASE = "http://localhost:5100/data/"
 Json = Any
 
 
+@cache
 def request_data(params: str, limit: int = 500) -> Json:
     if "&" not in params and "=" not in params:
         params = f"ftype={params}"
