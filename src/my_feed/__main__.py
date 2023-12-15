@@ -183,12 +183,12 @@ def index(
     # its still trying to write, but we exit so it fails to write to the closed db
     #
     # for posterity: https://gist.github.com/seanbreckenridge/58f0b9f9dbcfeb970270e7fba99604d7
-    try:
-        from my.time.tz.via_location import loc_tz_getter
-
-        list(loc_tz_getter())  # type: ignore
-    except Exception as e:
-        logger.exception(e)
+    # try:
+    #     from my.time.tz.via_location import loc_tz_getter
+    #
+    #     list(loc_tz_getter())  # type: ignore
+    # except Exception as e:
+    #     logger.exception(e)
 
 
 if __name__ == "__main__":
