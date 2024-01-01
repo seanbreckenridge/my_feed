@@ -73,7 +73,9 @@ const CardFooter: React.FC<CardFooterProps> = ({ dt, score, releaseDate }: CardF
             {prefs.showReleaseDate && releaseDate && <div>Release Date: {releaseDate}</div>}
             <div className={styles.cardFooter}>
               <div>{ds}</div>
-              {score && <div className={styles.footerScore}>{`${sc}/10`}</div>}
+              {score && prefs.hideScore === false && (
+                <div className={styles.footerScore}>{`${sc}/10`}</div>
+              )}
             </div>
           </>
         )

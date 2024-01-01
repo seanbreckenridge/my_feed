@@ -4,6 +4,7 @@ import {
   faCopy,
   faHeart,
   faHistory,
+  faListOl,
   faSyncAlt,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons"
@@ -362,6 +363,21 @@ const Page: NextPage<IndexProps> = ({ prefs }: IndexProps) => {
               onClick={swapSort}
             >
               <FontAwesomeIcon icon={faSyncAlt} />
+            </div>
+            <div
+              role="button"
+              className={styles.filterIcon}
+              title="Toggle Score"
+              onClick={() => {
+                prefs.setPrefs((oldPrefs: Prefs): Prefs => {
+                  return {
+                    ...oldPrefs,
+                    hideScore: !oldPrefs.hideScore,
+                  }
+                })
+              }}
+            >
+              <FontAwesomeIcon icon={faListOl} />
             </div>
             <div
               role="button"

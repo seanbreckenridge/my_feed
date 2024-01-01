@@ -3,12 +3,14 @@ import { createContext, Dispatch, SetStateAction, useState } from "react"
 export type Prefs = {
   dateAbsolute: boolean
   showReleaseDate: boolean
+  hideScore: boolean
   setPrefs: Dispatch<SetStateAction<Prefs>>
 }
 
 const defaultPrefs: Prefs = {
   dateAbsolute: false,
   showReleaseDate: false,
+  hideScore: false,
   setPrefs: () => {
     throw new Error("no setPrefs set")
   },
