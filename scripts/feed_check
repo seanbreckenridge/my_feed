@@ -195,6 +195,7 @@ def check_mal(**kwargs: str) -> str | None:
     latest = more_itertools.last(local_history)
 
     if latest.id not in remote_ids:
+        logger.info(f"Latest local anime {latest} not in remote history")
         return "mal.history"
 
 
