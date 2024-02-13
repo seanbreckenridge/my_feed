@@ -216,6 +216,7 @@ def _has_metadata(m: Media) -> Optional[Metadata]:
 
 
 IGNORE_EXTS = {
+    ".aac",
     ".mp4",
     ".mkv",
     ".m4v",

@@ -55,9 +55,9 @@ class FeedItem:
                 "when": int(self.when.timestamp()),
                 "creator": self.creator,
                 "data": self.data if self.data else {},
-                "release_date": str(self.release_date)
-                if self.release_date is not None
-                else None,
+                "release_date": (
+                    str(self.release_date) if self.release_date is not None else None
+                ),
                 "part": self.part,
                 "subpart": self.subpart,
                 "collection": self.collection,
