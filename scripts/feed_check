@@ -241,6 +241,8 @@ def main(remote_base: str, kwargs: Any) -> None:
     expired = [f for f in check(**kw) if f is not None]
     if expired:
         click.echo(",".join(expired))
+    else:
+        logger.info("No feed items are out of date")
 
 
 if __name__ == "__main__":
