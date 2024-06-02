@@ -89,7 +89,7 @@ func initDb(db *sql.DB) {
 	log.Println("Initializing database")
 
 	// otherwise, create table
-	cr := `CREATE TABLE feedmodel (
+	_, err := db.Exec(`CREATE TABLE feedmodel (
 	id VARCHAR NOT NULL,
 	ftype VARCHAR NOT NULL, 
 	title VARCHAR NOT NULL, 
@@ -110,9 +110,7 @@ func initDb(db *sql.DB) {
 	CREATE INDEX ix_feedmodel_when ON feedmodel ("when");
 	CREATE INDEX ix_feedmodel_ftype ON feedmodel (ftype);
 	CREATE INDEX ix_feedmodel_score ON feedmodel (score);
-	`
-
-	_, err := db.Exec(cr)
+	`)
 	if err != nil {
 		log.Fatal(err)
 	}
